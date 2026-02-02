@@ -91,7 +91,7 @@ function splitSections(text: string): { title: string; body: string }[] {
     // Trim at any line that looks like "CONCERNED CONDITION SUMMARY" (stops nested duplicate)
     const concernedStart = currentBody.search(/\n\s*(•\s*)?(---\s*)?CONCERNED CONDITION SUMMARY\s*:?\s*(\n|$)/i)
     if (concernedStart >= 0) currentBody = currentBody.slice(0, concernedStart).trim()
-    sections.push({ title: 'Current condition summary', body: stripMarkdown(currentBody) })
+    sections.push({ title: 'Current medical condition summary', body: stripMarkdown(currentBody) })
   }
 
   // Concerned: use last occurrence so we get the real section, not a line inside Current
@@ -503,9 +503,9 @@ export default function App() {
 
           <div className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
-            {/* Current conditions */}
+            {/* Current medical condition */}
             <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Current conditions</label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Current medical condition</label>
             <div className="relative">
               <input
                 type="text"
@@ -564,9 +564,9 @@ export default function App() {
             )}
             </div>
 
-            {/* Conditions to monitor */}
+            {/* Medical conditions to monitor */}
             <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Conditions to monitor</label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Medical conditions to monitor</label>
             <div className="relative">
               <input
                 type="text"

@@ -59,7 +59,7 @@ def build_prompt(current_conditions: str, concerned_conditions: str, has_current
     return f"""You are a nutrition expert. Analyze this food image. Use plain text only. No markdown, asterisks, or bold.
 
 USER'S MEDICAL PROFILE:
-- Current conditions: {current_conditions}
+- Current medical condition: {current_conditions}
 - Concerned conditions: {concerned_conditions}
 
 Respond with exactly these parts. Use the exact headers below.
