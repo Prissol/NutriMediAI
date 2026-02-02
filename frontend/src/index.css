@@ -1,0 +1,232 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light silver – matches frosted glass */
+  --bg-page: linear-gradient(165deg, #c8cad2 0%, #d2d4dc 25%, #dcdee4 50%, #d6d8e0 100%);
+  --bg-glass: rgba(255, 255, 255, 0.5);
+  --bg-glass-strong: rgba(255, 255, 255, 0.65);
+  --border-glass: rgba(255, 255, 255, 0.8);
+  --border-glass-hover: rgba(148, 163, 184, 0.4);
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --accent: #7c3aed;
+  --accent-glow: rgba(124, 58, 237, 0.25);
+  /* Metric cards – soft tint on light silver */
+  --glass-orange: rgba(251, 146, 60, 0.35);
+  --glass-pink: rgba(236, 72, 153, 0.35);
+  --glass-yellow: rgba(250, 204, 21, 0.45);
+  --glass-blue: rgba(96, 165, 250, 0.35);
+  --glass-green: rgba(34, 197, 94, 0.35);
+  --glass-teal: rgba(45, 212, 191, 0.35);
+  --glass-purple: rgba(192, 132, 252, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg-page);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Liquid Glass card – frosted on light silver */
+.card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 1.25rem;
+  border: 1px solid var(--border-glass);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* Metric cards – soft tint */
+.metric-calories { background: var(--glass-orange); border: 1px solid rgba(251, 146, 60, 0.5); }
+.metric-protein { background: var(--glass-pink); border: 1px solid rgba(236, 72, 153, 0.5); }
+.metric-carbs { background: var(--glass-yellow); border: 1px solid rgba(250, 204, 21, 0.55); }
+.metric-fat { background: var(--glass-blue); border: 1px solid rgba(96, 165, 250, 0.5); }
+.metric-fiber { background: var(--glass-green); border: 1px solid rgba(34, 197, 94, 0.5); }
+.metric-sugar { background: var(--glass-teal); border: 1px solid rgba(45, 212, 191, 0.5); }
+.metric-sodium { background: var(--glass-purple); border: 1px solid rgba(192, 132, 252, 0.5); }
+
+/* Glass form controls */
+.glass-input {
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: var(--text-primary);
+}
+.glass-input::placeholder {
+  color: var(--text-muted);
+}
+.glass-input:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* Scrollbar – light theme */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(0,0,0,0.04); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+
+/* Animations */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes progress-fill {
+  from { width: 0; }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.45s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.35s ease-out forwards;
+}
+
+.animate-progress {
+  animation: progress-fill 0.8s ease-out forwards;
+}
+
+/* Infographic card hover */
+.infographic-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.infographic-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Petal-style infographic (hub + colored segments) */
+.petal-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.petal-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+}
+.infographic-hub {
+  transition: box-shadow 0.2s ease;
+}
+.infographic-hub:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Metric card hover */
+.metric-card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.metric-card-hover:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Number badge subtle shine */
+.infographic-badge {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.infographic-card:hover .infographic-badge {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Medical / food panel – multiple animation types */
+@keyframes float-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(3deg); }
+}
+
+@keyframes float-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(6px, -8px) scale(1.05); }
+  50% { transform: translate(-4px, -12px) scale(0.98); }
+  75% { transform: translate(8px, -5px) scale(1.02); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.9; filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.4)); }
+  50% { opacity: 1; filter: drop-shadow(0 0 14px rgba(34, 197, 94, 0.6)); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes scale-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.med-panel-float { animation: float-bob 3.5s ease-in-out infinite; }
+.med-panel-drift { animation: float-drift 4.5s ease-in-out infinite; }
+.med-panel-pulse { animation: pulse-glow 2.5s ease-in-out infinite; }
+.med-panel-spin { animation: spin-slow 8s linear infinite; }
+.med-panel-breathe { animation: scale-breathe 2s ease-in-out infinite; }
+.med-panel-wiggle { animation: wiggle 1.5s ease-in-out infinite; }
+.med-panel-delay-0 { animation-delay: 0s; }
+.med-panel-delay-1 { animation-delay: 0.4s; }
+.med-panel-delay-2 { animation-delay: 0.8s; }
+.med-panel-delay-3 { animation-delay: 1.2s; }
+.med-panel-delay-4 { animation-delay: 1.6s; }
+.med-panel-delay-5 { animation-delay: 2s; }
+.med-panel-delay-6 { animation-delay: 2.4s; }
+.med-panel-delay-7 { animation-delay: 2.8s; }
+.med-panel-delay-8 { animation-delay: 3.2s; }
+
+.med-panel-bg-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 12s ease infinite;
+}
