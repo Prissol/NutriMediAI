@@ -20,7 +20,54 @@ function formatConditionLabel(c: string): string {
   return c === 'None / No current conditions' ? 'None' : c.replace(' (High BP)', '').replace(' / Weight management', '').replace('GERD / Acid reflux', 'GERD')
 }
 
-const API_BASE = import.meta.env.DEV ? '/api' : 'http://localhost:8000'
+// Use env first; in production fallback to deployed backend so Vercel build always hits Railway
+const API_BASE =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? '/api' : 'https://nutrimediai-production.up.railway.app')
+
+// Icons for metric cards – real-looking: flame, egg, bread, oil drop, leaf, sugar cube, salt shaker
+const METRIC_ICONS: Record<string, React.ReactNode> = {
+  calories: (
+    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+    </svg>
+  ),
+  protein: (
+    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+      <ellipse cx="12" cy="14" rx="6" ry="8" strokeWidth={1.8} />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 6v0a4 4 0 014 4" />
+    </svg>
+  ),
+  carbs: (
+    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 10h16v8a2 2 0 01-2 2H6a2 2 0 01-2-2v-8z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 10V8a2 2 0 012-2h4a2 2 0 012 2v2" />
+    </svg>
+  ),
+  fat: (
+    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 4c-2 4-4 7-4 10a4 4 0 108 0c0-3-2-6-4-10z" />
+    </svg>
+  ),
+  fiber: (
+    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 3c-2 2-4 6-4 9s2 7 4 9 4-4 4-9-2-7-4-9z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 3c2 2 4 6 4 9s-2 7-4 9-4-4-4-9 2-7 4-9z" />
+    </svg>
+  ),
+  sugar: (
+    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M5 8h4v4H5V8zm10 0h4v4h-4V8zM5 14h4v4H5v-4zm10 0h4v4h-4v-4z" />
+    </svg>
+  ),
+  sodium: (
+    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 20h6v-4H9v4zM10 16V8l2-3 2 3v8" />
+      <circle cx="11" cy="6" r="0.8" fill="currentColor" />
+      <circle cx="13" cy="6" r="0.8" fill="currentColor" />
+    </svg>
+  ),
+}
 
 // Strip markdown asterisks and bold so text displays clean
 function stripMarkdown(text: string): string {
@@ -37,6 +84,16 @@ function parseDishName(text: string): string | null {
   const match = cleaned.match(/DISH\s*:?\s*\n?\s*([^\n]+)/i)
   const name = match ? match[1].trim() : null
   return name && name.length > 0 && name.length < 120 ? name : null
+}
+
+// Parse overall food summary (1–2 lines) from analysis
+function parseFoodSummary(text: string): string | null {
+  const cleaned = stripMarkdown(text)
+  const match = cleaned.match(/FOOD SUMMARY\s*:?\s*\n?\s*([\s\S]*?)(?=\s*\n\s*---|\s*\n\s*KEY METRICS|$)/i)
+  if (!match) return null
+  const lines = match[1].trim().split(/\n+/).map((l) => l.trim()).filter(Boolean).slice(0, 2)
+  const summary = lines.join(' ').trim()
+  return summary.length > 0 && summary.length < 400 ? summary : null
 }
 
 // Parse only health score for the progress bar
@@ -107,22 +164,28 @@ function splitSections(text: string): { title: string; body: string }[] {
   return sections
 }
 
-// Split section body into points; filter out section headers and extract health score
-function bodyToPoints(body: string): { points: string[]; healthScoreLine: string | null } {
+// Split section body into summary (first 1–2 lines), points, and health score
+function bodyToPoints(body: string): { sectionSummary: string | null; points: string[]; healthScoreLine: string | null } {
   const trimmed = body.trim()
-  if (!trimmed) return { points: [], healthScoreLine: null }
+  if (!trimmed) return { sectionSummary: null, points: [], healthScoreLine: null }
   const byNewline = trimmed.split(/\n+/).map((s) => s.trim()).filter(Boolean)
   let lines = byNewline.length > 1 ? byNewline : trimmed.split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter(Boolean)
   if (lines.length < 1) lines = [trimmed]
 
   const healthScoreMatch = lines.find((l) => /Health score\s*:\s*\d+\s*\/\s*10/i.test(l))
-  const points = lines.filter(
+  const contentLines = lines.filter(
     (line) =>
       !SECTION_HEADER_REG.test(line) &&
       !/^\s*---\s*$/.test(line) &&
       line !== healthScoreMatch
   )
-  return { points, healthScoreLine: healthScoreMatch ?? null }
+  // First line as section summary (overall takeaway); rest as points
+  const sectionSummary =
+    contentLines.length > 0 && contentLines[0].length > 10 && contentLines[0].length < 300
+      ? contentLines[0].trim()
+      : null
+  const points = sectionSummary ? contentLines.slice(1) : contentLines
+  return { sectionSummary: sectionSummary || null, points, healthScoreLine: healthScoreMatch ?? null }
 }
 
 /* Step-style infographic colors (teal, orange, blue, brown, pink) */
@@ -416,7 +479,19 @@ export default function App() {
       doc.setTextColor(15, 23, 42)
       doc.text(sec.title, margin + 4, y + 6)
       y += 12
-      const { points } = bodyToPoints(sec.body)
+      const { sectionSummary, points } = bodyToPoints(sec.body)
+      if (sectionSummary) {
+        const sumLines = doc.splitTextToSize(sectionSummary, maxW - 4)
+        for (const line of sumLines) {
+          if (y > 268) y = pushPage()
+          doc.setFontSize(9)
+          doc.setFont('helvetica', 'normal')
+          doc.setTextColor(71, 85, 105)
+          doc.text(line, margin, y)
+          y += 5
+        }
+        y += 3
+      }
       if (points.length > 0) {
         for (let i = 0; i < points.length; i++) {
           if (y > 268) y = pushPage()
@@ -457,6 +532,7 @@ export default function App() {
   const keyMetrics = analysis ? parseKeyMetrics(analysis) : null
   const sections = analysis ? splitSections(analysis) : []
   const dishName = analysis ? parseDishName(analysis) : null
+  const foodSummary = analysis ? parseFoodSummary(analysis) : null
   const metricCards = keyMetrics
     ? [
         { key: 'calories', label: 'Calories', value: keyMetrics.calories, className: 'metric-calories' },
@@ -629,7 +705,7 @@ export default function App() {
               <label className="upload-zone flex flex-col items-center justify-center w-full min-h-[280px] rounded-lg border border-slate-200 bg-slate-50/50 cursor-pointer overflow-hidden transition-colors hover:bg-slate-50 hover:border-slate-300 focus-within:ring-2 focus-within:ring-slate-300 focus-within:ring-offset-1">
                 <input type="file" accept="image/*" className="hidden" onChange={onFileChange} />
                 {preview ? (
-                  <img src={preview} alt="Upload" className="w-full h-full min-h-[280px] max-h-[400px] object-cover" />
+                  <img src={preview} alt="Upload" className="w-full h-full min-h-[280px] max-h-[400px] object-contain bg-slate-100" />
                 ) : (
                   <span className="flex flex-col items-center gap-3 text-center px-4 py-8">
                     <span className="flex items-center justify-center w-11 h-11 rounded-lg bg-slate-200/80 text-slate-500" aria-hidden>
@@ -688,7 +764,7 @@ export default function App() {
                 <img
                   src={preview}
                   alt={dishName || 'Uploaded dish'}
-                  className="w-full max-h-[200px] object-cover object-center rounded-xl mb-4 shadow-md"
+                  className="w-full max-h-[200px] object-contain bg-slate-100 rounded-xl mb-4 shadow-md"
                 />
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -705,10 +781,16 @@ export default function App() {
               </div>
 
               {/* Right: Summary + metrics + sections – scrollable when many points */}
-              <div className="p-5 md:p-6 flex flex-col max-h-[70vh] min-h-0">
+              <div className="p-5 md:p-6 flex flex-col max-h-[85vh] min-h-0">
                 <h3 className="text-lg font-semibold text-slate-800 mb-4 flex-shrink-0">Nutrition summary</h3>
 
                 <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-6">
+                  {/* Overall food summary (1–2 lines) */}
+                  {foodSummary && (
+                    <p className="text-sm text-slate-600 leading-relaxed mb-4 pb-4 border-b border-slate-200">
+                      {foodSummary}
+                    </p>
+                  )}
                   {/* Colorful nutrition overview cards – animated */}
                   {metricCards.length > 0 && (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
@@ -718,10 +800,15 @@ export default function App() {
                           className={`rounded-xl border p-3 metric-card-hover animate-scale-in ${m.className}`}
                           style={{ animationDelay: `${idx * 50}ms`, opacity: 0 }}
                         >
-                          <div className="text-xs font-medium text-slate-600 uppercase tracking-wide">
-                            {m.label}
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-slate-600/90" aria-hidden>
+                              {METRIC_ICONS[m.key]}
+                            </span>
+                            <span className="text-xs font-medium text-slate-600 uppercase tracking-wide">
+                              {m.label}
+                            </span>
                           </div>
-                          <div className="text-sm font-semibold text-slate-800 mt-0.5">
+                          <div className="text-sm font-semibold text-slate-800">
                             {m.value}
                           </div>
                         </div>
@@ -756,7 +843,7 @@ export default function App() {
 
                   {/* Petal-style infographic (hub + petals, scrollable) */}
                   {sections.map((sec, secIdx) => {
-                    const { points, healthScoreLine } = bodyToPoints(sec.body)
+                    const { sectionSummary, points, healthScoreLine } = bodyToPoints(sec.body)
                     const stepColors = STEP_COLORS
                     const sectionScore = healthScoreLine ? parseScore(healthScoreLine) : null
                     const isCurrent = sec.title.toLowerCase().includes('current')
@@ -799,6 +886,12 @@ export default function App() {
                             {points.length} point{points.length !== 1 ? 's' : ''}
                           </p>
                         </div>
+                        {/* Section summary (1–2 lines overall takeaway) */}
+                        {sectionSummary && (
+                          <p className="text-sm text-slate-600 leading-relaxed mb-4 pl-1">
+                            {sectionSummary}
+                          </p>
+                        )}
                         {points.length > 0 ? (
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {points.map((point, i) => {

@@ -26,9 +26,14 @@ except ImportError:
 
 app = FastAPI(title="NutriMedAI API", version="1.0")
 
+_cors_origins = [
+    "http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173",
+]
+if os.environ.get("CORS_ORIGINS"):
+    _cors_origins.extend(o.strip() for o in os.environ["CORS_ORIGINS"].split(",") if o.strip())
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"],
+    allow_origins=_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -69,6 +74,10 @@ DISH:
 First line only: name the food/dish in the image in a short, clear way (e.g. "Grilled chicken salad", "Margherita pizza", "Bowl of oatmeal with berries"). One line, no period.
 
 ---
+FOOD SUMMARY:
+One to two sentences describing this food overall: main ingredients, portion sense, and a brief takeaway (e.g. "A substantial wrap with creamy chicken salad filling, moderate protein and carbs. Best enjoyed in moderation for sodium."). Max two lines.
+
+---
 KEY METRICS:
 Give one short line with estimated values, in this format (use | as separator):
 Calories: X-X kcal | Protein: Xg | Carbs: Xg | Fat: Xg | Fiber: Xg | Sugar: Xg | Sodium: Xmg
@@ -77,12 +86,12 @@ Example: Calories: 400-500 kcal | Protein: 25g | Carbs: 45g | Fat: 15g | Fiber: 
 ---
 CURRENT CONDITION SUMMARY:
 {current_ins}
-Give 2–4 bullet points. One point per line. No asterisks, no bold.
+First line: one sentence overall takeaway for current conditions (e.g. "This food is generally okay for hypertension if portion is controlled."). Then 2–4 bullet points. One point per line. No asterisks, no bold.
 
 ---
 CONCERNED CONDITION SUMMARY:
 {concerned_ins}
-Give 2–4 bullet points. One point per line. No asterisks, no numbers, no bold.
+First line: one sentence overall takeaway for conditions to monitor (e.g. "Watch sodium and saturated fat for heart health."). Then 2–4 bullet points. One point per line. No asterisks, no numbers, no bold.
 
 ---
 Optional: one line "Health score: X/10" somewhere if you want."""
