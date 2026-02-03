@@ -41,3 +41,6 @@ uploads/
 .env
 .env.local
 config_local.py
+
+# SQLite DB (user data – local/dev only)
+backend/data/

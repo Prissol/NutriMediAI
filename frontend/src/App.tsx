@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { jsPDF } from 'jspdf'
+import { useAuth } from './AuthContext'
 
 const CONDITION_OPTIONS = [
   'Diabetes',
@@ -96,6 +97,15 @@ function parseFoodSummary(text: string): string | null {
   return summary.length > 0 && summary.length < 400 ? summary : null
 }
 
+// Parse ALTERNATIVES section (1–2 similar-but-safer suggestions)
+function parseAlternatives(text: string): string[] {
+  const cleaned = stripMarkdown(text)
+  const match = cleaned.match(/ALTERNATIVES\s*:?\s*\n?\s*([\s\S]*?)(?=\s*\n\s*---|Health score|$)/i)
+  if (!match) return []
+  const lines = match[1].trim().split(/\n+/).map((l) => l.trim()).filter(Boolean).slice(0, 3)
+  return lines.filter((l) => l.length > 5 && l.length < 200)
+}
+
 // Parse only health score for the progress bar
 function parseScore(text: string): number {
   const scoreMatch = text.match(/(?:Health score|score)[:\s]*(\d+)(?:\s*\/\s*10)?/i) || text.match(/(\d+)\s*\/\s*10(?:\s|,|\.|$)/)
@@ -164,8 +174,30 @@ function splitSections(text: string): { title: string; body: string }[] {
   return sections
 }
 
-// Split section body into summary (first 1–2 lines), points, and health score
-function bodyToPoints(body: string): { sectionSummary: string | null; points: string[]; healthScoreLine: string | null } {
+const POINT_TYPE_REG = /^\s*\[(Reasoning|Action|Benefit|Ask your doctor|Important)\]\s*/i
+type PointType = 'reasoning' | 'action' | 'benefit' | 'ask_doctor' | 'important' | null
+
+function parsePointType(line: string): { type: PointType; text: string } {
+  const match = line.match(POINT_TYPE_REG)
+  if (!match) return { type: null, text: line.trim() }
+  const raw = match[1].toLowerCase()
+  const type: PointType =
+    raw === 'reasoning' ? 'reasoning'
+    : raw === 'action' ? 'action'
+    : raw === 'benefit' ? 'benefit'
+    : raw.includes('ask') || raw.includes('doctor') ? 'ask_doctor'
+    : raw === 'important' ? 'important'
+    : null
+  const text = line.slice(match[0].length).trim()
+  return { type, text }
+}
+
+// Split section body into summary (TL;DR), points with types, and health score
+function bodyToPoints(body: string): {
+  sectionSummary: string | null
+  points: { type: PointType; text: string }[]
+  healthScoreLine: string | null
+} {
   const trimmed = body.trim()
   if (!trimmed) return { sectionSummary: null, points: [], healthScoreLine: null }
   const byNewline = trimmed.split(/\n+/).map((s) => s.trim()).filter(Boolean)
@@ -179,30 +211,199 @@ function bodyToPoints(body: string): { sectionSummary: string | null; points: st
       !/^\s*---\s*$/.test(line) &&
       line !== healthScoreMatch
   )
-  // First line as section summary (overall takeaway); rest as points
   const sectionSummary =
     contentLines.length > 0 && contentLines[0].length > 10 && contentLines[0].length < 300
       ? contentLines[0].trim()
       : null
-  const points = sectionSummary ? contentLines.slice(1) : contentLines
+  const pointLines = sectionSummary ? contentLines.slice(1) : contentLines
+  const points = pointLines.map((line) => parsePointType(line))
   return { sectionSummary: sectionSummary || null, points, healthScoreLine: healthScoreMatch ?? null }
 }
 
-/* Step-style infographic colors (teal, orange, blue, brown, pink) */
+// Point type → label, color, icon
+const POINT_TYPE_CONFIG: Record<NonNullable<PointType>, { label: string; bg: string; text: string; icon: React.ReactNode }> = {
+  reasoning: { label: 'Reasoning', bg: 'bg-amber-500', text: 'text-white', icon: <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg> },
+  action: { label: 'Action', bg: 'bg-blue-500', text: 'text-white', icon: <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> },
+  benefit: { label: 'Benefit', bg: 'bg-emerald-500', text: 'text-white', icon: <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
+  ask_doctor: { label: 'Ask your doctor', bg: 'bg-violet-500', text: 'text-white', icon: <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg> },
+  important: { label: 'Important', bg: 'bg-rose-500', text: 'text-white', icon: <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg> },
+}
+
 const STEP_COLORS = [
   { bg: 'bg-teal-500', text: 'text-white', step: '01' },
   { bg: 'bg-orange-500', text: 'text-white', step: '02' },
   { bg: 'bg-blue-500', text: 'text-white', step: '03' },
   { bg: 'bg-amber-600', text: 'text-white', step: '04' },
   { bg: 'bg-pink-500', text: 'text-white', step: '05' },
-  { bg: 'bg-teal-600', text: 'text-white', step: '06' },
-  { bg: 'bg-orange-600', text: 'text-white', step: '07' },
-  { bg: 'bg-blue-600', text: 'text-white', step: '08' },
-  { bg: 'bg-amber-700', text: 'text-white', step: '09' },
 ]
-/* No emojis – professional numbered steps only */
+
+const ANALYSES_KEY = 'nutrimedai_analyses'
+const ANALYSES_MAX = 50
+const PREVIEW_MAX_SIZE = 600
+const PREVIEW_JPEG_QUALITY = 0.78
+
+type AnalysisEntry = { id: string; date: string; dishName: string; analysis: string; preview?: string }
+
+function loadAnalysesFromStorage(): AnalysisEntry[] {
+  try {
+    const raw = localStorage.getItem(ANALYSES_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.slice(0, ANALYSES_MAX) : []
+  } catch {
+    return []
+  }
+}
+
+function saveAnalysesToStorage(list: AnalysisEntry[]): { ok: boolean; quota?: boolean } {
+  try {
+    localStorage.setItem(ANALYSES_KEY, JSON.stringify(list.slice(0, ANALYSES_MAX)))
+    return { ok: true }
+  } catch (e) {
+    const quota = e instanceof DOMException && (e.name === 'QuotaExceededError' || e.code === 22)
+    return { ok: false, quota: !!quota }
+  }
+}
+
+function compressImageAsDataUrl(file: File): Promise<string | undefined> {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      const w = img.naturalWidth
+      const h = img.naturalHeight
+      let dw = w
+      let dh = h
+      if (w > PREVIEW_MAX_SIZE || h > PREVIEW_MAX_SIZE) {
+        if (w >= h) {
+          dw = PREVIEW_MAX_SIZE
+          dh = Math.round((h * PREVIEW_MAX_SIZE) / w)
+        } else {
+          dh = PREVIEW_MAX_SIZE
+          dw = Math.round((w * PREVIEW_MAX_SIZE) / h)
+        }
+      }
+      const canvas = document.createElement('canvas')
+      canvas.width = dw
+      canvas.height = dh
+      const ctx = canvas.getContext('2d')
+      if (!ctx) {
+        resolve(undefined)
+        return
+      }
+      ctx.drawImage(img, 0, 0, dw, dh)
+      try {
+        const dataUrl = canvas.toDataURL('image/jpeg', PREVIEW_JPEG_QUALITY)
+        resolve(dataUrl)
+      } catch {
+        resolve(undefined)
+      }
+    }
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      resolve(undefined)
+    }
+    img.src = url
+  })
+}
+
+function LoginScreen({
+  onLogin,
+  onRegister,
+  error,
+  onClearError,
+}: {
+  onLogin: (email: string, password: string) => Promise<void>
+  onRegister: (email: string, password: string) => Promise<void>
+  error: string | null
+  onClearError: () => void
+}) {
+  const [tab, setTab] = useState<'login' | 'register'>('login')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    onClearError()
+    setSubmitting(true)
+    try {
+      if (tab === 'login') await onLogin(email, password)
+      else await onRegister(email, password)
+    } catch {
+      /* error set by context */
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+      <div className="w-full max-w-sm bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <img src="/logo.svg" alt="" className="h-10 w-10" />
+          <h1 className="text-xl font-semibold text-slate-800">NutriMedAI</h1>
+        </div>
+        <p className="text-sm text-slate-500 mb-4">Sign in to your dashboard. Your analyses are saved per account.</p>
+        <div className="flex rounded-lg bg-slate-100 p-1 mb-4">
+          <button
+            type="button"
+            onClick={() => { setTab('login'); onClearError(); setPassword('') }}
+            className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${tab === 'login' ? 'bg-white text-slate-800 shadow' : 'text-slate-600'}`}
+          >
+            Login
+          </button>
+          <button
+            type="button"
+            onClick={() => { setTab('register'); onClearError(); setPassword('') }}
+            className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${tab === 'register' ? 'bg-white text-slate-800 shadow' : 'text-slate-600'}`}
+          >
+            Register
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="auth-email" className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+            <input
+              id="auth-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-800"
+              placeholder="you@example.com"
+            />
+          </div>
+          <div>
+            <label htmlFor="auth-password" className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+            <input
+              id="auth-password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={tab === 'register' ? 6 : 1}
+              className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-800"
+              placeholder={tab === 'register' ? 'Min 6 characters' : ''}
+            />
+          </div>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full py-2.5 rounded-lg bg-teal-500 text-white font-medium hover:bg-teal-600 disabled:opacity-50 transition-colors"
+          >
+            {submitting ? 'Please wait...' : tab === 'login' ? 'Log in' : 'Create account'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
 
 export default function App() {
+  const { user, token, loading: authLoading, login, register, logout, error: authError, clearError: clearAuthError } = useAuth()
   const [currentConditions, setCurrentConditions] = useState<string[]>([])
   const [concernedConditions, setConcernedConditions] = useState<string[]>([])
   const [currentInput, setCurrentInput] = useState('')
@@ -215,6 +416,58 @@ export default function App() {
   const [analysis, setAnalysis] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showCurrentSummary, setShowCurrentSummary] = useState(true)
+  const [showConcernedSummary, setShowConcernedSummary] = useState(true)
+  const [expandedSections, setExpandedSections] = useState<Record<number, boolean>>({})
+  const [analysesList, setAnalysesList] = useState<AnalysisEntry[]>(() => (user ? [] : loadAnalysesFromStorage()))
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [activeEntryId, setActiveEntryId] = useState<string | null>(null)
+  const [sidebarSearch, setSidebarSearch] = useState('')
+  const [sortNewestFirst, setSortNewestFirst] = useState(true)
+  const [clearAllConfirm, setClearAllConfirm] = useState(false)
+  const [editingEntryId, setEditingEntryId] = useState<string | null>(null)
+  const [editingName, setEditingName] = useState('')
+  const [storageQuotaError, setStorageQuotaError] = useState<string | null>(null)
+  const [analysesLoading, setAnalysesLoading] = useState(false)
+
+  // When user identity changes (login, logout, or different account), clear current session so the new user doesn't see the previous user's image, analysis, or profile
+  useEffect(() => {
+    setFile(null)
+    setPreview(null)
+    setAnalysis(null)
+    setCurrentConditions([])
+    setConcernedConditions([])
+    setUserDescription('')
+    setActiveEntryId(null)
+    setError(null)
+    setStorageQuotaError(null)
+    setEditingEntryId(null)
+    setEditingName('')
+    setClearAllConfirm(false)
+  }, [user?.id])
+
+  // Fetch user's analyses when logged in
+  useEffect(() => {
+    if (!user || !token) {
+      if (!user) setAnalysesList(loadAnalysesFromStorage())
+      return
+    }
+    setAnalysesLoading(true)
+    fetch(`${API_BASE}/analyses`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => {
+        if (res.status === 401) return []
+        return res.json()
+      })
+      .then((data: Array<{ id: string; dishName: string; analysis: string; preview?: string; date: string }>) => {
+        setAnalysesList(
+          Array.isArray(data)
+            ? data.map((e) => ({ id: e.id, date: e.date, dishName: e.dishName, analysis: e.analysis, preview: e.preview }))
+            : []
+        )
+      })
+      .catch(() => setAnalysesList([]))
+      .finally(() => setAnalysesLoading(false))
+  }, [user, token])
 
   const onFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
@@ -298,13 +551,162 @@ export default function App() {
         throw new Error(data.detail || res.statusText || 'Analysis failed')
       }
       const data = await res.json()
-      setAnalysis(data.analysis)
+      const newAnalysis = data.analysis
+      const dishName = parseDishName(newAnalysis) || 'Food analysis'
+      const entryId = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+      setAnalysis(newAnalysis)
+      setActiveEntryId(entryId)
+
+      const addEntryWithPreview = (previewDataUrl: string | undefined) => {
+        if (user && token) {
+          fetch(`${API_BASE}/analyses`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ dish_name: dishName, analysis: newAnalysis, preview: previewDataUrl || null }),
+          })
+            .then((res) => (res.status === 401 ? null : res.json()))
+            .then((data: { id: string; dishName: string; analysis: string; preview?: string; date: string } | null) => {
+              if (data) {
+                setActiveEntryId(data.id)
+                setAnalysesList((prev) => [
+                  { id: data.id, date: data.date, dishName: data.dishName, analysis: data.analysis, preview: data.preview },
+                  ...prev.filter((e) => e.id !== data.id),
+                ].slice(0, ANALYSES_MAX))
+              }
+            })
+            .catch(() => {})
+          return
+        }
+        const entry: AnalysisEntry = {
+          id: entryId,
+          date: new Date().toISOString(),
+          dishName,
+          analysis: newAnalysis,
+          preview: previewDataUrl,
+        }
+        setAnalysesList((prev) => {
+          const next = [entry, ...prev.filter((e) => e.id !== entryId)].slice(0, ANALYSES_MAX)
+          const result = saveAnalysesToStorage(next)
+          if (!result.ok && result.quota) {
+            setStorageQuotaError('Storage full. Old analyses may be removed or images not saved.')
+            const withoutPreviews = next.map((e) => ({ ...e, preview: undefined as string | undefined }))
+            const retry = saveAnalysesToStorage(withoutPreviews)
+            if (retry.ok) return withoutPreviews
+            const trimmed = next.slice(0, Math.max(1, Math.floor(next.length / 2)))
+            saveAnalysesToStorage(trimmed)
+            return trimmed
+          }
+          setStorageQuotaError(null)
+          return next
+        })
+      }
+
+      if (file) {
+        compressImageAsDataUrl(file).then(addEntryWithPreview)
+      } else {
+        addEntryWithPreview(undefined)
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong.')
     } finally {
       setLoading(false)
     }
   }
+
+  const startNewAnalysis = () => {
+    setAnalysis(null)
+    setFile(null)
+    setPreview(null)
+    setError(null)
+    setActiveEntryId(null)
+    setSidebarOpen(false)
+  }
+
+  const loadAnalysisEntry = (entry: AnalysisEntry) => {
+    setAnalysis(entry.analysis)
+    setFile(null)
+    setPreview(entry.preview ?? null)
+    setActiveEntryId(entry.id)
+    setSidebarOpen(false)
+    setTimeout(() => {
+      document.querySelector('[data-results-section]')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 100)
+  }
+
+  const removeAnalysisEntry = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (user && token) {
+      fetch(`${API_BASE}/analyses/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } })
+        .then(() => {
+          setAnalysesList((prev) => prev.filter((ent) => ent.id !== id))
+          if (activeEntryId === id) startNewAnalysis()
+        })
+        .catch(() => {})
+      setEditingEntryId(null)
+      return
+    }
+    setAnalysesList((prev) => {
+      const next = prev.filter((ent) => ent.id !== id)
+      const r = saveAnalysesToStorage(next)
+      if (r.ok) setStorageQuotaError(null)
+      return next
+    })
+    if (activeEntryId === id) startNewAnalysis()
+    setEditingEntryId(null)
+  }
+
+  const clearAllAnalyses = () => {
+    if (user && token) {
+      fetch(`${API_BASE}/analyses`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } })
+        .then(() => {
+          setAnalysesList([])
+          setClearAllConfirm(false)
+          startNewAnalysis()
+        })
+        .catch(() => {})
+      return
+    }
+    setAnalysesList([])
+    saveAnalysesToStorage([])
+    setClearAllConfirm(false)
+    setStorageQuotaError(null)
+    startNewAnalysis()
+  }
+
+  const renameEntry = (id: string, newName: string) => {
+    const trimmed = newName.trim()
+    setEditingEntryId(null)
+    setEditingName('')
+    if (!trimmed) return
+    if (user && token) {
+      fetch(`${API_BASE}/analyses/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ dish_name: trimmed }),
+      })
+        .then(() => setAnalysesList((prev) => prev.map((e) => (e.id === id ? { ...e, dishName: trimmed } : e))))
+        .catch(() => {})
+      return
+    }
+    setAnalysesList((prev) => {
+      const next = prev.map((e) => (e.id === id ? { ...e, dishName: trimmed } : e))
+      saveAnalysesToStorage(next)
+      return next
+    })
+  }
+
+  const sidebarSearchLower = sidebarSearch.trim().toLowerCase()
+  const filteredForSidebar = sidebarSearchLower
+    ? analysesList.filter((e) => e.dishName.toLowerCase().includes(sidebarSearchLower))
+    : analysesList
+  const sortedForSidebar = [...filteredForSidebar].sort((a, b) => {
+    const tA = new Date(a.date).getTime()
+    const tB = new Date(b.date).getTime()
+    return sortNewestFirst ? tB - tA : tA - tB
+  })
 
   const handleDownload = async () => {
     if (!analysis) return
@@ -497,6 +899,7 @@ export default function App() {
           if (y > 268) y = pushPage()
           const [r, g, b] = stepColors[i % stepColors.length]
           const stepNum = String(i + 1).padStart(2, '0')
+          const pointText = points[i].text
           doc.setFillColor(r, g, b)
           doc.rect(margin, y, 10, 10, 'F')
           doc.setFontSize(8)
@@ -507,7 +910,7 @@ export default function App() {
           doc.setFontSize(9)
           doc.setTextColor(51, 65, 85)
           const textW = maxW - 14
-          const stepLines = doc.splitTextToSize(points[i], textW)
+          const stepLines = doc.splitTextToSize(pointText, textW)
           for (let j = 0; j < stepLines.length; j++) {
             doc.text(stepLines[j], margin + 12, y + 5 + j * 4.5)
           }
@@ -531,6 +934,13 @@ export default function App() {
   const score = analysis ? parseScore(analysis) : 75
   const keyMetrics = analysis ? parseKeyMetrics(analysis) : null
   const sections = analysis ? splitSections(analysis) : []
+  const _filtered = sections.filter(
+    (sec) =>
+      (showCurrentSummary && sec.title.toLowerCase().includes('current')) ||
+      (showConcernedSummary && sec.title.toLowerCase().includes('concerned'))
+  )
+  const filteredSections = _filtered.length > 0 ? _filtered : sections
+  const alternatives = analysis ? parseAlternatives(analysis) : []
   const dishName = analysis ? parseDishName(analysis) : null
   const foodSummary = analysis ? parseFoodSummary(analysis) : null
   const metricCards = keyMetrics
@@ -545,32 +955,234 @@ export default function App() {
       ]
     : []
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-slate-500">Loading...</div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <LoginScreen
+        onLogin={login}
+        onRegister={register}
+        error={authError}
+        onClearError={clearAuthError}
+      />
+    )
+  }
+
   return (
-    <div className="min-h-screen text-slate-800">
-      {/* Liquid Glass header */}
-      <header className="sticky top-0 z-10 border-b border-slate-200/60 bg-white/40 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 md:px-12 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/logo.svg" alt="" className="h-9 w-9 object-contain" aria-hidden />
-            <h1 className="text-lg font-semibold text-slate-800 tracking-tight">NutriMedAI</h1>
+    <div className="min-h-screen text-slate-800 flex">
+      {/* Left sidebar – ChatGPT style */}
+      <aside
+        className={`${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } md:translate-x-0 fixed md:static inset-y-0 left-0 z-40 w-[260px] flex-shrink-0 border-r border-slate-200 bg-white flex flex-col transition-transform duration-200 ease-out`}
+      >
+        <div className="p-3 border-b border-slate-100">
+          <button
+            type="button"
+            onClick={startNewAnalysis}
+            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors"
+          >
+            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-teal-500 text-white">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+            </span>
+            New analysis
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto py-2 flex flex-col min-h-0">
+          <div className="px-2 pb-2 space-y-2">
+            <input
+              type="text"
+              value={sidebarSearch}
+              onChange={(e) => setSidebarSearch(e.target.value)}
+              placeholder="Search analyses..."
+              className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400"
+            />
+            <div className="flex items-center justify-between px-1">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Recent</span>
+              <button
+                type="button"
+                onClick={() => setSortNewestFirst((v) => !v)}
+                className="text-[11px] font-medium text-slate-500 hover:text-slate-700"
+              >
+                {sortNewestFirst ? 'Newest first' : 'Oldest first'}
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            {analysis && (
-              <>
+          {analysesLoading ? (
+            <p className="px-3 py-4 text-sm text-slate-400">Loading your analyses...</p>
+          ) : analysesList.length === 0 ? (
+            <p className="px-3 py-4 text-sm text-slate-400">No analyses yet. Upload an image and tap Analyze.</p>
+          ) : sortedForSidebar.length === 0 ? (
+            <p className="px-3 py-4 text-sm text-slate-400">No matches for &quot;{sidebarSearch}&quot;</p>
+          ) : (
+            <ul className="space-y-0.5 px-2 flex-1 min-h-0">
+              {sortedForSidebar.map((entry) => (
+                <li key={entry.id}>
+                  <div
+                    className={`rounded-lg text-sm transition-colors flex items-center gap-2 group ${
+                      activeEntryId === entry.id ? 'bg-teal-50 text-teal-800' : 'text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => loadAnalysisEntry(entry)}
+                      className="flex-1 min-w-0 flex items-center gap-2 px-2 py-2.5 text-left"
+                    >
+                      <span className="w-9 h-9 rounded-lg bg-slate-200 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                        {entry.preview ? (
+                          <img src={entry.preview} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14" /></svg>
+                        )}
+                      </span>
+                      {editingEntryId === entry.id ? (
+                        <input
+                          type="text"
+                          value={editingName}
+                          onChange={(e) => setEditingName(e.target.value)}
+                          onBlur={() => renameEntry(entry.id, editingName)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') renameEntry(entry.id, editingName)
+                            if (e.key === 'Escape') {
+                              setEditingEntryId(null)
+                              setEditingName('')
+                            }
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex-1 min-w-0 rounded px-1 py-0.5 text-slate-800 bg-white border border-teal-300 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                          autoFocus
+                        />
+                      ) : (
+                        <span className="flex-1 min-w-0 truncate">{entry.dishName}</span>
+                      )}
+                    </button>
+                    {editingEntryId !== entry.id && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setEditingEntryId(entry.id)
+                            setEditingName(entry.dishName)
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-1 rounded text-slate-400 hover:text-slate-600 flex-shrink-0"
+                          aria-label="Rename"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => removeAnalysisEntry(entry.id, e)}
+                          className="opacity-0 group-hover:opacity-100 p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 flex-shrink-0"
+                          aria-label="Remove"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  <p className="px-3 pb-1.5 text-[11px] text-slate-400 pl-11">
+                    {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+          {analysesList.length > 0 && (
+            <div className="p-2 border-t border-slate-100 mt-2">
+              {!clearAllConfirm ? (
                 <button
                   type="button"
-                  onClick={handleDownload}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-white/60 border border-slate-200/80 transition-colors"
+                  onClick={() => setClearAllConfirm(true)}
+                  className="w-full py-2 text-xs font-medium text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg> Download PDF
+                  Clear all history
                 </button>
-              </>
+              ) : (
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={clearAllAnalyses}
+                    className="flex-1 py-2 text-xs font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg"
+                  >
+                    Yes, clear all
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setClearAllConfirm(false)}
+                    className="flex-1 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        {storageQuotaError && (
+          <div className="px-2 pb-2">
+            <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1.5">
+              {storageQuotaError}
+            </p>
+          </div>
+        )}
+      </aside>
+
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-30 bg-black/20 md:hidden" onClick={() => setSidebarOpen(false)} aria-hidden />
+      )}
+
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Liquid Glass header */}
+        <header className="sticky top-0 z-10 border-b border-slate-200/60 bg-white/40 backdrop-blur-xl">
+          <div className="max-w-7xl mx-auto px-4 md:px-12 h-14 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setSidebarOpen(true)}
+                className="md:hidden p-2 -ml-2 rounded-lg text-slate-600 hover:bg-slate-100"
+                aria-label="Open menu"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+              </button>
+              <img src="/logo.svg" alt="" className="h-9 w-9 object-contain" aria-hidden />
+              <h1 className="text-lg font-semibold text-slate-800 tracking-tight">NutriMedAI</h1>
+            </div>
+            <div className="flex items-center gap-2">
+            <span className="text-sm text-slate-500 truncate max-w-[140px]" title={user?.email}>{user?.email}</span>
+            <button
+              type="button"
+              onClick={logout}
+              className="px-3 py-1.5 rounded-xl text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-white/60 border border-slate-200/80 transition-colors"
+            >
+              Log out
+            </button>
+            {analysis && (
+              <button
+                type="button"
+                onClick={handleDownload}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-white/60 border border-slate-200/80 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg> Download PDF
+              </button>
             )}
           </div>
-        </div>
-      </header>
+          </div>
+        </header>
 
-      <main className="max-w-7xl mx-auto px-4 md:px-8 py-6 space-y-6">
+        <main className="max-w-7xl mx-auto px-4 md:px-8 py-6 space-y-6 flex-1 w-full">
+          {storageQuotaError && (
+            <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-800">
+              <span>{storageQuotaError}</span>
+              <button type="button" onClick={() => setStorageQuotaError(null)} className="p-1 rounded hover:bg-amber-100" aria-label="Dismiss">×</button>
+            </div>
+          )}
         {/* Input card – professional layout */}
         <section className="card p-6 md:p-8">
           <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-6">
@@ -750,8 +1362,8 @@ export default function App() {
         )}
 
         {/* Results – professional two-column layout with animations; summary scrolls when many points */}
-        {analysis && preview && (
-          <section className="card overflow-hidden animate-fade-in">
+        {analysis && (
+          <section data-results-section className="card overflow-hidden animate-fade-in">
             <div className="grid md:grid-cols-[320px_1fr] gap-0">
               {/* Left: identified dish + image + Nutrition Score – glass */}
               <div className="p-5 bg-white/40 border-r border-slate-200/60">
@@ -761,11 +1373,17 @@ export default function App() {
                     <p className="text-sm font-semibold text-slate-800 mt-0.5">{dishName}</p>
                   </div>
                 )}
-                <img
-                  src={preview}
-                  alt={dishName || 'Uploaded dish'}
-                  className="w-full max-h-[200px] object-contain bg-slate-100 rounded-xl mb-4 shadow-md"
-                />
+                {preview ? (
+                  <img
+                    src={preview}
+                    alt={dishName || 'Uploaded dish'}
+                    className="w-full max-h-[200px] object-contain bg-slate-100 rounded-xl mb-4 shadow-md"
+                  />
+                ) : (
+                  <div className="w-full max-h-[200px] min-h-[120px] flex items-center justify-center bg-slate-100 rounded-xl mb-4 border border-dashed border-slate-200">
+                    <span className="text-sm text-slate-400">No image (saved analysis)</span>
+                  </div>
+                )}
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-slate-600">Nutrition score</span>
@@ -841,15 +1459,39 @@ export default function App() {
                     </div>
                   )}
 
+                  {/* Show/hide toggles */}
+                  <div className="flex flex-wrap items-center gap-3 mb-4">
+                    <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">Show:</span>
+                    <label className="inline-flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={showCurrentSummary}
+                        onChange={(e) => setShowCurrentSummary(e.target.checked)}
+                        className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                      />
+                      <span className="text-sm text-slate-700">Current condition</span>
+                    </label>
+                    <label className="inline-flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={showConcernedSummary}
+                        onChange={(e) => setShowConcernedSummary(e.target.checked)}
+                        className="rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                      />
+                      <span className="text-sm text-slate-700">Concerned condition</span>
+                    </label>
+                  </div>
+
                   {/* Petal-style infographic (hub + petals, scrollable) */}
-                  {sections.map((sec, secIdx) => {
+                  {filteredSections.map((sec, secIdx) => {
                     const { sectionSummary, points, healthScoreLine } = bodyToPoints(sec.body)
-                    const stepColors = STEP_COLORS
                     const sectionScore = healthScoreLine ? parseScore(healthScoreLine) : null
                     const isCurrent = sec.title.toLowerCase().includes('current')
+                    const expanded = expandedSections[secIdx] ?? false
+                    const showPoints = points.length > 3 && !expanded ? points.slice(0, 3) : points
+                    const hasMore = points.length > 3 && !expanded
                     return (
                       <div key={sec.title} className="infographic-block animate-fade-in-up" style={{ animationDelay: `${secIdx * 80}ms`, opacity: 0 }}>
-                        {/* Central hub – title, optional score bar, point count */}
                         <div className={`infographic-hub rounded-2xl border shadow-md p-4 mb-4 text-center ${isCurrent ? 'bg-teal-50/80 border-teal-200' : 'bg-amber-50/80 border-amber-200'}`}>
                           <div className="flex items-center justify-center gap-2 mb-1">
                             <span className={`inline-flex items-center justify-center w-8 h-8 rounded-lg ${isCurrent ? 'bg-teal-500 text-white' : 'bg-amber-500 text-white'}`} aria-hidden>
@@ -886,34 +1528,69 @@ export default function App() {
                             {points.length} point{points.length !== 1 ? 's' : ''}
                           </p>
                         </div>
-                        {/* Section summary (1–2 lines overall takeaway) */}
+                        {/* TL;DR + section summary */}
                         {sectionSummary && (
-                          <p className="text-sm text-slate-600 leading-relaxed mb-4 pl-1">
-                            {sectionSummary}
-                          </p>
+                          <div className="mb-4 pl-1">
+                            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">TL;DR</span>
+                            <p className="text-sm text-slate-600 leading-relaxed mt-0.5">
+                              {sectionSummary}
+                            </p>
+                          </div>
                         )}
                         {points.length > 0 ? (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {points.map((point, i) => {
-                              const step = stepColors[i % stepColors.length]
-                              const stepNum = String(i + 1).padStart(2, '0')
-                              return (
-                                <div
-                                  key={i}
-                                  className={`petal-card rounded-2xl ${step.bg} ${step.text} p-4 shadow-md animate-fade-in-up hover:shadow-lg transition-shadow flex flex-col min-h-0`}
-                                  style={{ animationDelay: `${100 + secIdx * 80 + i * 60}ms`, opacity: 0 }}
-                                >
-                                  <div className="flex items-center gap-2 mb-2 flex-shrink-0">
-                                    <span className="text-lg font-bold leading-none">{stepNum}</span>
-                                    <span className="text-[10px] font-semibold uppercase tracking-widest opacity-90">Step</span>
+                          <>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {showPoints.map((point, i) => {
+                                const typeConfig = point.type ? POINT_TYPE_CONFIG[point.type] : null
+                                const stepFallback = STEP_COLORS[i % STEP_COLORS.length]
+                                const bg = typeConfig?.bg ?? stepFallback.bg
+                                const textCls = typeConfig?.text ?? stepFallback.text
+                                const stepNum = String(i + 1).padStart(2, '0')
+                                return (
+                                  <div
+                                    key={i}
+                                    className={`petal-card rounded-2xl ${bg} ${textCls} p-4 shadow-md animate-fade-in-up hover:shadow-lg transition-shadow flex flex-col min-h-0`}
+                                    style={{ animationDelay: `${100 + secIdx * 80 + i * 60}ms`, opacity: 0 }}
+                                  >
+                                    <div className="flex items-center gap-2 mb-2 flex-shrink-0">
+                                      {typeConfig ? (
+                                        <>
+                                          {typeConfig.icon}
+                                          <span className="text-[10px] font-semibold uppercase tracking-widest opacity-90">{typeConfig.label}</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <span className="text-lg font-bold leading-none">{stepNum}</span>
+                                          <span className="text-[10px] font-semibold uppercase tracking-widest opacity-90">Step</span>
+                                        </>
+                                      )}
+                                    </div>
+                                    <p className="text-sm leading-relaxed opacity-95 flex-1 min-h-0">
+                                      {point.text}
+                                    </p>
                                   </div>
-                                  <p className="text-sm leading-relaxed opacity-95 flex-1 min-h-0">
-                                    {point}
-                                  </p>
-                                </div>
-                              )
-                            })}
-                          </div>
+                                )
+                              })}
+                            </div>
+                            {hasMore && (
+                              <button
+                                type="button"
+                                onClick={() => setExpandedSections((prev) => ({ ...prev, [secIdx]: true }))}
+                                className="mt-2 text-xs font-medium text-slate-500 hover:text-slate-700 underline"
+                              >
+                                Show more ({points.length - 3} more)
+                              </button>
+                            )}
+                            {expanded && points.length > 3 && (
+                              <button
+                                type="button"
+                                onClick={() => setExpandedSections((prev) => ({ ...prev, [secIdx]: false }))}
+                                className="mt-2 text-xs font-medium text-slate-500 hover:text-slate-700 underline"
+                              >
+                                Show less
+                              </button>
+                            )}
+                          </>
                         ) : (
                           <p className="text-sm text-slate-600 pl-3 border-l-2 border-slate-200 animate-fade-in">
                             {sec.body}
@@ -922,6 +1599,26 @@ export default function App() {
                       </div>
                     )
                   })}
+
+                  {/* Alternatives */}
+                  {alternatives.length > 0 && (
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
+                      <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Similar but safer</h4>
+                      <ul className="space-y-1.5">
+                        {alternatives.map((alt, i) => (
+                          <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
+                            <span className="text-emerald-500 mt-0.5">✓</span>
+                            {alt}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Disclaimer */}
+                  <p className="text-xs text-slate-400 pt-4 border-t border-slate-100 mt-4">
+                    General dietary guidance; not a substitute for medical advice. When in doubt, discuss with your doctor.
+                  </p>
                 </div>
               </div>
             </div>
@@ -933,7 +1630,8 @@ export default function App() {
             Set your medical profile, upload a food image, then tap Analyze.
           </p>
         )}
-      </main>
+        </main>
+      </div>
     </div>
   )
 }
