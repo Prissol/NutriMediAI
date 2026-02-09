@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import Response
 from starlette.requests import Request
-from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.types import ASGIApp, Receive, Scope, Send
 from pydantic import BaseModel
 from typing import Optional, List
 from openai import OpenAI
@@ -55,25 +55,37 @@ def _is_allowed_origin(origin: str) -> bool:
     return False
 
 
-class PreflightCORSMiddleware(BaseHTTPMiddleware):
-    """Handle OPTIONS preflight for auth routes with CORS headers so gateway never gets a bad response."""
+class PreflightCORSMiddleware:
+    """ASGI middleware: handle OPTIONS preflight for auth routes first (no BaseHTTPMiddleware)."""
 
-    async def dispatch(self, request: Request, call_next):
-        if request.method != "OPTIONS" or request.url.path not in _AUTH_OPTIONS_PATHS:
-            return await call_next(request)
-        origin = (request.headers.get("origin") or "").strip()
-        headers = {
-            "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PATCH, DELETE",
-            "Access-Control-Allow-Headers": "*",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Max-Age": "86400",
-        }
+    def __init__(self, app: ASGIApp):
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+        method = scope.get("method", "")
+        path = scope.get("path", "")
+        if method != "OPTIONS" or path not in _AUTH_OPTIONS_PATHS:
+            await self.app(scope, receive, send)
+            return
+        # Return 200 + CORS headers immediately (no call into app)
+        origin = (dict(scope.get("headers", [])).get(b"origin", b"").decode("utf-8", errors="replace").strip()
+        headers = [
+            (b"access-control-allow-methods", b"GET, POST, OPTIONS, PATCH, DELETE"),
+            (b"access-control-allow-headers", b"*"),
+            (b"access-control-allow-credentials", b"true"),
+            (b"access-control-max-age", b"86400"),
+        ]
         if _is_allowed_origin(origin):
-            headers["Access-Control-Allow-Origin"] = origin
-        return Response(status_code=200, headers=headers)
+            headers.append((b"access-control-allow-origin", origin.encode("utf-8")))
+        await send({"type": "http.response.start", "status": 200, "headers": headers})
+        await send({"type": "http.response.body", "body": b""})
+        return
 
 
-app.add_middleware(PreflightCORSMiddleware)
+# Add CORSMiddleware first (runs second on request), then Preflight last (runs first)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
@@ -83,6 +95,7 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
+app.add_middleware(PreflightCORSMiddleware)
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "").strip()
 
