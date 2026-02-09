@@ -31,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loadUser = useCallback(async (t: string) => {
     try {
       const res = await fetch(`${API_BASE}/auth/me`, {
+        credentials: 'include',
         headers: { Authorization: `Bearer ${t}` },
       })
       if (!res.ok) {
@@ -61,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null)
     const res = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
     })
@@ -82,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     const res = await fetch(`${API_BASE}/auth/register`, {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
     })

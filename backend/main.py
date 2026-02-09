@@ -77,7 +77,8 @@ class PreflightCORSMiddleware:
             (b"access-control-allow-credentials", b"true"),
             (b"access-control-max-age", b"86400"),
         ]
-        if _is_allowed_origin(origin):
+        # Echo origin so preflight always passes for any origin (OPTIONS only)
+        if origin:
             headers.append((b"access-control-allow-origin", origin.encode("utf-8")))
         await send({"type": "http.response.start", "status": 200, "headers": headers})
         await send({"type": "http.response.body", "body": b""})
