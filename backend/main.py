@@ -41,9 +41,11 @@ if os.environ.get("CORS_ORIGINS"):
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
+    allow_origin_regex=r"^https://[a-zA-Z0-9-]+\.vercel\.app$",  # any Vercel deployment
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "").strip()
