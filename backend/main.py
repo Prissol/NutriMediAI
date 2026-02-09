@@ -15,6 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import Response
 from starlette.requests import Request
+from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
 from openai import OpenAI
@@ -40,6 +41,39 @@ _cors_origins = [
 ]
 if os.environ.get("CORS_ORIGINS"):
     _cors_origins.extend(o.strip() for o in os.environ["CORS_ORIGINS"].split(",") if o.strip())
+
+_AUTH_OPTIONS_PATHS = {"/auth/login", "/auth/register", "/auth/me"}
+
+
+def _is_allowed_origin(origin: str) -> bool:
+    if not origin:
+        return False
+    if origin in _cors_origins:
+        return True
+    if origin.startswith("https://") and ".vercel.app" in origin:
+        return True
+    return False
+
+
+class PreflightCORSMiddleware(BaseHTTPMiddleware):
+    """Handle OPTIONS preflight for auth routes with CORS headers so gateway never gets a bad response."""
+
+    async def dispatch(self, request: Request, call_next):
+        if request.method != "OPTIONS" or request.url.path not in _AUTH_OPTIONS_PATHS:
+            return await call_next(request)
+        origin = (request.headers.get("origin") or "").strip()
+        headers = {
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PATCH, DELETE",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Max-Age": "86400",
+        }
+        if _is_allowed_origin(origin):
+            headers["Access-Control-Allow-Origin"] = origin
+        return Response(status_code=200, headers=headers)
+
+
+app.add_middleware(PreflightCORSMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
@@ -190,30 +224,6 @@ Optional: one line "Health score: X/10" somewhere if you want."""
 @app.get("/")
 def root():
     return {"message": "NutriMedAI API", "status": "ok"}
-
-
-def _cors_response(request: Request) -> Response:
-    """Ensure preflight (OPTIONS) gets CORS headers so Vercel frontend can call auth."""
-    origin = request.headers.get("origin", "")
-    if origin in _cors_origins or (".vercel.app" in origin and origin.startswith("https://")):
-        return Response(
-            status_code=200,
-            headers={
-                "Access-Control-Allow-Origin": origin,
-                "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PATCH, DELETE",
-                "Access-Control-Allow-Headers": "*",
-                "Access-Control-Allow-Credentials": "true",
-                "Access-Control-Max-Age": "86400",
-            },
-        )
-    return Response(status_code=200)
-
-
-@app.options("/auth/login")
-@app.options("/auth/register")
-@app.options("/auth/me")
-async def auth_options(request: Request):
-    return _cors_response(request)
 
 
 # ----- Auth & user dashboard (per-user analyses) -----
