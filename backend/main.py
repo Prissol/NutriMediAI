@@ -34,6 +34,7 @@ app = FastAPI(title="NutriMedAI API", version="1.0")
 
 _cors_origins = [
     "http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173",
+    "https://nutri-medi-ai.vercel.app",  # production frontend on Vercel
 ]
 if os.environ.get("CORS_ORIGINS"):
     _cors_origins.extend(o.strip() for o in os.environ["CORS_ORIGINS"].split(",") if o.strip())
