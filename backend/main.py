@@ -13,6 +13,8 @@ from contextlib import contextmanager
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.responses import Response
+from starlette.requests import Request
 from pydantic import BaseModel
 from typing import Optional, List
 from openai import OpenAI
@@ -188,6 +190,30 @@ Optional: one line "Health score: X/10" somewhere if you want."""
 @app.get("/")
 def root():
     return {"message": "NutriMedAI API", "status": "ok"}
+
+
+def _cors_response(request: Request) -> Response:
+    """Ensure preflight (OPTIONS) gets CORS headers so Vercel frontend can call auth."""
+    origin = request.headers.get("origin", "")
+    if origin in _cors_origins or (".vercel.app" in origin and origin.startswith("https://")):
+        return Response(
+            status_code=200,
+            headers={
+                "Access-Control-Allow-Origin": origin,
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PATCH, DELETE",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Allow-Credentials": "true",
+                "Access-Control-Max-Age": "86400",
+            },
+        )
+    return Response(status_code=200)
+
+
+@app.options("/auth/login")
+@app.options("/auth/register")
+@app.options("/auth/me")
+async def auth_options(request: Request):
+    return _cors_response(request)
 
 
 # ----- Auth & user dashboard (per-user analyses) -----
