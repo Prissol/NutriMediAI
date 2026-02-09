@@ -21,8 +21,10 @@ function formatConditionLabel(c: string): string {
   return c === 'None / No current conditions' ? 'None' : c.replace(' (High BP)', '').replace(' / Weight management', '').replace('GERD / Acid reflux', 'GERD')
 }
 
-// Use env first; fallback to '/api' for Vercel rewrite
-const API_BASE = import.meta.env.VITE_API_URL || '/api'
+// In production always use /api (Vercel rewrite); allow env override in dev
+const API_BASE = import.meta.env.DEV
+  ? (import.meta.env.VITE_API_URL || '/api')
+  : '/api'
 
 // Icons for metric cards – real-looking: flame, egg, bread, oil drop, leaf, sugar cube, salt shaker
 const METRIC_ICONS: Record<string, React.ReactNode> = {

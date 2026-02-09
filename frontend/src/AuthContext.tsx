@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api'
+const API_BASE = import.meta.env.DEV
+  ? (import.meta.env.VITE_API_URL || '/api')
+  : '/api'
 const TOKEN_KEY = 'nutrimedai_token'
 
 type User = { id: string; email: string }
