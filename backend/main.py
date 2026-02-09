@@ -66,14 +66,22 @@ class PreflightCORSMiddleware:
             return
         method = scope.get("method", "")
         path = scope.get("path", "")
-        if method != "OPTIONS" or path not in _AUTH_OPTIONS_PATHS:
+        normalized_path = path.rstrip("/") or "/"
+        if method != "OPTIONS" or (
+            normalized_path not in _AUTH_OPTIONS_PATHS and not normalized_path.startswith("/auth/")
+        ):
             await self.app(scope, receive, send)
             return
         # Return 200 + CORS headers immediately (no call into app)
-        origin = (dict(scope.get("headers", [])).get(b"origin", b"").decode("utf-8", errors="replace")).strip()
+        header_map = dict(scope.get("headers", []))
+        origin = (header_map.get(b"origin", b"").decode("utf-8", errors="replace")).strip()
+        request_headers = (header_map.get(b"access-control-request-headers", b"").decode("utf-8", errors="replace")).strip()
+        request_method = (header_map.get(b"access-control-request-method", b"").decode("utf-8", errors="replace")).strip()
+        allow_methods = request_method or "GET, POST, OPTIONS, PATCH, DELETE"
+        allow_headers = request_headers or "*"
         headers = [
-            (b"access-control-allow-methods", b"GET, POST, OPTIONS, PATCH, DELETE"),
-            (b"access-control-allow-headers", b"*"),
+            (b"access-control-allow-methods", allow_methods.encode("utf-8")),
+            (b"access-control-allow-headers", allow_headers.encode("utf-8")),
             (b"access-control-allow-credentials", b"true"),
             (b"access-control-max-age", b"86400"),
         ]
