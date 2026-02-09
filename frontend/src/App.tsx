@@ -211,11 +211,19 @@ function bodyToPoints(body: string): {
       !/^\s*---\s*$/.test(line) &&
       line !== healthScoreMatch
   )
+  // TL;DR block = all lines until we hit a [Reasoning]/[Action]/etc. point (ingredient-wise TL;DR can be multiple lines)
+  const firstPointIdx = contentLines.findIndex((line) => POINT_TYPE_REG.test(line))
+  const summaryLines =
+    firstPointIdx > 0
+      ? contentLines.slice(0, firstPointIdx).map((l) => l.trim()).filter(Boolean)
+      : contentLines.length > 0 && contentLines[0].length > 10
+        ? [contentLines[0].trim()]
+        : []
   const sectionSummary =
-    contentLines.length > 0 && contentLines[0].length > 10 && contentLines[0].length < 300
-      ? contentLines[0].trim()
+    summaryLines.length > 0
+      ? summaryLines.join(summaryLines.length > 1 ? ' • ' : '').slice(0, 500)
       : null
-  const pointLines = sectionSummary ? contentLines.slice(1) : contentLines
+  const pointLines = firstPointIdx >= 0 ? contentLines.slice(firstPointIdx) : contentLines.slice(summaryLines.length)
   const points = pointLines.map((line) => parsePointType(line))
   return { sectionSummary: sectionSummary || null, points, healthScoreLine: healthScoreMatch ?? null }
 }

@@ -167,12 +167,12 @@ Calories: X-X kcal | Protein: Xg | Carbs: Xg | Fat: Xg | Fiber: Xg | Sugar: Xg |
 ---
 CURRENT CONDITION SUMMARY:
 {current_ins}
-First line = TL;DR (one short sentence, e.g. "Mostly okay for hypertension with small tweaks."). Then 3–6 points. Prefix each point with exactly one of: [Reasoning] [Action] [Benefit] [Ask your doctor] [Important]. One idea per point. Use action verbs. No asterisks, no bold.
+First block = TL;DR (ingredient-wise): For each main ingredient or component of the dish (e.g. rice, meat, sauce, spices, vegetables), give one short line: ingredient name followed by takeaway for their condition (e.g. "Rice: okay in moderate portion." "Sauce: high sodium – use less." "Chicken: good protein."). One line per ingredient, 3–6 lines total. Then 3–6 detailed points. Prefix each of those with exactly one of: [Reasoning] [Action] [Benefit] [Ask your doctor] [Important]. One idea per point. No asterisks, no bold.
 
 ---
 CONCERNED CONDITION SUMMARY:
 {concerned_ins}
-First line = TL;DR (one short sentence). Then 3–6 points. Same prefixes: [Reasoning] [Action] [Benefit] [Ask your doctor] [Important]. One idea per point. No asterisks, no bold.
+First block = TL;DR (ingredient-wise): Same format – one line per main ingredient with takeaway for prevention (e.g. "Oil: moderate; choose less if possible." "Fish: beneficial."). 3–6 lines. Then 3–6 detailed points with prefixes [Reasoning] [Action] [Benefit] [Ask your doctor] [Important]. No asterisks, no bold.
 
 ---
 ALTERNATIVES:
