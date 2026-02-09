@@ -4,6 +4,7 @@ FastAPI server for food image analysis (OpenAI GPT-4 Vision) + user auth and per
 """
 
 import os
+import logging
 import base64
 import sqlite3
 import uuid
@@ -31,6 +32,9 @@ try:
         load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 except ImportError:
     pass
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("nutrimedai")
 
 app = FastAPI(title="NutriMedAI API", version="1.0")
 
@@ -108,7 +112,8 @@ app.add_middleware(PreflightCORSMiddleware)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "").strip()
 
 # Auth & DB
-DB_PATH = Path(__file__).resolve().parent / "data" / "nutrimedai.db"
+_default_db_path = Path(__file__).resolve().parent / "data" / "nutrimedai.db"
+DB_PATH = Path(os.environ.get("DB_PATH", str(_default_db_path)))
 SECRET_KEY = os.environ.get("SECRET_KEY", "change-me-in-production-use-env")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 30
@@ -123,7 +128,11 @@ def _ensure_db_dir():
 @contextmanager
 def get_db():
     _ensure_db_dir()
-    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn = sqlite3.connect(DB_PATH)
+    except Exception:
+        logger.exception("DB connection failed at %s", DB_PATH)
+        raise
     conn.row_factory = sqlite3.Row
     try:
         conn.execute("""
@@ -147,6 +156,9 @@ def get_db():
         """)
         conn.commit()
         yield conn
+    except Exception:
+        logger.exception("DB init/query failed")
+        raise
     finally:
         conn.close()
 
@@ -270,41 +282,53 @@ class AnalysisPatch(BaseModel):
 
 @app.post("/auth/register")
 def register(body: RegisterBody):
-    email = body.email.strip().lower()
-    if not email or "@" not in email:
-        raise HTTPException(status_code=400, detail="Valid email required")
-    if len(body.password) < 6:
-        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
-    user_id = str(uuid.uuid4())
-    password_hash = pwd_context.hash(body.password)
-    created = datetime.utcnow().isoformat()
-    with get_db() as conn:
-        try:
-            conn.execute(
-                "INSERT INTO users (id, email, password_hash, created_at) VALUES (?, ?, ?, ?)",
-                (user_id, email, password_hash, created),
-            )
-            conn.commit()
-        except sqlite3.IntegrityError:
-            raise HTTPException(status_code=400, detail="Email already registered")
-    token = create_access_token({"sub": user_id})
-    return {"access_token": token, "user": {"id": user_id, "email": email}}
+    try:
+        email = body.email.strip().lower()
+        if not email or "@" not in email:
+            raise HTTPException(status_code=400, detail="Valid email required")
+        if len(body.password) < 6:
+            raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+        user_id = str(uuid.uuid4())
+        password_hash = pwd_context.hash(body.password)
+        created = datetime.utcnow().isoformat()
+        with get_db() as conn:
+            try:
+                conn.execute(
+                    "INSERT INTO users (id, email, password_hash, created_at) VALUES (?, ?, ?, ?)",
+                    (user_id, email, password_hash, created),
+                )
+                conn.commit()
+            except sqlite3.IntegrityError:
+                raise HTTPException(status_code=400, detail="Email already registered")
+        token = create_access_token({"sub": user_id})
+        return {"access_token": token, "user": {"id": user_id, "email": email}}
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Register failed")
+        raise HTTPException(status_code=500, detail="Server error")
 
 
 @app.post("/auth/login")
 def login(body: LoginBody):
-    email = body.email.strip().lower()
-    with get_db() as conn:
-        row = conn.execute(
-            "SELECT id, password_hash FROM users WHERE email = ?", (email,)
-        ).fetchone()
-    if not row:
-        raise HTTPException(status_code=401, detail="Invalid email or password")
-    user_id = row["id"]
-    if not pwd_context.verify(body.password, row["password_hash"]):
-        raise HTTPException(status_code=401, detail="Invalid email or password")
-    token = create_access_token({"sub": user_id})
-    return {"access_token": token, "user": {"id": user_id, "email": email}}
+    try:
+        email = body.email.strip().lower()
+        with get_db() as conn:
+            row = conn.execute(
+                "SELECT id, password_hash FROM users WHERE email = ?", (email,)
+            ).fetchone()
+        if not row:
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+        user_id = row["id"]
+        if not pwd_context.verify(body.password, row["password_hash"]):
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+        token = create_access_token({"sub": user_id})
+        return {"access_token": token, "user": {"id": user_id, "email": email}}
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Login failed")
+        raise HTTPException(status_code=500, detail="Server error")
 
 
 @app.get("/auth/me")
