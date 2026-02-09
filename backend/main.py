@@ -15,9 +15,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import Response
 from starlette.requests import Request
-from starlette.types import ASGIApp, Receive, Scope, Send
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional, List, Any
 from openai import OpenAI
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -58,10 +57,10 @@ def _is_allowed_origin(origin: str) -> bool:
 class PreflightCORSMiddleware:
     """ASGI middleware: handle OPTIONS preflight for auth routes first (no BaseHTTPMiddleware)."""
 
-    def __init__(self, app: ASGIApp):
+    def __init__(self, app: Any):
         self.app = app
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+    async def __call__(self, scope: Any, receive: Any, send: Any) -> None:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
@@ -71,7 +70,7 @@ class PreflightCORSMiddleware:
             await self.app(scope, receive, send)
             return
         # Return 200 + CORS headers immediately (no call into app)
-        origin = (dict(scope.get("headers", [])).get(b"origin", b"").decode("utf-8", errors="replace").strip()
+        origin = (dict(scope.get("headers", [])).get(b"origin", b"").decode("utf-8", errors="replace")).strip()
         headers = [
             (b"access-control-allow-methods", b"GET, POST, OPTIONS, PATCH, DELETE"),
             (b"access-control-allow-headers", b"*"),
