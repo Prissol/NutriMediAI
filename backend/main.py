@@ -17,7 +17,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import Response
 from starlette.requests import Request
 from pydantic import BaseModel
-from typing import Optional, List, Any
+from typing import Optional, List
 from openai import OpenAI
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -45,59 +45,7 @@ _cors_origins = [
 if os.environ.get("CORS_ORIGINS"):
     _cors_origins.extend(o.strip() for o in os.environ["CORS_ORIGINS"].split(",") if o.strip())
 
-_AUTH_OPTIONS_PATHS = {"/auth/login", "/auth/register", "/auth/me"}
-
-
-def _is_allowed_origin(origin: str) -> bool:
-    if not origin:
-        return False
-    if origin in _cors_origins:
-        return True
-    if origin.startswith("https://") and ".vercel.app" in origin:
-        return True
-    return False
-
-
-class PreflightCORSMiddleware:
-    """ASGI middleware: handle OPTIONS preflight for auth routes first (no BaseHTTPMiddleware)."""
-
-    def __init__(self, app: Any):
-        self.app = app
-
-    async def __call__(self, scope: Any, receive: Any, send: Any) -> None:
-        if scope["type"] != "http":
-            await self.app(scope, receive, send)
-            return
-        method = scope.get("method", "")
-        path = scope.get("path", "")
-        normalized_path = path.rstrip("/") or "/"
-        if method != "OPTIONS" or (
-            normalized_path not in _AUTH_OPTIONS_PATHS and not normalized_path.startswith("/auth/")
-        ):
-            await self.app(scope, receive, send)
-            return
-        # Return 200 + CORS headers immediately (no call into app)
-        header_map = dict(scope.get("headers", []))
-        origin = (header_map.get(b"origin", b"").decode("utf-8", errors="replace")).strip()
-        request_headers = (header_map.get(b"access-control-request-headers", b"").decode("utf-8", errors="replace")).strip()
-        request_method = (header_map.get(b"access-control-request-method", b"").decode("utf-8", errors="replace")).strip()
-        allow_methods = request_method or "GET, POST, OPTIONS, PATCH, DELETE"
-        allow_headers = request_headers or "*"
-        headers = [
-            (b"access-control-allow-methods", allow_methods.encode("utf-8")),
-            (b"access-control-allow-headers", allow_headers.encode("utf-8")),
-            (b"access-control-allow-credentials", b"true"),
-            (b"access-control-max-age", b"86400"),
-        ]
-        # Echo origin so preflight always passes for any origin (OPTIONS only)
-        if origin:
-            headers.append((b"access-control-allow-origin", origin.encode("utf-8")))
-        await send({"type": "http.response.start", "status": 200, "headers": headers})
-        await send({"type": "http.response.body", "body": b""})
-        return
-
-
-# Add CORSMiddleware first (runs second on request), then Preflight last (runs first)
+# CORS middleware (safe even with /api rewrite)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
@@ -107,7 +55,6 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
-app.add_middleware(PreflightCORSMiddleware)
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "").strip()
 
