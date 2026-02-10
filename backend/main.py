@@ -257,6 +257,8 @@ def register(body: RegisterBody):
             raise HTTPException(status_code=400, detail="Valid email required")
         if len(body.password) < 6:
             raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+        logger.info("Register password length=%s", len(body.password))
+        print(f"Register password length={len(body.password)}")
         if len(body.password) > 72:
             raise HTTPException(status_code=400, detail="Password must be 72 characters or less")
         user_id = str(uuid.uuid4())
