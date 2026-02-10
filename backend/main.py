@@ -257,6 +257,8 @@ def register(body: RegisterBody):
             raise HTTPException(status_code=400, detail="Valid email required")
         if len(body.password) < 6:
             raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+        if len(body.password) > 72:
+            raise HTTPException(status_code=400, detail="Password must be 72 characters or less")
         user_id = str(uuid.uuid4())
         password_hash = pwd_context.hash(body.password)
         created = datetime.utcnow().isoformat()
@@ -282,6 +284,8 @@ def register(body: RegisterBody):
 def login(body: LoginBody):
     try:
         email = body.email.strip().lower()
+        if len(body.password) > 72:
+            raise HTTPException(status_code=400, detail="Password must be 72 characters or less")
         with get_db() as conn:
             row = conn.execute(
                 "SELECT id, password_hash FROM users WHERE email = ?", (email,)
