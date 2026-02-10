@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from './AuthContext'
 
-const API_BASE = import.meta.env.DEV ? (import.meta.env.VITE_API_URL || '/api') : '/api'
+// const API_BASE = import.meta.env.DEV ? (import.meta.env.VITE_API_URL || '/api') : '/api'
 
 function LoginScreen({
   onLogin,
