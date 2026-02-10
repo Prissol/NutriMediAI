@@ -56,6 +56,18 @@ app.add_middleware(
     expose_headers=["*"],
 )
 
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    logger.info("REQ %s %s", request.method, request.url.path)
+    try:
+        response = await call_next(request)
+    except Exception:
+        logger.exception("Unhandled request error")
+        raise
+    logger.info("RES %s %s -> %s", request.method, request.url.path, response.status_code)
+    return response
+
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "").strip()
 
 # Auth & DB
