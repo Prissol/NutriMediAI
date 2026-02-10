@@ -34,7 +34,7 @@ except ImportError:
     pass
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("nutrimedai")
+logger = logging.getLogger("uvicorn.error")
 
 app = FastAPI(title="NutriMedAI API", version="1.0")
 
@@ -59,14 +59,24 @@ app.add_middleware(
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
+    # Use both logger and print to ensure Railway captures output
     logger.info("REQ %s %s", request.method, request.url.path)
+    print(f"REQ {request.method} {request.url.path}")
     try:
         response = await call_next(request)
     except Exception:
         logger.exception("Unhandled request error")
+        print("Unhandled request error")
         raise
     logger.info("RES %s %s -> %s", request.method, request.url.path, response.status_code)
+    print(f"RES {request.method} {request.url.path} -> {response.status_code}")
     return response
+
+
+@app.on_event("startup")
+async def log_startup():
+    logger.info("NutriMedAI startup complete")
+    print("NutriMedAI startup complete")
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "").strip()
 
