@@ -28,6 +28,14 @@
   box-sizing: border-box;
 }
 
+/* Navbar must always stay on top of hero and scrolling content */
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 9999 !important;
+  isolation: isolate;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -36,6 +44,7 @@ body {
   background-attachment: fixed;
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 /* Liquid Glass card – frosted on light silver */
@@ -199,6 +208,68 @@ body {
   50% { transform: scale(1.15); }
 }
 
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes float-slower {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(18px); }
+}
+
+.animate-float-slow {
+  animation: float-slow 8s ease-in-out infinite;
+}
+
+.animate-float-slower {
+  animation: float-slower 10s ease-in-out infinite;
+}
+
+@keyframes hero-pan {
+  0%, 100% { transform: scale(1) translateY(0); }
+  50% { transform: scale(1.04) translateY(-8px); }
+}
+
+.hero-bg {
+  background-size: cover;
+  background-position: center;
+  transition: background-image 0.6s ease;
+  animation: hero-pan 10s ease-in-out infinite;
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, #10b981, #14b8a6, #0ea5e9);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.glass-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee {
+  animation: marquee 22s linear infinite;
+  white-space: nowrap;
+}
+
 @keyframes wiggle {
   0%, 100% { transform: rotate(-4deg); }
   50% { transform: rotate(4deg); }
@@ -229,4 +300,85 @@ body {
 .med-panel-bg-shift {
   background-size: 200% 200%;
   animation: gradient-shift 12s ease infinite;
+}
+
+/* Landing hero – background slider + Ken Burns */
+@keyframes ken-burns {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.12) translate(-2%, -2%); }
+}
+
+.hero-slide-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: opacity 1.2s ease-in-out;
+  animation: ken-burns 18s ease-in-out forwards;
+}
+.hero-slide-layer.active {
+  opacity: 1;
+  z-index: 1;
+}
+.hero-slide-layer.inactive {
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Staggered entrance delays for landing */
+.landing-delay-0 { animation-delay: 0.1s; }
+.landing-delay-1 { animation-delay: 0.25s; }
+.landing-delay-2 { animation-delay: 0.4s; }
+.landing-delay-3 { animation-delay: 0.55s; }
+.landing-delay-4 { animation-delay: 0.7s; }
+.landing-delay-5 { animation-delay: 0.85s; }
+.landing-delay-6 { animation-delay: 1s; }
+.landing-delay-7 { animation-delay: 1.15s; }
+.landing-delay-8 { animation-delay: 1.3s; }
+
+/* Section entrance (use with animate-fade-in-up) */
+.landing-section-in .animate-fade-in-up { opacity: 0; }
+
+/* Hover lift for landing cards */
+.hover-lift {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+}
+
+/* CTA button subtle scale */
+.cta-glow {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.cta-glow:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 24px rgba(16, 185, 129, 0.4);
+}
+.cta-glow:active {
+  transform: scale(0.98);
+}
+
+/* Shimmer line for section dividers */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide-layer,
+  .shimmer-line,
+  .cta-glow:hover,
+  .hover-lift:hover { animation: none; }
+  .hero-slide-layer { transition: opacity 0.6s ease; }
+  .hover-lift:hover { transform: none; }
+  .cta-glow:hover { transform: none; }
 }
