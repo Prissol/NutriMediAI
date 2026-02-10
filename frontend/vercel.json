@@ -6,7 +6,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://nutrimediai-production.up.railway.app/$1"
+      "destination": "https://nutrimediai.onrender.com/$1"
     }
   ]
 }
