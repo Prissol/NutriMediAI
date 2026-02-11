@@ -25,6 +25,47 @@ function metricKey(label: string): string {
   return 'calories'
 }
 
+/** Animated leaf logo in site lavender/violet palette */
+function Logo({ className }: { className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" aria-hidden="true" className={className}>
+      <defs>
+        <linearGradient id="logoLeafGrad" x1="15%" y1="5%" x2="88%" y2="92%">
+          <stop offset="0%" stopColor="#c4b5fd" />
+          <stop offset="35%" stopColor="#8b5cf6" />
+          <stop offset="75%" stopColor="#7c3aed" />
+          <stop offset="100%" stopColor="#5b21b6" />
+        </linearGradient>
+        <linearGradient id="logoLeafShine" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#ede9fe" stopOpacity={0.5} />
+          <stop offset="45%" stopColor="transparent" stopOpacity={0} />
+        </linearGradient>
+        <filter id="logoSoftShadow" x="-40%" y="-40%" width="180%" height="180%">
+          <feDropShadow dx={0} dy={2} stdDeviation={1.5} floodColor="#6d28d9" floodOpacity={0.28} />
+        </filter>
+      </defs>
+      <path
+        className="logo-leaf"
+        d="M24 2.8c-4 1.2-8 5.2-9.2 10.8-1 4.2 .2 8.6 2.4 11.8 2.6 3.8 6.6 6 9 6 2.6 0 6.4-2.2 9-6 2.2-3.2 3.4-7.6 2.4-11.8C32 8 28 4 24 2.8z"
+        fill="url(#logoLeafGrad)"
+        filter="url(#logoSoftShadow)"
+        stroke="#6d28d9"
+        strokeWidth={0.5}
+        strokeLinejoin="round"
+      />
+      <path
+        className="logo-leaf"
+        d="M24 2.8c-4 1.2-8 5.2-9.2 10.8-1 4.2 .2 8.6 2.4 11.8 2.6 3.8 6.6 6 9 6 2.6 0 6.4-2.2 9-6 2.2-3.2 3.4-7.6 2.4-11.8C32 8 28 4 24 2.8z"
+        fill="url(#logoLeafShine)"
+        stroke="none"
+        opacity={0.85}
+      />
+      <path className="logo-vein" d="M24 5 v26" stroke="#7c3aed" strokeWidth={0.55} strokeLinecap="round" fill="none" strokeDasharray="3 4" />
+      <path d="M24 1.6 v2.4" stroke="#5b21b6" strokeWidth={0.75} strokeLinecap="round" opacity={0.75} />
+    </svg>
+  )
+}
+
 const CONDITION_OPTIONS = [
   'Diabetes',
   'Hypertension (High BP)',
@@ -317,7 +358,7 @@ function LoginScreen({
           ← Back to home
         </button>
         <div className="flex items-center gap-3 mb-6">
-          <img src="/logo.svg" alt="" className="h-10 w-10" />
+          <Logo className="h-10 w-10" />
           <h1 className="text-xl font-semibold text-violet-900">NutriMedAI</h1>
         </div>
         <p className="text-sm text-violet-600 mb-4">Sign in to your dashboard.</p>
@@ -391,7 +432,7 @@ function AboutPage({
       <header className="sticky top-0 z-[9999] bg-[#f5f3ff]/90 backdrop-blur-md border-b border-violet-200/50">
         <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/logo.svg" alt="" className="h-9 w-9" />
+            <Logo className="h-9 w-9" />
             <span className="font-semibold text-lg text-violet-900">NutriMedAI</span>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm text-violet-600">
@@ -463,7 +504,7 @@ function LandingPage({
       <header className="sticky top-0 z-[9999] bg-[#f5f3ff]/90 backdrop-blur-md border-b border-violet-200/50">
         <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/logo.svg" alt="" className="h-9 w-9" />
+            <Logo className="h-9 w-9" />
             <span className="font-semibold text-lg text-violet-900">NutriMedAI</span>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm text-violet-600">
@@ -602,7 +643,7 @@ function LandingPage({
           <div className="grid gap-10 md:grid-cols-4 text-sm">
             <div className="md:col-span-1 space-y-4">
               <div className="flex items-center gap-2 text-violet-900">
-                <img src="/logo.svg" alt="" className="h-7 w-7" />
+                <Logo className="h-7 w-7" />
                 <span className="font-semibold text-violet-900">NutriMedAI</span>
               </div>
               <p className="text-violet-600">Stay updated for our latest news &amp; insights.</p>
@@ -1145,7 +1186,7 @@ export default function App() {
         <header className="sticky top-0 z-[9999] border-b border-violet-200/50 bg-[#f5f3ff]/95 backdrop-blur-md">
           <div className="max-w-7xl mx-auto px-4 md:px-8 h-14 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <img src="/logo.svg" alt="" className="h-9 w-9" />
+              <Logo className="h-9 w-9" />
               <h1 className="text-lg font-semibold text-violet-900">NutriMedAI</h1>
             </div>
             <div className="flex items-center gap-3">

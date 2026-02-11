@@ -220,6 +220,18 @@ body {
   50% { transform: scale(1.15); }
 }
 
+/* Logo: animated leaf (site lavender palette) */
+@keyframes logo-leaf-pulse {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  50% { transform: scale(1.06) rotate(-1deg); opacity: 0.94; }
+}
+@keyframes logo-vein-flow {
+  0%, 100% { stroke-dashoffset: 0; opacity: 0.45; }
+  50% { stroke-dashoffset: -6; opacity: 0.9; }
+}
+.logo-leaf { animation: logo-leaf-pulse 2.6s ease-in-out infinite; transform-origin: 24px 8px; }
+.logo-vein { animation: logo-vein-flow 2s ease-in-out infinite; }
+
 @keyframes float-slow {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-12px); }
