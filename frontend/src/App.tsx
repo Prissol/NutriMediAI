@@ -368,7 +368,8 @@ function LoginScreen({
   defaultTab: 'login' | 'register'
   onBack: () => void
 }) {
-  const [tab, setTab] = useState<'login' | 'register'>(defaultTab)
+  const SHOW_REGISTER_TAB = false // set true to show Login | Register again
+  const [tab, setTab] = useState<'login' | 'register'>(SHOW_REGISTER_TAB ? defaultTab : 'login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -396,6 +397,7 @@ function LoginScreen({
           <h1 className="text-xl font-semibold text-violet-900">NutriMedAI</h1>
         </div>
         <p className="text-sm text-violet-600 mb-4">Sign in to your dashboard.</p>
+        {SHOW_REGISTER_TAB && (
         <div className="flex rounded-lg bg-violet-100/60 p-1 mb-4">
           <button
             type="button"
@@ -412,6 +414,7 @@ function LoginScreen({
             Register
           </button>
         </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="auth-email" className="block text-sm font-medium text-violet-800 mb-1">Email</label>
@@ -479,6 +482,7 @@ function AboutPage({
     'Exploring healthier swaps without giving up the foods you love',
     'Keeping a simple record of what you eat and how it fits your profile',
   ]
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   return (
     <div className="min-h-screen bg-[#f5f3ff] text-violet-900">
       <header className="sticky top-0 z-[9999] bg-[#f5f3ff]/90 backdrop-blur-md border-b border-violet-200/50">
@@ -495,8 +499,23 @@ function AboutPage({
           <div className="flex items-center gap-2">
             <button type="button" onClick={onLogin} className="px-4 py-2 rounded-full text-sm font-semibold text-violet-600 hover:text-violet-900 transition-colors">Login</button>
             <button type="button" onClick={onRegister} className="px-4 py-2 rounded-full text-sm font-semibold bg-violet-500 text-white hover:bg-violet-600 transition-colors">Get Started</button>
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen((o) => !o)}
+              className="md:hidden p-2 rounded-lg text-violet-700 hover:bg-violet-100/80 transition-colors"
+              aria-label="Toggle menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">{mobileNavOpen ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /> : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />}</svg>
+            </button>
           </div>
         </div>
+        {mobileNavOpen && (
+          <div className="md:hidden border-t border-violet-200/50 bg-[#f5f3ff]/98 backdrop-blur-md px-4 py-3 flex flex-col gap-1">
+            <button type="button" onClick={() => { onBack(); setMobileNavOpen(false) }} className="text-left py-2.5 px-3 rounded-lg text-sm font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100/60 transition-colors">Home</button>
+            <div className="py-2.5 px-3" onClick={() => setMobileNavOpen(false)}><LaunchSoonBadge /></div>
+            <span className="py-2.5 px-3 text-sm font-medium text-violet-900">About</span>
+          </div>
+        )}
       </header>
       <main className="max-w-4xl mx-auto px-4 md:px-8 py-12 md:py-16">
         <div className="text-center mb-14">
@@ -589,6 +608,7 @@ function LandingPage({
   onAboutClick: () => void
 }) {
   const [heroSlide, setHeroSlide] = useState(0)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   useEffect(() => {
     const t = setInterval(() => setHeroSlide((s) => (s + 1) % HERO_IMAGES.length), 5500)
     return () => clearInterval(t)
@@ -609,8 +629,23 @@ function LandingPage({
           <div className="flex items-center gap-2">
             <button type="button" onClick={onLogin} className="px-4 py-2 rounded-full text-sm font-semibold text-violet-600 hover:text-violet-900 transition-colors">Login</button>
             <button type="button" onClick={onRegister} className="px-4 py-2 rounded-full text-sm font-semibold bg-violet-500 text-white hover:bg-violet-600 transition-colors">Get Started</button>
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen((o) => !o)}
+              className="md:hidden p-2 rounded-lg text-violet-700 hover:bg-violet-100/80 transition-colors"
+              aria-label="Toggle menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">{mobileNavOpen ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /> : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />}</svg>
+            </button>
           </div>
         </div>
+        {mobileNavOpen && (
+          <div className="md:hidden border-t border-violet-200/50 bg-[#f5f3ff]/98 backdrop-blur-md px-4 py-3 flex flex-col gap-1">
+            <button type="button" className="text-left py-2.5 px-3 rounded-lg text-sm font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100/60 transition-colors">Home</button>
+            <button type="button" onClick={() => { onAboutClick(); setMobileNavOpen(false) }} className="text-left py-2.5 px-3 rounded-lg text-sm font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100/60 transition-colors">About</button>
+            <div className="py-2.5 px-3" onClick={() => setMobileNavOpen(false)}><LaunchSoonBadge /></div>
+          </div>
+        )}
       </header>
 
       <section className="relative min-h-[85vh] flex items-center overflow-hidden">
