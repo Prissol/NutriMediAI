@@ -1,12 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
   <defs>
-    <linearGradient id="fg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0d9488"/>
-      <stop offset="100%" stop-color="#115e59"/>
+    <linearGradient id="leafGrad" x1="10%" y1="10%" x2="90%" y2="90%">
+      <stop offset="0%" stop-color="#c4b5fd"/>
+      <stop offset="40%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#5b21b6"/>
     </linearGradient>
+    <linearGradient id="leafShine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ede9fe" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#6d28d9" flood-opacity="0.4"/>
+    </filter>
   </defs>
-  <rect width="32" height="32" rx="6" fill="#0f172a"/>
-  <path d="M16 4c-2 0-5 3-6.5 8-1 3.2-.3 6.2 1.4 8.8 1.7 2.6 4 4.2 5.1 4.2s3.4-1.6 5.1-4.2c1.7-2.6 2.4-5.6 1.4-8.8C21 7 18 4 16 4z" fill="url(#fg)" stroke="#0d9488" stroke-width="0.4" stroke-linejoin="round"/>
-  <path d="M16 6v14" stroke="#134e4a" stroke-width="0.4" stroke-linecap="round" opacity="0.6"/>
-  <path d="M11 21.5s1.2-1 2.2 0 1 1 2.2 0 1.2-1 2.2 0" stroke="#14b8a6" stroke-width="0.7" stroke-linecap="round" fill="none"/>
+  <g><path d="M14 4 C 9 8 8 18 14 26 C 19 18 19 8 14 4 Z" fill="url(#leafGrad)" filter="url(#softShadow)" stroke="#6d28d9" stroke-width="0.4" stroke-linejoin="round"/><path d="M14 4 C 9 8 8 18 14 26 C 19 18 19 8 14 4 Z" fill="url(#leafShine)" stroke="none" opacity="0.85"/><path d="M14 5 Q14 15 14 25" stroke="#a78bfa" stroke-width="0.35" stroke-linecap="round" fill="none" stroke-dasharray="3 3"/></g>
+  <g><path d="M34 5 C 29 9 28 19 34 27 C 40 19 39 9 34 5 Z" fill="url(#leafGrad)" filter="url(#softShadow)" stroke="#6d28d9" stroke-width="0.4" stroke-linejoin="round"/><path d="M34 5 C 29 9 28 19 34 27 C 40 19 39 9 34 5 Z" fill="url(#leafShine)" stroke="none" opacity="0.85"/><path d="M34 6 Q34 16 34 26" stroke="#a78bfa" stroke-width="0.35" stroke-linecap="round" fill="none" stroke-dasharray="3 3"/></g>
+  <g><path d="M24 30 C 21 33 20 40 24 45 C 28 40 27 33 24 30 Z" fill="url(#leafGrad)" filter="url(#softShadow)" stroke="#6d28d9" stroke-width="0.4" stroke-linejoin="round"/><path d="M24 30 C 21 33 20 40 24 45 C 28 40 27 33 24 30 Z" fill="url(#leafShine)" stroke="none" opacity="0.85"/><path d="M24 31 v13" stroke="#a78bfa" stroke-width="0.3" stroke-linecap="round" fill="none" stroke-dasharray="2 2"/></g>
 </svg>

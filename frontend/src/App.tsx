@@ -1205,7 +1205,7 @@ export default function App() {
           </div>
         </header>
 
-        <main className={`max-w-7xl mx-auto px-4 md:px-8 py-8 w-full space-y-6 ${isLightResultView ? 'bg-[#f5f3ff]' : ''}`}>
+        <main className={`max-w-7xl mx-auto px-4 md:px-8 w-full ${isLightResultView ? 'bg-[#f5f3ff] py-4 space-y-4' : 'py-8 space-y-6'}`}>
           {!analysis && (
           <section className="rounded-2xl p-4 md:p-6 border border-violet-200/50 bg-white/50 backdrop-blur-xl shadow-lg shadow-violet-200/20">
             <div className="flex items-center justify-between gap-3 mb-5">
@@ -1293,51 +1293,51 @@ export default function App() {
           )}
 
           {analysis && (
-            <div className="flex flex-col lg:flex-row gap-6 w-full">
-              {/* Left: IDENTIFIED FOOD card + circular image + Nutrition score - fixed width so it never collapses */}
-              <div className="w-full lg:w-[340px] lg:flex-shrink-0 lg:min-w-[340px] space-y-4">
-                <div className="bg-white/80 backdrop-blur rounded-2xl border border-violet-200/60 shadow-sm overflow-hidden">
-                  <div className="bg-violet-50/80 border-b border-violet-200/60 px-4 py-2">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-violet-800">Identified food</span>
+            <div className="flex flex-col lg:flex-row gap-4 w-full">
+              {/* Left: IDENTIFIED FOOD — compact */}
+              <div className="w-full lg:w-[260px] lg:flex-shrink-0 lg:min-w-[260px]">
+                <div className="bg-white/80 backdrop-blur rounded-xl border border-violet-200/60 shadow-sm overflow-hidden">
+                  <div className="bg-violet-50/80 border-b border-violet-200/60 px-3 py-1.5">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-violet-800">Identified food</span>
                   </div>
-                  <div className="p-4">
-                    <h3 className="text-lg font-bold text-violet-900">{dishName || 'Food item'}</h3>
-                    <div className="mt-4 flex justify-center">
+                  <div className="p-3">
+                    <h3 className="text-base font-bold text-violet-900 truncate">{dishName || 'Food item'}</h3>
+                    <div className="mt-2 flex justify-center">
                       {preview ? (
-                        <img src={preview} alt={dishName || 'Uploaded food'} className="w-48 h-48 rounded-full object-cover border-4 border-violet-100 shadow-inner" />
+                        <img src={preview} alt={dishName || 'Uploaded food'} className="w-28 h-28 rounded-full object-cover border-2 border-violet-100 shadow-inner" />
                       ) : (
-                        <div className="w-48 h-48 rounded-full bg-violet-50 border-4 border-violet-200 flex items-center justify-center text-violet-600 text-sm">No image</div>
+                        <div className="w-28 h-28 rounded-full bg-violet-50 border-2 border-violet-200 flex items-center justify-center text-violet-600 text-xs">No image</div>
                       )}
                     </div>
-                    <div className="mt-4">
-                      <div className="text-sm font-medium text-violet-800 mb-2">Nutrition score</div>
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1 h-2.5 rounded-full bg-violet-100 overflow-hidden">
+                    <div className="mt-2">
+                      <div className="text-xs font-medium text-violet-800 mb-1">Nutrition score</div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-2 rounded-full bg-violet-100 overflow-hidden">
                           <div className="h-full rounded-full bg-violet-500 transition-all animate-progress" style={{ width: `${nutritionScore != null ? Math.min(100, Math.max(0, nutritionScore)) : 0}%` }} />
                         </div>
-                        <span className="text-sm font-bold text-violet-900 tabular-nums flex-shrink-0">{nutritionScore != null ? `${nutritionScore}/100` : '—/100'}</span>
+                        <span className="text-xs font-bold text-violet-900 tabular-nums flex-shrink-0">{nutritionScore != null ? `${nutritionScore}/100` : '—/100'}</span>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Right: Nutrition summary, metrics, concern tags, SHOW checkboxes, condition summaries */}
+              {/* Right: Insights — dense layout to minimize scroll */}
               <div className="flex-1 min-w-0">
-                <div className="bg-white/80 backdrop-blur rounded-2xl border border-violet-200/60 shadow-sm p-5 md:p-6">
-                  <h3 className="text-xl font-semibold text-violet-900 mb-3">Nutrition summary</h3>
-                  <p className="text-violet-800 leading-relaxed mb-4">{foodSummary || 'Analysis generated successfully.'}</p>
+                <div className="bg-white/80 backdrop-blur rounded-xl border border-violet-200/60 shadow-sm p-4">
+                  <h3 className="text-lg font-semibold text-violet-900 mb-1">Nutrition summary</h3>
+                  <p className="text-violet-800 text-sm leading-snug mb-2">{foodSummary || 'Analysis generated successfully.'}</p>
 
                   {metrics.length > 0 && (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mb-2">
                       {metrics.map((m) => {
                         const key = metricKey(m.label)
                         return (
-                          <div key={`${m.label}_${m.value}`} className={`metric-${key} metric-card-hover rounded-xl p-3 flex items-center gap-3 border border-violet-200/50`}>
-                            <span className="text-violet-700 flex-shrink-0 [&>svg]:w-5 [&>svg]:h-5">{METRIC_ICONS[key] || METRIC_ICONS.calories}</span>
+                          <div key={`${m.label}_${m.value}`} className={`metric-${key} metric-card-hover rounded-lg p-2 flex items-center gap-2 border border-violet-200/50`}>
+                            <span className="text-violet-700 flex-shrink-0 [&>svg]:w-4 [&>svg]:h-4">{METRIC_ICONS[key] || METRIC_ICONS.calories}</span>
                             <div className="min-w-0">
-                              <div className="text-[11px] font-semibold uppercase tracking-wide text-violet-700">{m.label}</div>
-                              <div className="text-sm font-bold text-violet-900 truncate">{m.value || '—'}</div>
+                              <div className="text-[10px] font-semibold uppercase tracking-wide text-violet-700">{m.label}</div>
+                              <div className="text-xs font-bold text-violet-900 truncate">{m.value || '—'}</div>
                             </div>
                           </div>
                         )
@@ -1345,20 +1345,20 @@ export default function App() {
                     </div>
                   )}
 
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="flex flex-wrap gap-1.5 mb-2">
                     {currentConditionsList.filter((c) => c && c !== 'None / No current conditions').map((c) => (
-                      <span key={c} className="px-3 py-1 rounded-full text-xs font-medium bg-violet-500 text-white">{c}</span>
+                      <span key={c} className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-violet-500 text-white">{c}</span>
                     ))}
                     {concernedConditionsList.filter(Boolean).map((c) => (
-                      <span key={c} className="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-900 border border-purple-200">Concern: {c}</span>
+                      <span key={c} className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-purple-100 text-purple-900 border border-purple-200">Concern: {c}</span>
                     ))}
                     {categoryChips.length > 0 && categoryChips.map((chip) => (
-                      <span key={chip} className="px-3 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800 border border-violet-200">{chip}</span>
+                      <span key={chip} className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-violet-100 text-violet-800 border border-violet-200">{chip}</span>
                     ))}
                   </div>
 
-                  <div className="flex items-center gap-4 mb-4">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-violet-700">Show:</span>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-violet-700">Show:</span>
                     <label className="flex items-center gap-2 text-sm text-violet-900 cursor-pointer">
                       <input type="checkbox" checked={showCurrentCondition} onChange={(e) => setShowCurrentCondition(e.target.checked)} className="rounded border-violet-300 text-violet-600 focus:ring-violet-500" />
                       Current condition
@@ -1372,22 +1372,22 @@ export default function App() {
                   {currentSummary && showCurrentCondition && (() => {
                     const parsed = parseInfographyBlock(currentSummary)
                     return (
-                      <div className="mb-6">
-                        <div className="flex items-center gap-2 rounded-t-xl bg-violet-50/80 border border-violet-200/60 border-b-0 px-4 py-3">
-                          <svg className="w-5 h-5 text-violet-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                          <span className="text-sm font-bold uppercase tracking-wide text-violet-900">Current medical condition summary</span>
+                      <div className="mb-3">
+                        <div className="flex items-center gap-1.5 rounded-t-lg bg-violet-50/80 border border-violet-200/60 border-b-0 px-3 py-2">
+                          <svg className="w-4 h-4 text-violet-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                          <span className="text-xs font-bold uppercase tracking-wide text-violet-900">Current condition</span>
                         </div>
-                        <div className="rounded-b-xl border border-t-0 border-violet-200/60 bg-white/80 p-4">
-                          <div className="text-xs font-semibold text-violet-700 mb-2">{parsed.adviceLines.length} POINTS</div>
+                        <div className="rounded-b-lg border border-t-0 border-violet-200/60 bg-white/80 p-3">
+                          <div className="text-[10px] font-semibold text-violet-700 mb-1">{parsed.adviceLines.length} points</div>
                           {parsed.foodLines.length > 0 && (
                             <>
-                              <div className="rounded-lg bg-violet-50/60 border border-violet-100 px-3 py-2.5 mb-4">
-                                <div className="text-[11px] font-bold uppercase tracking-wider text-violet-700 mb-2">TL;DR (ingredient-wise)</div>
-                                <ul className="space-y-2">
+                              <div className="rounded-md bg-violet-50/60 border border-violet-100 px-2.5 py-1.5 mb-2">
+                                <div className="text-[10px] font-bold uppercase tracking-wider text-violet-700 mb-1">TL;DR</div>
+                                <ul className="space-y-0.5">
                                   {parsed.foodLines.map((line, i) => {
                                     const split = splitIngredientLine(line)
                                     return (
-                                      <li key={i} className="text-sm flex flex-wrap gap-1.5">
+                                      <li key={i} className="text-xs flex flex-wrap gap-1">
                                         {split ? (
                                           <>
                                             <span className="font-semibold text-violet-900">{split.ingredient}:</span>
@@ -1403,17 +1403,17 @@ export default function App() {
                               </div>
                             </>
                           )}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             {parsed.adviceLines.map((item, i) => {
                               const tag = (item.tag || '').toLowerCase()
                               const bg = tag.includes('important') ? 'bg-red-100 border-red-200' : tag.includes('reasoning') ? 'bg-orange-100 border-orange-200' : tag.includes('action') ? 'bg-blue-100 border-blue-200' : tag.includes('benefit') ? 'bg-emerald-100 border-emerald-200' : tag.includes('ask your doctor') ? 'bg-purple-100 border-purple-200' : 'bg-gray-100 border-gray-200'
-                              const icon = tag.includes('important') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>) : tag.includes('reasoning') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>) : tag.includes('action') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>) : tag.includes('benefit') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>) : tag.includes('ask your doctor') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>) : null
+                              const icon = tag.includes('important') ? (<svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>) : tag.includes('reasoning') ? (<svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>) : tag.includes('action') ? (<svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>) : tag.includes('benefit') ? (<svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>) : tag.includes('ask your doctor') ? (<svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>) : null
                               return (
-                                <div key={i} className={`rounded-xl border p-3 flex gap-3 ${bg}`}>
+                                <div key={i} className={`rounded-lg border p-2 flex gap-2 ${bg}`}>
                                   {icon}
                                   <div className="min-w-0">
-                                    {item.tag && <div className="text-xs font-bold uppercase text-gray-600 mb-0.5">{item.tag}</div>}
-                                    <p className="text-sm text-gray-800">{item.text}</p>
+                                    {item.tag && <div className="text-[10px] font-bold uppercase text-gray-600">{item.tag}</div>}
+                                    <p className="text-xs text-gray-800 leading-snug">{item.text}</p>
                                   </div>
                                 </div>
                               )
@@ -1427,22 +1427,22 @@ export default function App() {
                   {concernedSummary && showConcernedCondition && (() => {
                     const parsed = parseInfographyBlock(concernedSummary)
                     return (
-                      <div className="mb-6">
-                        <div className="flex items-center gap-2 rounded-t-xl bg-purple-50/80 border border-purple-200/60 border-b-0 px-4 py-3">
-                          <svg className="w-5 h-5 text-purple-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                          <span className="text-sm font-bold uppercase tracking-wide text-purple-900">Concerned condition summary</span>
+                      <div className="mb-3">
+                        <div className="flex items-center gap-1.5 rounded-t-lg bg-purple-50/80 border border-purple-200/60 border-b-0 px-3 py-2">
+                          <svg className="w-4 h-4 text-purple-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                          <span className="text-xs font-bold uppercase tracking-wide text-purple-900">Concerned condition</span>
                         </div>
-                        <div className="rounded-b-xl border border-t-0 border-purple-200/60 bg-white/80 p-4">
-                          <div className="text-xs font-semibold text-purple-700 mb-2">{parsed.adviceLines.length} POINTS</div>
+                        <div className="rounded-b-lg border border-t-0 border-purple-200/60 bg-white/80 p-3">
+                          <div className="text-[10px] font-semibold text-purple-700 mb-1">{parsed.adviceLines.length} points</div>
                           {parsed.foodLines.length > 0 && (
                             <>
-                              <div className="rounded-lg bg-purple-50/60 border border-purple-100 px-3 py-2.5 mb-4">
-                                <div className="text-[11px] font-bold uppercase tracking-wider text-purple-700 mb-2">TL;DR (ingredient-wise)</div>
-                                <ul className="space-y-2">
+                              <div className="rounded-md bg-purple-50/60 border border-purple-100 px-2.5 py-1.5 mb-2">
+                                <div className="text-[10px] font-bold uppercase tracking-wider text-purple-700 mb-1">TL;DR</div>
+                                <ul className="space-y-0.5">
                                   {parsed.foodLines.map((line, i) => {
                                     const split = splitIngredientLine(line)
                                     return (
-                                      <li key={i} className="text-sm flex flex-wrap gap-1.5">
+                                      <li key={i} className="text-xs flex flex-wrap gap-1">
                                         {split ? (
                                           <>
                                             <span className="font-semibold text-violet-900">{split.ingredient}:</span>
@@ -1458,17 +1458,17 @@ export default function App() {
                               </div>
                             </>
                           )}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             {parsed.adviceLines.map((item, i) => {
                               const tag = (item.tag || '').toLowerCase()
                               const bg = tag.includes('important') ? 'bg-red-100 border-red-200' : tag.includes('reasoning') ? 'bg-orange-100 border-orange-200' : tag.includes('action') ? 'bg-blue-100 border-blue-200' : tag.includes('benefit') ? 'bg-emerald-100 border-emerald-200' : tag.includes('ask your doctor') ? 'bg-purple-100 border-purple-200' : 'bg-gray-100 border-gray-200'
-                              const icon = tag.includes('important') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>) : tag.includes('reasoning') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>) : tag.includes('action') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>) : tag.includes('benefit') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>) : tag.includes('ask your doctor') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>) : null
+                              const icon = tag.includes('important') ? (<svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>) : tag.includes('reasoning') ? (<svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>) : tag.includes('action') ? (<svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>) : tag.includes('benefit') ? (<svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>) : tag.includes('ask your doctor') ? (<svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>) : null
                               return (
-                                <div key={i} className={`rounded-xl border p-3 flex gap-3 ${bg}`}>
+                                <div key={i} className={`rounded-lg border p-2 flex gap-2 ${bg}`}>
                                   {icon}
                                   <div className="min-w-0">
-                                    {item.tag && <div className="text-xs font-bold uppercase text-gray-600 mb-0.5">{item.tag}</div>}
-                                    <p className="text-sm text-gray-800">{item.text}</p>
+                                    {item.tag && <div className="text-[10px] font-bold uppercase text-gray-600">{item.tag}</div>}
+                                    <p className="text-xs text-gray-800 leading-snug">{item.text}</p>
                                   </div>
                                 </div>
                               )
@@ -1480,12 +1480,12 @@ export default function App() {
                   })()}
 
                   {alternativesList.length > 0 && (
-                    <div className="mb-4">
-                      <h4 className="text-sm font-bold uppercase tracking-wide text-violet-800 mb-2">Similar but safer</h4>
-                      <ul className="space-y-1.5">
+                    <div className="mb-2">
+                      <h4 className="text-[10px] font-bold uppercase tracking-wide text-violet-800 mb-1">Similar but safer</h4>
+                      <ul className="space-y-0.5">
                         {alternativesList.map((line, i) => (
-                          <li key={i} className="flex items-center gap-2 text-sm text-violet-900">
-                            <svg className="w-4 h-4 text-violet-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                          <li key={i} className="flex items-center gap-1.5 text-xs text-violet-900">
+                            <svg className="w-3.5 h-3.5 text-violet-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                             {line}
                           </li>
                         ))}
@@ -1494,18 +1494,18 @@ export default function App() {
                   )}
 
                   {additionalInfo && (
-                    <div className="mb-4 rounded-xl border border-violet-200/60 bg-violet-50/60 p-3 flex gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-violet-200 flex items-center justify-center text-violet-800 text-xs font-bold">i</span>
-                      <p className="text-sm text-violet-900 leading-relaxed">{additionalInfo}</p>
+                    <div className="mb-2 rounded-lg border border-violet-200/60 bg-violet-50/60 p-2 flex gap-2">
+                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-violet-200 flex items-center justify-center text-violet-800 text-[10px] font-bold">i</span>
+                      <p className="text-xs text-violet-900 leading-snug">{additionalInfo}</p>
                     </div>
                   )}
 
                   {!foodSummary && metrics.length === 0 && !currentSummary && !concernedSummary && (
-                    <div className="rounded-xl border border-violet-200/60 bg-violet-50/60 p-4 text-violet-900 whitespace-pre-wrap leading-relaxed text-sm">{analysis}</div>
+                    <div className="rounded-lg border border-violet-200/60 bg-violet-50/60 p-3 text-violet-900 whitespace-pre-wrap leading-relaxed text-xs">{analysis}</div>
                   )}
                 </div>
 
-                <p className="text-xs text-violet-600 text-center">General dietary guidance; not a substitute for medical advice. When in doubt, discuss with your doctor.</p>
+                <p className="text-[10px] text-violet-600 text-center mt-1">General dietary guidance; not a substitute for medical advice. When in doubt, discuss with your doctor.</p>
               </div>
             </div>
           )}
