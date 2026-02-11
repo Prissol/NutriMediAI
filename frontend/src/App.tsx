@@ -67,6 +67,39 @@ function Logo({ className }: { className?: string }) {
   )
 }
 
+/** "Launching soon" badge with exciting popover content */
+function LaunchSoonBadge() {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="px-3 py-1.5 rounded-full bg-gradient-to-r from-violet-200/80 to-violet-300/70 text-violet-800 text-xs font-bold hover:from-violet-300/90 hover:to-violet-400/80 transition-all border border-violet-200/60 shadow-sm"
+      >
+        Launching soon 🚀
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-[9998]" onClick={() => setOpen(false)} aria-hidden />
+          <div className="absolute right-0 top-full mt-2 z-[9999] w-80 rounded-2xl border-2 border-violet-200/60 bg-white/95 backdrop-blur-md shadow-xl shadow-violet-300/40 p-5 text-left">
+            <p className="text-base font-bold text-violet-900">Something exciting is almost here.</p>
+            <p className="text-sm text-violet-700 mt-2 leading-relaxed">
+              We're launching NutriMedAI very soon — your everyday health navigator. AI-powered nutrition, personalized insights, and food analysis that actually gets you.
+            </p>
+            <p className="text-sm font-semibold text-violet-800 mt-3">
+              Smarter nutrition. Made personal. Don't miss it — get ready. 🚀
+            </p>
+            <button type="button" onClick={() => setOpen(false)} className="mt-3 text-xs font-semibold text-violet-600 hover:text-violet-900">
+              Close
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
 const CONDITION_OPTIONS = [
   'Diabetes',
   'Hypertension (High BP)',
@@ -428,6 +461,24 @@ function AboutPage({
   onLogin: () => void
   onRegister: () => void
 }) {
+  const steps = [
+    { n: 1, title: 'Set your profile', desc: 'Add your current medical condition (e.g. diabetes, hypertension) and any conditions you want to monitor.' },
+    { n: 2, title: 'Upload a photo', desc: 'Snap or upload a picture of your meal. Add an optional note like portion size or preparation.' },
+    { n: 3, title: 'Get tailored insights', desc: 'Receive a nutrition score, summary, key metrics, and condition-specific advice in seconds.' },
+  ]
+  const features = [
+    { title: 'Nutrition score', desc: 'A clear 0–100 score so you know at a glance how the meal fits your goals.' },
+    { title: 'Condition-aware advice', desc: 'Recommendations for your current condition and for conditions you’re monitoring.' },
+    { title: 'TL;DR by ingredient', desc: 'Quick takeaways per ingredient so you know what to watch or enjoy.' },
+    { title: 'Similar but safer', desc: 'Suggestions for swaps or tweaks to make the meal better for you.' },
+    { title: 'Downloadable report', desc: 'Export your analysis as a PDF to share with your care team or keep for later.' },
+  ]
+  const forYou = [
+    'Managing diabetes, hypertension, heart health, or other diet-sensitive conditions',
+    'Watching sodium, sugar, carbs, or calories with clear numbers and guidance',
+    'Exploring healthier swaps without giving up the foods you love',
+    'Keeping a simple record of what you eat and how it fits your profile',
+  ]
   return (
     <div className="min-h-screen bg-[#f5f3ff] text-violet-900">
       <header className="sticky top-0 z-[9999] bg-[#f5f3ff]/90 backdrop-blur-md border-b border-violet-200/50">
@@ -438,7 +489,7 @@ function AboutPage({
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm text-violet-600">
             <button type="button" onClick={onBack} className="hover:text-violet-900 transition-colors">Home</button>
-            <span className="px-3 py-1 rounded-full bg-violet-200/60 text-violet-700 text-xs font-semibold">Coming Soon</span>
+            <LaunchSoonBadge />
             <span className="text-violet-900">About</span>
           </nav>
           <div className="flex items-center gap-2">
@@ -447,31 +498,72 @@ function AboutPage({
           </div>
         </div>
       </header>
-      <main className="max-w-4xl mx-auto px-4 md:px-8 py-12 md:py-20">
-        <div className="text-center mb-16">
+      <main className="max-w-4xl mx-auto px-4 md:px-8 py-12 md:py-16">
+        <div className="text-center mb-14">
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-violet-900">About NutriMedAI</h1>
           <p className="mt-4 text-lg text-violet-600 max-w-2xl mx-auto">
-            Personalized nutrition analysis powered by AI. We analyze your food against your health profile.
+            Personalized nutrition analysis powered by AI. We analyze your food against your health profile so you can eat with confidence.
+          </p>
+          <p className="mt-2 text-sm text-violet-500 max-w-xl mx-auto">
+            Not just calories — condition-aware guidance, key metrics, and actionable advice in one place.
           </p>
         </div>
-        <section className="rounded-2xl border border-violet-200/50 bg-white/50 backdrop-blur-xl p-6 md:p-8 mb-8 shadow-lg shadow-violet-200/20">
-          <h2 className="text-2xl font-semibold text-violet-700 mb-4">How it works</h2>
-          <p className="text-violet-700 leading-relaxed mb-6">
-            You set two types of conditions in your profile: <strong className="text-violet-900">Current medical condition</strong> (e.g. diabetes, hypertension) and <strong className="text-violet-900">Conditions to monitor</strong>. You upload a photo of your food; our AI gives tailored analysis for both.
-          </p>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="rounded-xl bg-violet-50/60 border border-violet-200/50 p-5">
-              <h3 className="text-lg font-semibold text-violet-900 mb-2">Current medical condition</h3>
-              <p className="text-sm text-violet-600">How safe and suitable this meal is for your current health.</p>
-            </div>
-            <div className="rounded-xl bg-violet-50/60 border border-violet-200/50 p-5">
-              <h3 className="text-lg font-semibold text-violet-900 mb-2">Conditions to monitor</h3>
-              <p className="text-sm text-violet-600">Advice for conditions you&apos;re watching or at risk for.</p>
-            </div>
+
+        <section className="rounded-2xl border border-violet-200/50 bg-white/60 backdrop-blur-xl p-6 md:p-8 mb-8 shadow-lg shadow-violet-200/20">
+          <h2 className="text-xl font-semibold text-violet-800 mb-1">How it works</h2>
+          <p className="text-sm text-violet-600 mb-6">Three steps from profile to personalized insights.</p>
+          <div className="space-y-4">
+            {steps.map((s) => (
+              <div key={s.n} className="flex gap-4 rounded-xl bg-violet-50/60 border border-violet-200/50 p-4">
+                <span className="flex-shrink-0 w-10 h-10 rounded-full bg-violet-500 text-white font-bold text-sm flex items-center justify-center">{s.n}</span>
+                <div>
+                  <h3 className="font-semibold text-violet-900">{s.title}</h3>
+                  <p className="text-sm text-violet-600 mt-0.5">{s.desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
-        <div className="text-center pt-4">
-          <button type="button" onClick={onRegister} className="px-6 py-3 rounded-full bg-violet-500 text-white font-semibold hover:bg-violet-600 transition-colors">
+
+        <section className="rounded-2xl border border-violet-200/50 bg-white/60 backdrop-blur-xl p-6 md:p-8 mb-8 shadow-lg shadow-violet-200/20">
+          <h2 className="text-xl font-semibold text-violet-800 mb-1">What you get</h2>
+          <p className="text-sm text-violet-600 mb-6">Every analysis includes:</p>
+          <ul className="grid md:grid-cols-2 gap-3">
+            {features.map((f) => (
+              <li key={f.title} className="flex gap-3 rounded-lg bg-violet-50/50 border border-violet-200/40 p-3">
+                <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-violet-200/60 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                </span>
+                <div>
+                  <h3 className="font-semibold text-violet-900 text-sm">{f.title}</h3>
+                  <p className="text-xs text-violet-600 mt-0.5">{f.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="rounded-2xl border border-violet-200/50 bg-white/60 backdrop-blur-xl p-6 md:p-8 mb-8 shadow-lg shadow-violet-200/20">
+          <h2 className="text-xl font-semibold text-violet-800 mb-1">Who it's for</h2>
+          <p className="text-sm text-violet-600 mb-4">NutriMedAI helps when you’re:</p>
+          <ul className="space-y-2">
+            {forYou.map((item) => (
+              <li key={item} className="flex gap-2 text-sm text-violet-700">
+                <span className="text-violet-400 mt-1">•</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="rounded-2xl border border-violet-200/50 bg-violet-50/60 p-6 mb-10 text-center">
+          <p className="text-sm text-violet-700">
+            Built with AI to support your choices. NutriMedAI is for guidance only and is not a substitute for professional medical or dietary advice.
+          </p>
+        </section>
+
+        <div className="text-center">
+          <button type="button" onClick={onRegister} className="px-6 py-3 rounded-full bg-violet-500 text-white font-semibold hover:bg-violet-600 transition-colors shadow-lg shadow-violet-200/30">
             Get started free
           </button>
         </div>
@@ -480,8 +572,9 @@ function AboutPage({
   )
 }
 
+// Hero: first slide = someone photographing food to analyze; others = food variety
 const HERO_IMAGES = [
-  'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=2000&q=80',
+  'https://images.pexels.com/photos/4910312/pexels-photo-4910312.jpeg?auto=compress&cs=tinysrgb&w=2000&q=80',
   'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=2000&q=80',
   'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=2000&q=80',
 ]
@@ -511,7 +604,7 @@ function LandingPage({
           <nav className="hidden md:flex items-center gap-6 text-sm text-violet-600">
             <button type="button" className="hover:text-violet-900 transition-colors">Home</button>
             <button type="button" onClick={onAboutClick} className="hover:text-violet-900 transition-colors">About</button>
-            <span className="px-3 py-1 rounded-full bg-violet-200/60 text-violet-700 text-xs font-semibold">Coming Soon</span>
+            <LaunchSoonBadge />
           </nav>
           <div className="flex items-center gap-2">
             <button type="button" onClick={onLogin} className="px-4 py-2 rounded-full text-sm font-semibold text-violet-600 hover:text-violet-900 transition-colors">Login</button>
