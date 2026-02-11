@@ -83,18 +83,18 @@ function ConditionMultiSelect({
 
   return (
     <div className="relative">
-      <label className="block text-sm font-medium text-white/80 mb-1.5">{label}</label>
-      <div className="min-h-[42px] rounded-lg border border-white/20 bg-white/10 flex flex-wrap items-center gap-2 p-2 focus-within:ring-2 focus-within:ring-emerald-500/50 focus-within:border-white/30">
+      <label className="block text-sm font-medium text-violet-800/90 mb-1.5">{label}</label>
+      <div className="min-h-[42px] rounded-lg border border-violet-200/60 bg-white/40 backdrop-blur-sm flex flex-wrap items-center gap-2 p-2 focus-within:ring-2 focus-within:ring-violet-400/50 focus-within:border-violet-300">
         {selected.filter((c) => c !== 'None / No current conditions').map((c) => (
           <span
             key={c}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-sm bg-white/15 border border-white/20 text-white"
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-sm bg-violet-100/80 border border-violet-200/60 text-violet-900"
           >
             {c}
             <button
               type="button"
               onClick={() => remove(c)}
-              className="text-white/60 hover:text-white leading-none"
+              className="text-violet-500 hover:text-violet-800 leading-none"
               aria-label={`Remove ${c}`}
             >
               ×
@@ -114,16 +114,16 @@ function ConditionMultiSelect({
             }
           }}
           placeholder={selected.length === 0 ? placeholder : 'Search or add another...'}
-          className="flex-1 min-w-[120px] bg-transparent border-0 outline-none text-white placeholder:text-white/50 py-1 text-sm"
+          className="flex-1 min-w-[120px] bg-transparent border-0 outline-none text-violet-900 placeholder:text-violet-400 py-1 text-sm"
         />
       </div>
       {dropdownOpen && (matches.length > 0 || canAddCustom) && (
-        <ul className="absolute z-30 mt-1 w-full rounded-lg border border-white/20 bg-[#123740] shadow-lg py-1 max-h-52 overflow-auto">
+        <ul className="absolute z-30 mt-1 w-full rounded-lg border border-violet-200/60 bg-white/95 backdrop-blur-md shadow-lg py-1 max-h-52 overflow-auto">
           {matches.slice(0, 10).map((c) => (
             <li key={c}>
               <button
                 type="button"
-                className="w-full text-left px-3 py-2 text-sm text-white/90 hover:bg-white/10"
+                className="w-full text-left px-3 py-2 text-sm text-violet-900 hover:bg-violet-50"
                 onMouseDown={(e) => { e.preventDefault(); add(c) }}
               >
                 {c}
@@ -131,10 +131,10 @@ function ConditionMultiSelect({
             </li>
           ))}
           {canAddCustom && (
-            <li className="border-t border-white/10">
+            <li className="border-t border-violet-100">
               <button
                 type="button"
-                className="w-full text-left px-3 py-2 text-sm text-emerald-300 hover:bg-white/10"
+                className="w-full text-left px-3 py-2 text-sm text-violet-600 hover:bg-violet-50"
                 onMouseDown={(e) => { e.preventDefault(); add(inputValue.trim()) }}
               >
                 Add &quot;{inputValue.trim()}&quot; as custom condition
@@ -311,47 +311,47 @@ function LoginScreen({
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0f2f34] px-4">
-      <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#123740] p-6 shadow-xl">
-        <button type="button" onClick={onBack} className="text-xs text-white/60 hover:text-white mb-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#f5f3ff] px-4">
+      <div className="w-full max-w-sm rounded-2xl border border-violet-200/60 bg-white/50 backdrop-blur-xl p-6 shadow-lg shadow-violet-200/30">
+        <button type="button" onClick={onBack} className="text-xs text-violet-500 hover:text-violet-800 mb-4">
           ← Back to home
         </button>
         <div className="flex items-center gap-3 mb-6">
           <img src="/logo.svg" alt="" className="h-10 w-10" />
-          <h1 className="text-xl font-semibold text-white">NutriMedAI</h1>
+          <h1 className="text-xl font-semibold text-violet-900">NutriMedAI</h1>
         </div>
-        <p className="text-sm text-white/70 mb-4">Sign in to your dashboard.</p>
-        <div className="flex rounded-lg bg-white/10 p-1 mb-4">
+        <p className="text-sm text-violet-600 mb-4">Sign in to your dashboard.</p>
+        <div className="flex rounded-lg bg-violet-100/60 p-1 mb-4">
           <button
             type="button"
             onClick={() => { setTab('login'); onClearError(); setPassword('') }}
-            className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${tab === 'login' ? 'bg-emerald-500 text-[#0f2f34]' : 'text-white/70 hover:text-white'}`}
+            className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${tab === 'login' ? 'bg-violet-500 text-white' : 'text-violet-600 hover:text-violet-900'}`}
           >
             Login
           </button>
           <button
             type="button"
             onClick={() => { setTab('register'); onClearError(); setPassword('') }}
-            className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${tab === 'register' ? 'bg-emerald-500 text-[#0f2f34]' : 'text-white/70 hover:text-white'}`}
+            className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${tab === 'register' ? 'bg-violet-500 text-white' : 'text-violet-600 hover:text-violet-900'}`}
           >
             Register
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="auth-email" className="block text-sm font-medium text-white/80 mb-1">Email</label>
+            <label htmlFor="auth-email" className="block text-sm font-medium text-violet-800 mb-1">Email</label>
             <input
               id="auth-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 rounded-lg border border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+              className="w-full px-3 py-2 rounded-lg border border-violet-200/60 bg-white/60 text-violet-900 placeholder:text-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
               placeholder="you@example.com"
             />
           </div>
           <div>
-            <label htmlFor="auth-password" className="block text-sm font-medium text-white/80 mb-1">Password</label>
+            <label htmlFor="auth-password" className="block text-sm font-medium text-violet-800 mb-1">Password</label>
             <input
               id="auth-password"
               type="password"
@@ -359,15 +359,15 @@ function LoginScreen({
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={tab === 'register' ? 6 : 1}
-              className="w-full px-3 py-2 rounded-lg border border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+              className="w-full px-3 py-2 rounded-lg border border-violet-200/60 bg-white/60 text-violet-900 placeholder:text-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
               placeholder={tab === 'register' ? 'Min 6 characters' : ''}
             />
           </div>
-          {error && <p className="text-sm text-red-300">{error}</p>}
+          {error && <p className="text-sm text-red-500">{error}</p>}
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-2.5 rounded-lg bg-emerald-500 text-[#0f2f34] font-semibold hover:bg-emerald-400 disabled:opacity-50 transition-colors"
+            className="w-full py-2.5 rounded-lg bg-violet-500 text-white font-semibold hover:bg-violet-600 disabled:opacity-50 transition-colors"
           >
             {submitting ? 'Please wait...' : tab === 'login' ? 'Log in' : 'Create account'}
           </button>
@@ -387,49 +387,49 @@ function AboutPage({
   onRegister: () => void
 }) {
   return (
-    <div className="min-h-screen bg-[#0f2f34] text-white">
-      <header className="sticky top-0 z-[9999] bg-[#0f2f34]/95 backdrop-blur border-b border-white/10">
+    <div className="min-h-screen bg-[#f5f3ff] text-violet-900">
+      <header className="sticky top-0 z-[9999] bg-[#f5f3ff]/90 backdrop-blur-md border-b border-violet-200/50">
         <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img src="/logo.svg" alt="" className="h-9 w-9" />
-            <span className="font-semibold text-lg">NutriMedAI</span>
+            <span className="font-semibold text-lg text-violet-900">NutriMedAI</span>
           </div>
-          <nav className="hidden md:flex items-center gap-6 text-sm text-white/80">
-            <button type="button" onClick={onBack} className="hover:text-white transition-colors">Home</button>
-            <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 text-xs font-semibold">Coming Soon</span>
-            <span className="text-white">About</span>
+          <nav className="hidden md:flex items-center gap-6 text-sm text-violet-600">
+            <button type="button" onClick={onBack} className="hover:text-violet-900 transition-colors">Home</button>
+            <span className="px-3 py-1 rounded-full bg-violet-200/60 text-violet-700 text-xs font-semibold">Coming Soon</span>
+            <span className="text-violet-900">About</span>
           </nav>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={onLogin} className="px-4 py-2 rounded-full text-sm font-semibold text-white/80 hover:text-white transition-colors">Login</button>
-            <button type="button" onClick={onRegister} className="px-4 py-2 rounded-full text-sm font-semibold bg-emerald-500 text-[#0f2f34] hover:bg-emerald-400 transition-colors">Get Started</button>
+            <button type="button" onClick={onLogin} className="px-4 py-2 rounded-full text-sm font-semibold text-violet-600 hover:text-violet-900 transition-colors">Login</button>
+            <button type="button" onClick={onRegister} className="px-4 py-2 rounded-full text-sm font-semibold bg-violet-500 text-white hover:bg-violet-600 transition-colors">Get Started</button>
           </div>
         </div>
       </header>
       <main className="max-w-4xl mx-auto px-4 md:px-8 py-12 md:py-20">
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">About NutriMedAI</h1>
-          <p className="mt-4 text-lg text-white/80 max-w-2xl mx-auto">
+          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-violet-900">About NutriMedAI</h1>
+          <p className="mt-4 text-lg text-violet-600 max-w-2xl mx-auto">
             Personalized nutrition analysis powered by AI. We analyze your food against your health profile.
           </p>
         </div>
-        <section className="rounded-2xl bg-[#123740] border border-white/10 p-6 md:p-8 mb-8">
-          <h2 className="text-2xl font-semibold text-emerald-200 mb-4">How it works</h2>
-          <p className="text-white/80 leading-relaxed mb-6">
-            You set two types of conditions in your profile: <strong className="text-white">Current medical condition</strong> (e.g. diabetes, hypertension) and <strong className="text-white">Conditions to monitor</strong>. You upload a photo of your food; our AI gives tailored analysis for both.
+        <section className="rounded-2xl border border-violet-200/50 bg-white/50 backdrop-blur-xl p-6 md:p-8 mb-8 shadow-lg shadow-violet-200/20">
+          <h2 className="text-2xl font-semibold text-violet-700 mb-4">How it works</h2>
+          <p className="text-violet-700 leading-relaxed mb-6">
+            You set two types of conditions in your profile: <strong className="text-violet-900">Current medical condition</strong> (e.g. diabetes, hypertension) and <strong className="text-violet-900">Conditions to monitor</strong>. You upload a photo of your food; our AI gives tailored analysis for both.
           </p>
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="rounded-xl bg-white/5 border border-white/10 p-5">
-              <h3 className="text-lg font-semibold text-white mb-2">Current medical condition</h3>
-              <p className="text-sm text-white/70">How safe and suitable this meal is for your current health.</p>
+            <div className="rounded-xl bg-violet-50/60 border border-violet-200/50 p-5">
+              <h3 className="text-lg font-semibold text-violet-900 mb-2">Current medical condition</h3>
+              <p className="text-sm text-violet-600">How safe and suitable this meal is for your current health.</p>
             </div>
-            <div className="rounded-xl bg-white/5 border border-white/10 p-5">
-              <h3 className="text-lg font-semibold text-white mb-2">Conditions to monitor</h3>
-              <p className="text-sm text-white/70">Advice for conditions you&apos;re watching or at risk for.</p>
+            <div className="rounded-xl bg-violet-50/60 border border-violet-200/50 p-5">
+              <h3 className="text-lg font-semibold text-violet-900 mb-2">Conditions to monitor</h3>
+              <p className="text-sm text-violet-600">Advice for conditions you&apos;re watching or at risk for.</p>
             </div>
           </div>
         </section>
         <div className="text-center pt-4">
-          <button type="button" onClick={onRegister} className="px-6 py-3 rounded-full bg-emerald-500 text-[#0f2f34] font-semibold hover:bg-emerald-400">
+          <button type="button" onClick={onRegister} className="px-6 py-3 rounded-full bg-violet-500 text-white font-semibold hover:bg-violet-600 transition-colors">
             Get started free
           </button>
         </div>
@@ -459,21 +459,21 @@ function LandingPage({
     return () => clearInterval(t)
   }, [])
   return (
-    <div className="min-h-screen bg-[#0f2f34] text-white">
-      <header className="sticky top-0 z-[9999] bg-[#0f2f34]/95 backdrop-blur border-b border-white/10">
+    <div className="min-h-screen bg-[#f5f3ff] text-violet-900">
+      <header className="sticky top-0 z-[9999] bg-[#f5f3ff]/90 backdrop-blur-md border-b border-violet-200/50">
         <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img src="/logo.svg" alt="" className="h-9 w-9" />
-            <span className="font-semibold text-lg">NutriMedAI</span>
+            <span className="font-semibold text-lg text-violet-900">NutriMedAI</span>
           </div>
-          <nav className="hidden md:flex items-center gap-6 text-sm text-white/80">
-            <button type="button" className="hover:text-white transition-colors">Home</button>
-            <button type="button" onClick={onAboutClick} className="hover:text-white transition-colors">About</button>
-            <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 text-xs font-semibold">Coming Soon</span>
+          <nav className="hidden md:flex items-center gap-6 text-sm text-violet-600">
+            <button type="button" className="hover:text-violet-900 transition-colors">Home</button>
+            <button type="button" onClick={onAboutClick} className="hover:text-violet-900 transition-colors">About</button>
+            <span className="px-3 py-1 rounded-full bg-violet-200/60 text-violet-700 text-xs font-semibold">Coming Soon</span>
           </nav>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={onLogin} className="px-4 py-2 rounded-full text-sm font-semibold text-white/80 hover:text-white transition-colors">Login</button>
-            <button type="button" onClick={onRegister} className="px-4 py-2 rounded-full text-sm font-semibold bg-emerald-500 text-[#0f2f34] hover:bg-emerald-400 transition-colors">Get Started</button>
+            <button type="button" onClick={onLogin} className="px-4 py-2 rounded-full text-sm font-semibold text-violet-600 hover:text-violet-900 transition-colors">Login</button>
+            <button type="button" onClick={onRegister} className="px-4 py-2 rounded-full text-sm font-semibold bg-violet-500 text-white hover:bg-violet-600 transition-colors">Get Started</button>
           </div>
         </div>
       </header>
@@ -493,15 +493,15 @@ function LandingPage({
         ))}
         <div
           className="absolute inset-0 z-10"
-          style={{ background: 'linear-gradient(0deg, rgba(15,47,52,0.72) 0%, rgba(15,47,52,0.4) 50%, rgba(15,47,52,0.35) 100%)' }}
+          style={{ background: 'linear-gradient(0deg, rgba(139,92,246,0.55) 0%, rgba(139,92,246,0.25) 50%, rgba(245,243,255,0.4) 100%)' }}
         />
         <div className="relative z-20 max-w-6xl mx-auto px-4 md:px-8 py-20 text-center w-full">
-          <h1 className="text-4xl md:text-6xl font-semibold leading-tight">Take control of your health</h1>
-          <p className="mt-4 text-lg text-white/80">Smarter nutrition. Made personal.</p>
+          <h1 className="text-4xl md:text-6xl font-semibold leading-tight text-violet-900">Take control of your health</h1>
+          <p className="mt-4 text-lg text-violet-700">Smarter nutrition. Made personal.</p>
           <button
             type="button"
             onClick={onRegister}
-            className="mt-8 px-6 py-3 rounded-full bg-emerald-500 text-[#0f2f34] font-semibold hover:bg-emerald-400"
+            className="mt-8 px-6 py-3 rounded-full bg-violet-500 text-white font-semibold hover:bg-violet-600"
           >
             Get started free
           </button>
@@ -511,7 +511,7 @@ function LandingPage({
                 key={i}
                 type="button"
                 onClick={() => setHeroSlide(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${i === heroSlide ? 'w-6 bg-emerald-400' : 'w-1.5 bg-white/40 hover:bg-white/60'}`}
+                className={`h-1.5 rounded-full transition-all duration-300 ${i === heroSlide ? 'w-6 bg-violet-400' : 'w-1.5 bg-violet-300/50 hover:bg-violet-300'}`}
                 aria-label={`Slide ${i + 1}`}
               />
             ))}
@@ -521,13 +521,13 @@ function LandingPage({
 
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4 md:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-semibold">
+          <h2 className="text-3xl md:text-4xl font-semibold text-violet-900">
             We focus on what fuels you. <br /> Not just the calories.
           </h2>
-          <p className="mt-4 text-white/70">
+          <p className="mt-4 text-violet-600">
             We turn everyday food decisions into clear, personalized guidance.
           </p>
-          <p className="mt-4 text-white/60 text-sm">
+          <p className="mt-4 text-violet-500 text-sm">
             Backed by science. Powered by AI. Built for you.
           </p>
           <div className="mt-10 grid gap-8 md:grid-cols-3">
@@ -536,24 +536,24 @@ function LandingPage({
               { title: 'Snap and go. AI does the rest.', body: 'Real-time photo analysis with clinical context.' },
               { title: 'See measurable progress that sticks.', body: 'Daily insights that move your goals forward.' },
             ].map((item) => (
-              <div key={item.title} className="rounded-2xl bg-white/10 border border-white/10 p-6 text-left">
-                <div className="text-sm font-semibold">{item.title}</div>
-                <div className="text-sm text-white/70 mt-2">{item.body}</div>
+              <div key={item.title} className="rounded-2xl border border-violet-200/50 bg-white/50 backdrop-blur-sm p-6 text-left shadow-lg shadow-violet-200/20">
+                <div className="text-sm font-semibold text-violet-900">{item.title}</div>
+                <div className="text-sm text-violet-600 mt-2">{item.body}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-12 bg-[#123740] border-y border-white/10">
+      <section className="py-12 border-y border-violet-200/50 bg-white/40 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-4 md:px-8 text-center">
-          <h3 className="text-2xl font-semibold">As Featured In</h3>
-          <p className="text-white/70 text-sm mt-2">
+          <h3 className="text-2xl font-semibold text-violet-900">As Featured In</h3>
+          <p className="text-violet-600 text-sm mt-2">
             Leading publications recognize NutriMedAI&apos;s AI‑powered nutrition guidance.
           </p>
-          <div className="mt-8 grid grid-cols-2 md:grid-cols-5 gap-4 text-white/70">
+          <div className="mt-8 grid grid-cols-2 md:grid-cols-5 gap-4 text-violet-600">
             {['The Times', 'Google', 'House of Lords', 'Healthline', 'Lifehacker'].map((logo) => (
-              <div key={logo} className="rounded-xl border border-white/10 bg-white/5 py-3">
+              <div key={logo} className="rounded-xl border border-violet-200/50 bg-violet-50/60 py-3">
                 {logo}
               </div>
             ))}
@@ -564,14 +564,14 @@ function LandingPage({
       <section
         className="relative py-16"
         style={{
-          backgroundImage: "linear-gradient(0deg, rgba(15,47,52,0.75), rgba(15,47,52,0.75)), url('https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=2000&q=80')",
+          backgroundImage: "linear-gradient(0deg, rgba(139,92,246,0.5), rgba(245,243,255,0.6)), url('https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=2000&q=80')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       >
         <div className="max-w-6xl mx-auto px-4 md:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-semibold">Your everyday health navigator.</h2>
-          <p className="mt-4 text-white/70">
+          <h2 className="text-3xl md:text-4xl font-semibold text-violet-900">Your everyday health navigator.</h2>
+          <p className="mt-4 text-violet-700">
             Built to meet your body and brain where they are. Then helps you level up.
           </p>
           <div className="mt-10 grid gap-6 md:grid-cols-3 text-left">
@@ -580,81 +580,81 @@ function LandingPage({
               { title: 'Macro + micro breakdowns', text: 'Calories, protein, carbs, fat, fiber, sugar, sodium, vitamins.' },
               { title: 'Smart alternatives', text: 'Safer swaps and portion guidance for your goals.' },
             ].map((tile, idx) => (
-              <div key={tile.title} className="rounded-2xl bg-white/10 border border-white/10 p-6">
-                <div className="text-emerald-300 font-semibold text-lg">{idx + 1}</div>
-                <div className="mt-2 text-white font-semibold">{tile.title}</div>
-                <div className="mt-2 text-white/70 text-sm">{tile.text}</div>
+              <div key={tile.title} className="rounded-2xl border border-violet-200/50 bg-white/50 backdrop-blur-sm p-6 shadow-lg shadow-violet-200/20">
+                <div className="text-violet-500 font-semibold text-lg">{idx + 1}</div>
+                <div className="mt-2 text-violet-900 font-semibold">{tile.title}</div>
+                <div className="mt-2 text-violet-600 text-sm">{tile.text}</div>
               </div>
             ))}
           </div>
           <button
             type="button"
             onClick={onRegister}
-            className="mt-8 px-6 py-3 rounded-full bg-emerald-500 text-[#0f2f34] font-semibold hover:bg-emerald-400"
+            className="mt-8 px-6 py-3 rounded-full bg-violet-500 text-white font-semibold hover:bg-violet-600"
           >
             Download Now
           </button>
         </div>
       </section>
 
-      <footer className="bg-[#123740] border-t border-white/10">
+      <footer className="border-t border-violet-200/50 bg-white/40 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-12">
           <div className="grid gap-10 md:grid-cols-4 text-sm">
             <div className="md:col-span-1 space-y-4">
-              <div className="flex items-center gap-2 text-white">
+              <div className="flex items-center gap-2 text-violet-900">
                 <img src="/logo.svg" alt="" className="h-7 w-7" />
-                <span className="font-semibold text-white">NutriMedAI</span>
+                <span className="font-semibold text-violet-900">NutriMedAI</span>
               </div>
-              <p className="text-white/70">Stay updated for our latest news &amp; insights.</p>
-              <div className="flex gap-2 text-white/80">
-                <a href="#" className="p-2 rounded-lg hover:bg-white/10 transition-colors" aria-label="Instagram">
+              <p className="text-violet-600">Stay updated for our latest news &amp; insights.</p>
+              <div className="flex gap-2 text-violet-600">
+                <a href="#" className="p-2 rounded-lg hover:bg-violet-100 transition-colors" aria-label="Instagram">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                 </a>
-                <a href="#" className="p-2 rounded-lg hover:bg-white/10 transition-colors" aria-label="LinkedIn">
+                <a href="#" className="p-2 rounded-lg hover:bg-violet-100 transition-colors" aria-label="LinkedIn">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
                 </a>
-                <a href="#" className="p-2 rounded-lg hover:bg-white/10 transition-colors" aria-label="Facebook">
+                <a href="#" className="p-2 rounded-lg hover:bg-violet-100 transition-colors" aria-label="Facebook">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                 </a>
-                <a href="#" className="p-2 rounded-lg hover:bg-white/10 transition-colors" aria-label="Twitter">
+                <a href="#" className="p-2 rounded-lg hover:bg-violet-100 transition-colors" aria-label="Twitter">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                 </a>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
-                <input type="email" placeholder="Enter your email" className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50" />
-                <button type="button" className="px-4 py-2.5 rounded-lg bg-emerald-500 text-[#0f2f34] font-semibold hover:bg-emerald-400 whitespace-nowrap">Subscribe</button>
+                <input type="email" placeholder="Enter your email" className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-white/60 border border-violet-200/60 text-violet-900 placeholder:text-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-400/50" />
+                <button type="button" className="px-4 py-2.5 rounded-lg bg-violet-500 text-white font-semibold hover:bg-violet-600 whitespace-nowrap">Subscribe</button>
               </div>
             </div>
             <div>
-              <div className="text-white font-semibold mb-4">Individuals</div>
-              <ul className="space-y-2.5 text-white/70">
-                <li><button type="button" className="text-left hover:text-white transition-colors">Nutrition tracker</button></li>
-                <li><button type="button" className="text-left hover:text-white transition-colors">Meal analysis</button></li>
-                <li><button type="button" className="text-left hover:text-white transition-colors">Health reports</button></li>
+              <div className="text-violet-900 font-semibold mb-4">Individuals</div>
+              <ul className="space-y-2.5 text-violet-600">
+                <li><button type="button" className="text-left hover:text-violet-900 transition-colors">Nutrition tracker</button></li>
+                <li><button type="button" className="text-left hover:text-violet-900 transition-colors">Meal analysis</button></li>
+                <li><button type="button" className="text-left hover:text-violet-900 transition-colors">Health reports</button></li>
               </ul>
             </div>
             <div>
-              <div className="text-white font-semibold mb-4">Company</div>
-              <ul className="space-y-2.5 text-white/70">
-                <li><button type="button" className="text-left hover:text-white transition-colors">FAQ</button></li>
-                <li><button type="button" className="text-left hover:text-white transition-colors">Contact</button></li>
-                <li><button type="button" className="text-left hover:text-white transition-colors">Privacy</button></li>
-                <li><button type="button" className="text-left hover:text-white transition-colors">Terms of Service</button></li>
-                <li><button type="button" className="text-left hover:text-white transition-colors">Cookies</button></li>
+              <div className="text-violet-900 font-semibold mb-4">Company</div>
+              <ul className="space-y-2.5 text-violet-600">
+                <li><button type="button" className="text-left hover:text-violet-900 transition-colors">FAQ</button></li>
+                <li><button type="button" className="text-left hover:text-violet-900 transition-colors">Contact</button></li>
+                <li><button type="button" className="text-left hover:text-violet-900 transition-colors">Privacy</button></li>
+                <li><button type="button" className="text-left hover:text-violet-900 transition-colors">Terms of Service</button></li>
+                <li><button type="button" className="text-left hover:text-violet-900 transition-colors">Cookies</button></li>
               </ul>
             </div>
             <div>
-              <div className="text-white font-semibold mb-4">Resources</div>
-              <ul className="space-y-2.5 text-white/70">
-                <li><button type="button" className="text-left hover:text-white transition-colors">Community</button></li>
-                <li><button type="button" className="text-left hover:text-white transition-colors">Blog</button></li>
-                <li><button type="button" className="text-left hover:text-white transition-colors">Support</button></li>
+              <div className="text-violet-900 font-semibold mb-4">Resources</div>
+              <ul className="space-y-2.5 text-violet-600">
+                <li><button type="button" className="text-left hover:text-violet-900 transition-colors">Community</button></li>
+                <li><button type="button" className="text-left hover:text-violet-900 transition-colors">Blog</button></li>
+                <li><button type="button" className="text-left hover:text-violet-900 transition-colors">Support</button></li>
               </ul>
             </div>
           </div>
         </div>
-        <div className="max-w-6xl mx-auto px-4 md:px-8 py-4 border-t border-white/10">
-          <p className="text-center text-xs text-white/50">© 2023 – 2026 NutriMedAI. All rights reserved.</p>
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-4 border-t border-violet-200/50">
+          <p className="text-center text-xs text-violet-500">© 2023 – 2026 NutriMedAI. All rights reserved.</p>
         </div>
       </footer>
     </div>
@@ -805,7 +805,19 @@ export default function App() {
     ? extractBlock(analysis, 'ADDITIONAL\\s*INFORMATION|ADDITIONAL\\s*INFO|NOTES|TIPS', [])
     : null
   const alternatives = analysis ? extractBlock(analysis, 'ALTERNATIVES', []) : null
-  const alternativesList = alternatives ? alternatives.split('\n').map((l) => l.trim()).filter(Boolean) : []
+  const alternativesList = (() => {
+    if (!alternatives) return []
+    return alternatives
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((line) => {
+        if (!line) return false
+        if (/^[-–—\s]+$/.test(line)) return false
+        if (/^(nutrition\s*score|NUTRITION\s*SCORE)\s*:?\s*\d*\s*\/\s*\d+/i.test(line)) return false
+        if (/^\d+\s*\/\s*100\s*$/i.test(line)) return false
+        return true
+      })
+  })()
 
   const downloadPDF = () => {
     if (!dishName && !analysis) return
@@ -1015,20 +1027,32 @@ export default function App() {
     }
 
     // ----- Alternatives (if present) -----
-    const alternatives = analysis ? extractBlock(analysis, 'ALTERNATIVES', []) : null
-    if (alternatives && alternatives.trim()) {
-      y = ensurePage(y, 25)
-      doc.setFontSize(10)
-      doc.setFont('helvetica', 'bold')
-      doc.text('Alternatives', margin, y)
-      y += 6
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(9)
-      alternatives.split('\n').filter((l) => l.trim()).forEach((line) => {
-        y = ensurePage(y, 6)
-        doc.text('• ' + line.trim(), margin + 2, y)
-        y += 5
-      })
+    const pdfAlternatives = analysis ? extractBlock(analysis, 'ALTERNATIVES', []) : null
+    if (pdfAlternatives && pdfAlternatives.trim()) {
+      const pdfAltLines = pdfAlternatives
+        .split('\n')
+        .map((l) => l.trim())
+        .filter((line) => {
+          if (!line) return false
+          if (/^[-–—\s]+$/.test(line)) return false
+          if (/^(nutrition\s*score|NUTRITION\s*SCORE)\s*:?\s*\d*\s*\/\s*\d+/i.test(line)) return false
+          if (/^\d+\s*\/\s*100\s*$/i.test(line)) return false
+          return true
+        })
+      if (pdfAltLines.length > 0) {
+        y = ensurePage(y, 25)
+        doc.setFontSize(10)
+        doc.setFont('helvetica', 'bold')
+        doc.text('Similar but safer', margin, y)
+        y += 6
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(9)
+        pdfAltLines.forEach((line) => {
+          y = ensurePage(y, 6)
+          doc.text('• ' + line, margin + 2, y)
+          y += 5
+        })
+      }
     }
 
     doc.save(`${(dishName || 'nutrition').replace(/[^a-z0-9-_]/gi, '_')}.pdf`)
@@ -1075,13 +1099,13 @@ export default function App() {
 
   const isLightResultView = !!analysis
   return (
-    <div className={`min-h-screen flex ${isLightResultView ? 'bg-[#e6f2ef] text-[#0f2f34]' : 'bg-[#0f2f34] text-white'}`}>
-      <aside className={`hidden md:flex w-[290px] shrink-0 border-r flex-col ${isLightResultView ? 'border-emerald-200 bg-white' : 'border-white/10 bg-[#123740]'}`}>
-        <div className={`p-3 border-b ${isLightResultView ? 'border-emerald-200' : 'border-white/10'}`}>
+    <div className={`min-h-screen flex ${isLightResultView ? 'bg-[#f5f3ff] text-violet-900' : 'bg-[#f5f3ff] text-violet-900'}`}>
+      <aside className="hidden md:flex w-[290px] shrink-0 border-r flex-col border-violet-200/50 bg-[#f5f3ff]">
+        <div className="p-3 border-b border-violet-200/50">
           <button
             type="button"
             onClick={startNewAnalysis}
-            className={`w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isLightResultView ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-emerald-500 text-[#0f2f34] hover:bg-emerald-400'}`}
+            className="w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors bg-violet-500 text-white hover:bg-violet-600"
           >
             New analysis
           </button>
@@ -1092,25 +1116,25 @@ export default function App() {
             value={sidebarSearch}
             onChange={(e) => setSidebarSearch(e.target.value)}
             placeholder="Search history..."
-            className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-emerald-500/40 ${isLightResultView ? 'border-emerald-200 bg-emerald-50/50 text-[#0f2f34] placeholder:text-emerald-700/60' : 'border-white/20 bg-white/10 text-white placeholder:text-white/50'}`}
+            className="w-full px-3 py-2 rounded-lg border border-violet-200/60 bg-white/50 text-violet-900 placeholder:text-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-400/40"
           />
         </div>
         <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-2">
           {filteredHistory.length === 0 ? (
-            <p className={`text-sm px-2 py-1 ${isLightResultView ? 'text-emerald-700/70' : 'text-white/50'}`}>No analyses yet.</p>
+            <p className="text-sm px-2 py-1 text-violet-600">No analyses yet.</p>
           ) : (
             filteredHistory.map((entry) => (
               <button
                 key={entry.id}
                 type="button"
                 onClick={() => loadHistoryEntry(entry)}
-                className={`w-full text-left rounded-lg border transition-colors px-2 py-2 ${isLightResultView ? 'border-emerald-200 bg-emerald-50/50 hover:bg-emerald-100/70 text-[#0f2f34]' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}
+                className="w-full text-left rounded-lg border border-violet-200/50 bg-white/40 hover:bg-violet-50/80 transition-colors px-2 py-2 text-violet-900"
               >
-                <div className={`text-xs mb-1 ${isLightResultView ? 'text-emerald-700/70' : 'text-white/50'}`}>
+                <div className="text-xs mb-1 text-violet-600">
                   {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                 </div>
-                <div className={`text-sm truncate ${isLightResultView ? 'text-[#0f2f34]' : 'text-white/90'}`}>{entry.currentConditions || 'No current condition'}</div>
-                <div className={`text-xs truncate ${isLightResultView ? 'text-emerald-700/70' : 'text-white/60'}`}>{entry.concernedConditions || 'No monitored conditions'}</div>
+                <div className="text-sm truncate">{entry.currentConditions || 'No current condition'}</div>
+                <div className="text-xs truncate text-violet-600">{entry.concernedConditions || 'No monitored conditions'}</div>
               </button>
             ))
           )}
@@ -1118,19 +1142,19 @@ export default function App() {
       </aside>
 
       <div className="flex-1 min-w-0 flex flex-col">
-        <header className={`sticky top-0 z-[9999] border-b backdrop-blur ${isLightResultView ? 'bg-white/95 border-emerald-200' : 'border-white/10 bg-[#0f2f34]/95'}`}>
+        <header className="sticky top-0 z-[9999] border-b border-violet-200/50 bg-[#f5f3ff]/95 backdrop-blur-md">
           <div className="max-w-7xl mx-auto px-4 md:px-8 h-14 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <img src="/logo.svg" alt="" className="h-9 w-9" />
-              <h1 className={`text-lg font-semibold ${isLightResultView ? 'text-[#0f2f34]' : 'text-white'}`}>NutriMedAI</h1>
+              <h1 className="text-lg font-semibold text-violet-900">NutriMedAI</h1>
             </div>
             <div className="flex items-center gap-3">
-              <span className={`text-sm truncate max-w-[200px] ${isLightResultView ? 'text-emerald-800' : 'text-white/70'}`} title={user.email}>{user.email}</span>
-              <button type="button" onClick={logout} className={`px-3 py-1.5 rounded-xl text-sm font-medium ${isLightResultView ? 'text-emerald-800 hover:text-[#0f2f34] hover:bg-emerald-100' : 'text-white/80 hover:text-white hover:bg-white/10 border border-white/20'}`}>
+              <span className="text-sm truncate max-w-[200px] text-violet-700" title={user.email}>{user.email}</span>
+              <button type="button" onClick={logout} className="px-3 py-1.5 rounded-xl text-sm font-medium text-violet-700 hover:text-violet-900 hover:bg-violet-100 border border-violet-200/60">
                 Log out
               </button>
               {analysis && (
-                <button type="button" onClick={downloadPDF} className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-medium bg-emerald-500 text-white hover:bg-emerald-600">
+                <button type="button" onClick={downloadPDF} className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-medium bg-violet-500 text-white hover:bg-violet-600">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                   Download PDF
                 </button>
@@ -1139,15 +1163,15 @@ export default function App() {
           </div>
         </header>
 
-        <main className={`max-w-7xl mx-auto px-4 md:px-8 py-8 w-full space-y-6 ${isLightResultView ? 'bg-[#e6f2ef]' : ''}`}>
+        <main className={`max-w-7xl mx-auto px-4 md:px-8 py-8 w-full space-y-6 ${isLightResultView ? 'bg-[#f5f3ff]' : ''}`}>
           {!analysis && (
-          <section className={`rounded-2xl p-4 md:p-6 ${isLightResultView ? 'bg-white border border-emerald-200 shadow-sm' : 'bg-[#123740] border border-white/10'}`}>
+          <section className="rounded-2xl p-4 md:p-6 border border-violet-200/50 bg-white/50 backdrop-blur-xl shadow-lg shadow-violet-200/20">
             <div className="flex items-center justify-between gap-3 mb-5">
-              <h2 className={`text-lg md:text-xl font-semibold ${isLightResultView ? 'text-[#0f2f34]' : 'text-white'}`}>Medical profile & analysis</h2>
+              <h2 className="text-lg md:text-xl font-semibold text-violet-900">Medical profile & analysis</h2>
               <button
                 type="button"
                 onClick={startNewAnalysis}
-                className={isLightResultView ? 'px-3 py-1.5 rounded-lg text-sm font-medium text-emerald-800 hover:text-[#0f2f34] hover:bg-emerald-100 border border-emerald-200' : 'px-3 py-1.5 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 border border-white/20'}
+                className="px-3 py-1.5 rounded-lg text-sm font-medium text-violet-700 hover:text-violet-900 hover:bg-violet-100 border border-violet-200/60"
               >
                 New analysis
               </button>
@@ -1179,25 +1203,25 @@ export default function App() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-              <label className="flex flex-col items-center justify-center w-full min-h-[280px] rounded-lg border border-white/20 bg-white/5 cursor-pointer overflow-hidden transition-colors hover:bg-white/10">
+              <label className="flex flex-col items-center justify-center w-full min-h-[280px] rounded-lg border border-violet-200/60 bg-white/40 cursor-pointer overflow-hidden transition-colors hover:bg-violet-50/60">
                 <input type="file" accept="image/*" className="hidden" onChange={onFileChange} />
                 {preview ? (
-                  <img src={preview} alt="Upload preview" className="w-full h-full min-h-[280px] max-h-[400px] object-contain bg-white/5" />
+                  <img src={preview} alt="Upload preview" className="w-full h-full min-h-[280px] max-h-[400px] object-contain bg-white/40" />
                 ) : (
                   <span className="flex flex-col items-center gap-3 text-center px-4 py-8">
-                    <span className="flex items-center justify-center w-11 h-11 rounded-lg bg-white/10 text-white/60" aria-hidden>
+                    <span className="flex items-center justify-center w-11 h-11 rounded-lg bg-violet-100 text-violet-500" aria-hidden>
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     </span>
-                    <span className="text-sm font-medium text-white/80">Upload food image</span>
-                    <span className="text-xs text-white/50">PNG, JPG, JPEG, GIF, WEBP</span>
+                    <span className="text-sm font-medium text-violet-800">Upload food image</span>
+                    <span className="text-xs text-violet-500">PNG, JPG, JPEG, GIF, WEBP</span>
                   </span>
                 )}
               </label>
 
-              <div className="flex flex-col min-h-[280px] rounded-lg border border-white/20 bg-white/5 p-5">
-                <label htmlFor="description-input" className="text-sm font-medium text-white/80 mb-2 block">
+              <div className="flex flex-col min-h-[280px] rounded-lg border border-violet-200/60 bg-white/40 p-5">
+                <label htmlFor="description-input" className="text-sm font-medium text-violet-800 mb-2 block">
                   Description (optional)
                 </label>
                 <input
@@ -1206,18 +1230,18 @@ export default function App() {
                   placeholder="e.g. Portion size, preparation method, or your question"
                   value={userDescription}
                   onChange={(e) => setUserDescription(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-lg border border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-sm"
+                  className="w-full px-4 py-2.5 rounded-lg border border-violet-200/60 bg-white/60 text-violet-900 placeholder:text-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-400/50 text-sm"
                 />
                 <button
                   type="button"
                   onClick={analyzeFood}
                   disabled={!file || loadingAnalysis}
-                  className="mt-5 w-full px-4 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-[#0f2f34] font-medium text-sm transition-colors"
+                  className="mt-5 w-full px-4 py-3 rounded-lg bg-violet-500 hover:bg-violet-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-sm transition-colors"
                 >
                   {loadingAnalysis ? 'Analyzing...' : 'Analyze food'}
                 </button>
                 {analysisError && (
-                  <p className="mt-3 text-sm text-red-200 bg-red-500/20 border border-red-400/40 rounded-lg px-3 py-2">
+                  <p className="mt-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
                     {analysisError}
                   </p>
                 )}
@@ -1230,26 +1254,26 @@ export default function App() {
             <div className="flex flex-col lg:flex-row gap-6 w-full">
               {/* Left: IDENTIFIED FOOD card + circular image + Nutrition score - fixed width so it never collapses */}
               <div className="w-full lg:w-[340px] lg:flex-shrink-0 lg:min-w-[340px] space-y-4">
-                <div className="bg-white rounded-2xl border border-emerald-200 shadow-sm overflow-hidden">
-                  <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-2">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-emerald-800">Identified food</span>
+                <div className="bg-white/80 backdrop-blur rounded-2xl border border-violet-200/60 shadow-sm overflow-hidden">
+                  <div className="bg-violet-50/80 border-b border-violet-200/60 px-4 py-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-violet-800">Identified food</span>
                   </div>
                   <div className="p-4">
-                    <h3 className="text-lg font-bold text-[#0f2f34]">{dishName || 'Food item'}</h3>
+                    <h3 className="text-lg font-bold text-violet-900">{dishName || 'Food item'}</h3>
                     <div className="mt-4 flex justify-center">
                       {preview ? (
-                        <img src={preview} alt={dishName || 'Uploaded food'} className="w-48 h-48 rounded-full object-cover border-4 border-emerald-100 shadow-inner" />
+                        <img src={preview} alt={dishName || 'Uploaded food'} className="w-48 h-48 rounded-full object-cover border-4 border-violet-100 shadow-inner" />
                       ) : (
-                        <div className="w-48 h-48 rounded-full bg-emerald-50 border-4 border-emerald-200 flex items-center justify-center text-emerald-600 text-sm">No image</div>
+                        <div className="w-48 h-48 rounded-full bg-violet-50 border-4 border-violet-200 flex items-center justify-center text-violet-600 text-sm">No image</div>
                       )}
                     </div>
                     <div className="mt-4">
-                      <div className="text-sm font-medium text-emerald-800 mb-2">Nutrition score</div>
+                      <div className="text-sm font-medium text-violet-800 mb-2">Nutrition score</div>
                       <div className="flex items-center gap-3">
-                        <div className="flex-1 h-2.5 rounded-full bg-emerald-100 overflow-hidden">
-                          <div className="h-full rounded-full bg-emerald-500 transition-all animate-progress" style={{ width: `${nutritionScore != null ? Math.min(100, Math.max(0, nutritionScore)) : 0}%` }} />
+                        <div className="flex-1 h-2.5 rounded-full bg-violet-100 overflow-hidden">
+                          <div className="h-full rounded-full bg-violet-500 transition-all animate-progress" style={{ width: `${nutritionScore != null ? Math.min(100, Math.max(0, nutritionScore)) : 0}%` }} />
                         </div>
-                        <span className="text-sm font-bold text-[#0f2f34] tabular-nums flex-shrink-0">{nutritionScore != null ? `${nutritionScore}/100` : '—/100'}</span>
+                        <span className="text-sm font-bold text-violet-900 tabular-nums flex-shrink-0">{nutritionScore != null ? `${nutritionScore}/100` : '—/100'}</span>
                       </div>
                     </div>
                   </div>
@@ -1258,20 +1282,20 @@ export default function App() {
 
               {/* Right: Nutrition summary, metrics, concern tags, SHOW checkboxes, condition summaries */}
               <div className="flex-1 min-w-0">
-                <div className="bg-white rounded-2xl border border-emerald-200 shadow-sm p-5 md:p-6">
-                  <h3 className="text-xl font-semibold text-[#0f2f34] mb-3">Nutrition summary</h3>
-                  <p className="text-emerald-900/90 leading-relaxed mb-4">{foodSummary || 'Analysis generated successfully.'}</p>
+                <div className="bg-white/80 backdrop-blur rounded-2xl border border-violet-200/60 shadow-sm p-5 md:p-6">
+                  <h3 className="text-xl font-semibold text-violet-900 mb-3">Nutrition summary</h3>
+                  <p className="text-violet-800 leading-relaxed mb-4">{foodSummary || 'Analysis generated successfully.'}</p>
 
                   {metrics.length > 0 && (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
                       {metrics.map((m) => {
                         const key = metricKey(m.label)
                         return (
-                          <div key={`${m.label}_${m.value}`} className={`metric-${key} metric-card-hover rounded-xl p-3 flex items-center gap-3 border border-emerald-200/50`}>
-                            <span className="text-emerald-800 flex-shrink-0 [&>svg]:w-5 [&>svg]:h-5">{METRIC_ICONS[key] || METRIC_ICONS.calories}</span>
+                          <div key={`${m.label}_${m.value}`} className={`metric-${key} metric-card-hover rounded-xl p-3 flex items-center gap-3 border border-violet-200/50`}>
+                            <span className="text-violet-700 flex-shrink-0 [&>svg]:w-5 [&>svg]:h-5">{METRIC_ICONS[key] || METRIC_ICONS.calories}</span>
                             <div className="min-w-0">
-                              <div className="text-[11px] font-semibold uppercase tracking-wide text-emerald-800">{m.label}</div>
-                              <div className="text-sm font-bold text-[#0f2f34] truncate">{m.value || '—'}</div>
+                              <div className="text-[11px] font-semibold uppercase tracking-wide text-violet-700">{m.label}</div>
+                              <div className="text-sm font-bold text-violet-900 truncate">{m.value || '—'}</div>
                             </div>
                           </div>
                         )
@@ -1281,24 +1305,24 @@ export default function App() {
 
                   <div className="flex flex-wrap gap-2 mb-4">
                     {currentConditionsList.filter((c) => c && c !== 'None / No current conditions').map((c) => (
-                      <span key={c} className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-600 text-white">{c}</span>
+                      <span key={c} className="px-3 py-1 rounded-full text-xs font-medium bg-violet-500 text-white">{c}</span>
                     ))}
                     {concernedConditionsList.filter(Boolean).map((c) => (
-                      <span key={c} className="px-3 py-1 rounded-full text-xs font-medium bg-teal-100 text-teal-900 border border-teal-200">Concern: {c}</span>
+                      <span key={c} className="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-900 border border-purple-200">Concern: {c}</span>
                     ))}
                     {categoryChips.length > 0 && categoryChips.map((chip) => (
-                      <span key={chip} className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">{chip}</span>
+                      <span key={chip} className="px-3 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800 border border-violet-200">{chip}</span>
                     ))}
                   </div>
 
                   <div className="flex items-center gap-4 mb-4">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Show:</span>
-                    <label className="flex items-center gap-2 text-sm text-emerald-900 cursor-pointer">
-                      <input type="checkbox" checked={showCurrentCondition} onChange={(e) => setShowCurrentCondition(e.target.checked)} className="rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-violet-700">Show:</span>
+                    <label className="flex items-center gap-2 text-sm text-violet-900 cursor-pointer">
+                      <input type="checkbox" checked={showCurrentCondition} onChange={(e) => setShowCurrentCondition(e.target.checked)} className="rounded border-violet-300 text-violet-600 focus:ring-violet-500" />
                       Current condition
                     </label>
-                    <label className="flex items-center gap-2 text-sm text-emerald-900 cursor-pointer">
-                      <input type="checkbox" checked={showConcernedCondition} onChange={(e) => setShowConcernedCondition(e.target.checked)} className="rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500" />
+                    <label className="flex items-center gap-2 text-sm text-violet-900 cursor-pointer">
+                      <input type="checkbox" checked={showConcernedCondition} onChange={(e) => setShowConcernedCondition(e.target.checked)} className="rounded border-violet-300 text-violet-600 focus:ring-violet-500" />
                       Concerned condition
                     </label>
                   </div>
@@ -1307,16 +1331,16 @@ export default function App() {
                     const parsed = parseInfographyBlock(currentSummary)
                     return (
                       <div className="mb-6">
-                        <div className="flex items-center gap-2 rounded-t-xl bg-emerald-50 border border-emerald-200 border-b-0 px-4 py-3">
-                          <svg className="w-5 h-5 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                          <span className="text-sm font-bold uppercase tracking-wide text-emerald-900">Current medical condition summary</span>
+                        <div className="flex items-center gap-2 rounded-t-xl bg-violet-50/80 border border-violet-200/60 border-b-0 px-4 py-3">
+                          <svg className="w-5 h-5 text-violet-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                          <span className="text-sm font-bold uppercase tracking-wide text-violet-900">Current medical condition summary</span>
                         </div>
-                        <div className="rounded-b-xl border border-t-0 border-emerald-200 bg-white p-4">
-                          <div className="text-xs font-semibold text-emerald-700 mb-2">{parsed.adviceLines.length} POINTS</div>
+                        <div className="rounded-b-xl border border-t-0 border-violet-200/60 bg-white/80 p-4">
+                          <div className="text-xs font-semibold text-violet-700 mb-2">{parsed.adviceLines.length} POINTS</div>
                           {parsed.foodLines.length > 0 && (
                             <>
-                              <div className="rounded-lg bg-emerald-50/80 border border-emerald-100 px-3 py-2.5 mb-4">
-                                <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 mb-2">TL;DR (ingredient-wise)</div>
+                              <div className="rounded-lg bg-violet-50/60 border border-violet-100 px-3 py-2.5 mb-4">
+                                <div className="text-[11px] font-bold uppercase tracking-wider text-violet-700 mb-2">TL;DR (ingredient-wise)</div>
                                 <ul className="space-y-2">
                                   {parsed.foodLines.map((line, i) => {
                                     const split = splitIngredientLine(line)
@@ -1324,11 +1348,11 @@ export default function App() {
                                       <li key={i} className="text-sm flex flex-wrap gap-1.5">
                                         {split ? (
                                           <>
-                                            <span className="font-semibold text-[#0f2f34]">{split.ingredient}:</span>
-                                            <span className="text-emerald-800">{split.takeaway}</span>
+                                            <span className="font-semibold text-violet-900">{split.ingredient}:</span>
+                                            <span className="text-violet-800">{split.takeaway}</span>
                                           </>
                                         ) : (
-                                          <span className="text-emerald-900">{line}</span>
+                                          <span className="text-violet-900">{line}</span>
                                         )}
                                       </li>
                                     )
@@ -1362,16 +1386,16 @@ export default function App() {
                     const parsed = parseInfographyBlock(concernedSummary)
                     return (
                       <div className="mb-6">
-                        <div className="flex items-center gap-2 rounded-t-xl bg-teal-50 border border-teal-200 border-b-0 px-4 py-3">
-                          <svg className="w-5 h-5 text-teal-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                          <span className="text-sm font-bold uppercase tracking-wide text-teal-900">Concerned condition summary</span>
+                        <div className="flex items-center gap-2 rounded-t-xl bg-purple-50/80 border border-purple-200/60 border-b-0 px-4 py-3">
+                          <svg className="w-5 h-5 text-purple-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                          <span className="text-sm font-bold uppercase tracking-wide text-purple-900">Concerned condition summary</span>
                         </div>
-                        <div className="rounded-b-xl border border-t-0 border-teal-200 bg-white p-4">
-                          <div className="text-xs font-semibold text-teal-700 mb-2">{parsed.adviceLines.length} POINTS</div>
+                        <div className="rounded-b-xl border border-t-0 border-purple-200/60 bg-white/80 p-4">
+                          <div className="text-xs font-semibold text-purple-700 mb-2">{parsed.adviceLines.length} POINTS</div>
                           {parsed.foodLines.length > 0 && (
                             <>
-                              <div className="rounded-lg bg-teal-50/80 border border-teal-100 px-3 py-2.5 mb-4">
-                                <div className="text-[11px] font-bold uppercase tracking-wider text-teal-700 mb-2">TL;DR (ingredient-wise)</div>
+                              <div className="rounded-lg bg-purple-50/60 border border-purple-100 px-3 py-2.5 mb-4">
+                                <div className="text-[11px] font-bold uppercase tracking-wider text-purple-700 mb-2">TL;DR (ingredient-wise)</div>
                                 <ul className="space-y-2">
                                   {parsed.foodLines.map((line, i) => {
                                     const split = splitIngredientLine(line)
@@ -1379,11 +1403,11 @@ export default function App() {
                                       <li key={i} className="text-sm flex flex-wrap gap-1.5">
                                         {split ? (
                                           <>
-                                            <span className="font-semibold text-[#0f2f34]">{split.ingredient}:</span>
-                                            <span className="text-teal-800">{split.takeaway}</span>
+                                            <span className="font-semibold text-violet-900">{split.ingredient}:</span>
+                                            <span className="text-purple-800">{split.takeaway}</span>
                                           </>
                                         ) : (
-                                          <span className="text-teal-900">{line}</span>
+                                          <span className="text-purple-900">{line}</span>
                                         )}
                                       </li>
                                     )
@@ -1415,11 +1439,11 @@ export default function App() {
 
                   {alternativesList.length > 0 && (
                     <div className="mb-4">
-                      <h4 className="text-sm font-bold uppercase tracking-wide text-emerald-800 mb-2">Similar but safer</h4>
+                      <h4 className="text-sm font-bold uppercase tracking-wide text-violet-800 mb-2">Similar but safer</h4>
                       <ul className="space-y-1.5">
                         {alternativesList.map((line, i) => (
-                          <li key={i} className="flex items-center gap-2 text-sm text-emerald-900">
-                            <svg className="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                          <li key={i} className="flex items-center gap-2 text-sm text-violet-900">
+                            <svg className="w-4 h-4 text-violet-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                             {line}
                           </li>
                         ))}
@@ -1428,18 +1452,18 @@ export default function App() {
                   )}
 
                   {additionalInfo && (
-                    <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50/60 p-3 flex gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-800 text-xs font-bold">i</span>
-                      <p className="text-sm text-emerald-900 leading-relaxed">{additionalInfo}</p>
+                    <div className="mb-4 rounded-xl border border-violet-200/60 bg-violet-50/60 p-3 flex gap-3">
+                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-violet-200 flex items-center justify-center text-violet-800 text-xs font-bold">i</span>
+                      <p className="text-sm text-violet-900 leading-relaxed">{additionalInfo}</p>
                     </div>
                   )}
 
                   {!foodSummary && metrics.length === 0 && !currentSummary && !concernedSummary && (
-                    <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-emerald-900 whitespace-pre-wrap leading-relaxed text-sm">{analysis}</div>
+                    <div className="rounded-xl border border-violet-200/60 bg-violet-50/60 p-4 text-violet-900 whitespace-pre-wrap leading-relaxed text-sm">{analysis}</div>
                   )}
                 </div>
 
-                <p className="text-xs text-emerald-700/80 text-center">General dietary guidance; not a substitute for medical advice. When in doubt, discuss with your doctor.</p>
+                <p className="text-xs text-violet-600 text-center">General dietary guidance; not a substitute for medical advice. When in doubt, discuss with your doctor.</p>
               </div>
             </div>
           )}

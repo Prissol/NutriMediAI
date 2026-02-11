@@ -3,25 +3,27 @@
 @tailwind utilities;
 
 :root {
-  /* Light silver – matches frosted glass */
-  --bg-page: linear-gradient(165deg, #c8cad2 0%, #d2d4dc 25%, #dcdee4 50%, #d6d8e0 100%);
-  --bg-glass: rgba(255, 255, 255, 0.5);
-  --bg-glass-strong: rgba(255, 255, 255, 0.65);
-  --border-glass: rgba(255, 255, 255, 0.8);
-  --border-glass-hover: rgba(148, 163, 184, 0.4);
-  --text-primary: #1e293b;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  --accent: #7c3aed;
-  --accent-glow: rgba(124, 58, 237, 0.25);
-  /* Metric cards – soft tint on light silver */
-  --glass-orange: rgba(251, 146, 60, 0.35);
-  --glass-pink: rgba(236, 72, 153, 0.35);
-  --glass-yellow: rgba(250, 204, 21, 0.45);
+  /* Light glass transparent lavender */
+  --bg-page: linear-gradient(165deg, #f5f3ff 0%, #ede9fe 30%, #e9e5ff 60%, #f5f3ff 100%);
+  --bg-lavender: #f5f3ff;
+  --bg-glass: rgba(255, 255, 255, 0.55);
+  --bg-glass-lavender: rgba(237, 233, 254, 0.5);
+  --bg-glass-strong: rgba(255, 255, 255, 0.75);
+  --border-glass: rgba(196, 181, 253, 0.4);
+  --border-glass-hover: rgba(139, 92, 246, 0.3);
+  --text-primary: #4c1d95;
+  --text-secondary: #5b21b6;
+  --text-muted: #6d28d9;
+  --accent: #8b5cf6;
+  --accent-glow: rgba(139, 92, 246, 0.25);
+  /* Metric cards – soft lavender tint */
+  --glass-orange: rgba(251, 146, 60, 0.3);
+  --glass-pink: rgba(236, 72, 153, 0.3);
+  --glass-yellow: rgba(250, 204, 21, 0.4);
   --glass-blue: rgba(96, 165, 250, 0.35);
   --glass-green: rgba(34, 197, 94, 0.35);
   --glass-teal: rgba(45, 212, 191, 0.35);
-  --glass-purple: rgba(192, 132, 252, 0.35);
+  --glass-purple: rgba(192, 132, 252, 0.45);
 }
 
 * {
@@ -45,6 +47,16 @@ body {
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+}
+
+/* Lavender glass card */
+.glass-lavender {
+  background: var(--bg-glass-lavender);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 1.25rem;
+  border: 1px solid var(--border-glass);
+  box-shadow: 0 4px 24px rgba(139, 92, 246, 0.08);
 }
 
 /* Liquid Glass card – frosted on light silver */
@@ -83,11 +95,11 @@ body {
   box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
-/* Scrollbar – light theme */
+/* Scrollbar – lavender theme */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: rgba(0,0,0,0.04); border-radius: 3px; }
-::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+::-webkit-scrollbar-track { background: rgba(139, 92, 246, 0.06); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.25); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(139, 92, 246, 0.4); }
 
 /* Animations */
 @keyframes fade-in-up {
