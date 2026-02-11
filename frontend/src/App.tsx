@@ -1,7 +1,29 @@
 import { useState, useEffect } from 'react'
+import { jsPDF } from 'jspdf'
 import { useAuth } from './AuthContext'
 
 const API_BASE = import.meta.env.DEV ? (import.meta.env.VITE_API_URL || '/api') : '/api'
+
+const METRIC_ICONS: Record<string, React.ReactNode> = {
+  calories: <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" /></svg>,
+  protein: <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><ellipse cx="12" cy="14" rx="6" ry="8" strokeWidth={1.8} /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 6v0a4 4 0 014 4" /></svg>,
+  carbs: <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 10h16v8a2 2 0 01-2 2H6a2 2 0 01-2-2v-8z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 10V8a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>,
+  fat: <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 4c-2 4-4 7-4 10a4 4 0 108 0c0-3-2-6-4-10z" /></svg>,
+  fiber: <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 3c-2 2-4 6-4 9s2 7 4 9 4-4 4-9-2-7-4-9z" /></svg>,
+  sugar: <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M5 8h4v4H5V8zm10 0h4v4h-4V8zM5 14h4v4H5v-4zm10 0h4v4h-4v-4z" /></svg>,
+  sodium: <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 20h6v-4H9v4zM10 16V8l2-3 2 3v8" /><circle cx="11" cy="6" r="0.8" fill="currentColor" /><circle cx="13" cy="6" r="0.8" fill="currentColor" /></svg>,
+}
+function metricKey(label: string): string {
+  const k = label.toLowerCase().replace(/\s+/g, '').replace(/[^a-z]/g, '')
+  if (k.includes('calor')) return 'calories'
+  if (k.includes('protein')) return 'protein'
+  if (k.includes('carb')) return 'carbs'
+  if (k.includes('fat')) return 'fat'
+  if (k.includes('fiber')) return 'fiber'
+  if (k.includes('sugar')) return 'sugar'
+  if (k.includes('sodium')) return 'sodium'
+  return 'calories'
+}
 
 const CONDITION_OPTIONS = [
   'Diabetes',
@@ -14,7 +36,116 @@ const CONDITION_OPTIONS = [
   'GERD / Acid reflux',
   'High cholesterol',
   'Thyroid disorder',
+  'None / No current conditions',
 ]
+
+/** Multi-select condition field: chips + search dropdown + "Add custom" */
+function ConditionMultiSelect({
+  selected,
+  onSelectedChange,
+  dropdownOpen,
+  onDropdownOpenChange,
+  inputValue,
+  onInputValueChange,
+  label,
+  placeholder,
+  options,
+}: {
+  selected: string[]
+  onSelectedChange: (list: string[]) => void
+  dropdownOpen: boolean
+  onDropdownOpenChange: (open: boolean) => void
+  inputValue: string
+  onInputValueChange: (v: string) => void
+  label: string
+  placeholder: string
+  options: string[]
+}) {
+  const normalizedOptions = options.filter((c) => c !== 'None / No current conditions')
+  const query = inputValue.trim().toLowerCase()
+  const matches = query
+    ? normalizedOptions.filter((c) => c.toLowerCase().includes(query) && !selected.includes(c))
+    : normalizedOptions.filter((c) => !selected.includes(c))
+  const exactMatch = query && normalizedOptions.some((c) => c.toLowerCase() === query)
+  const canAddCustom = query.length > 0 && !selected.some((s) => s.toLowerCase() === query) && !exactMatch
+
+  const add = (value: string) => {
+    const v = value.trim()
+    if (!v || selected.includes(v)) return
+    onSelectedChange([...selected, v])
+    onInputValueChange('')
+    onDropdownOpenChange(false)
+  }
+
+  const remove = (value: string) => {
+    onSelectedChange(selected.filter((s) => s !== value))
+  }
+
+  return (
+    <div className="relative">
+      <label className="block text-sm font-medium text-white/80 mb-1.5">{label}</label>
+      <div className="min-h-[42px] rounded-lg border border-white/20 bg-white/10 flex flex-wrap items-center gap-2 p-2 focus-within:ring-2 focus-within:ring-emerald-500/50 focus-within:border-white/30">
+        {selected.filter((c) => c !== 'None / No current conditions').map((c) => (
+          <span
+            key={c}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-sm bg-white/15 border border-white/20 text-white"
+          >
+            {c}
+            <button
+              type="button"
+              onClick={() => remove(c)}
+              className="text-white/60 hover:text-white leading-none"
+              aria-label={`Remove ${c}`}
+            >
+              ×
+            </button>
+          </span>
+        ))}
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => { onInputValueChange(e.target.value); onDropdownOpenChange(true) }}
+          onFocus={() => onDropdownOpenChange(true)}
+          onBlur={() => setTimeout(() => onDropdownOpenChange(false), 180)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && inputValue.trim()) {
+              e.preventDefault()
+              add(inputValue.trim())
+            }
+          }}
+          placeholder={selected.length === 0 ? placeholder : 'Search or add another...'}
+          className="flex-1 min-w-[120px] bg-transparent border-0 outline-none text-white placeholder:text-white/50 py-1 text-sm"
+        />
+      </div>
+      {dropdownOpen && (matches.length > 0 || canAddCustom) && (
+        <ul className="absolute z-30 mt-1 w-full rounded-lg border border-white/20 bg-[#123740] shadow-lg py-1 max-h-52 overflow-auto">
+          {matches.slice(0, 10).map((c) => (
+            <li key={c}>
+              <button
+                type="button"
+                className="w-full text-left px-3 py-2 text-sm text-white/90 hover:bg-white/10"
+                onMouseDown={(e) => { e.preventDefault(); add(c) }}
+              >
+                {c}
+              </button>
+            </li>
+          ))}
+          {canAddCustom && (
+            <li className="border-t border-white/10">
+              <button
+                type="button"
+                className="w-full text-left px-3 py-2 text-sm text-emerald-300 hover:bg-white/10"
+                onMouseDown={(e) => { e.preventDefault(); add(inputValue.trim()) }}
+              >
+                Add &quot;{inputValue.trim()}&quot; as custom condition
+              </button>
+            </li>
+          )}
+        </ul>
+      )}
+    </div>
+  )
+}
 
 type AnalysisEntry = {
   id: string
@@ -37,6 +168,113 @@ function toDataUrl(file: File): Promise<string> {
     r.onerror = () => reject(new Error('Failed to read file'))
     r.readAsDataURL(file)
   })
+}
+
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/_([^_]+)_/g, '$1')
+    .trim()
+}
+
+function extractOneLine(text: string, label: string): string | null {
+  const re = new RegExp(`${label}\\s*:?\\s*\\n?\\s*([^\\n]+)`, 'i')
+  const m = stripMarkdown(text).match(re)
+  return m?.[1]?.trim() || null
+}
+
+function extractBlock(text: string, startLabel: string, endLabels: string[]): string | null {
+  const cleaned = stripMarkdown(text)
+  const endPart = endLabels.length > 0 ? `(?=\\n\\s*(?:${endLabels.join('|')})\\s*:?|$)` : '$'
+  const re = new RegExp(`${startLabel}\\s*:?\\s*\\n?\\s*([\\s\\S]*?)${endPart}`, 'i')
+  const m = cleaned.match(re)
+  return m?.[1]?.trim() || null
+}
+
+function parseKeyMetricsLine(text: string): Array<{ label: string; value: string }> {
+  const line = extractOneLine(text, 'KEY\\s*METRICS')
+  if (!line) return []
+  const normalized = line.replace(/\|/g, ',')
+  return normalized
+    .split(',')
+    .map((chunk) => chunk.trim())
+    .filter(Boolean)
+    .map((chunk) => {
+      const idx = chunk.indexOf(':')
+      if (idx === -1) return { label: chunk, value: '' }
+      return {
+        label: chunk.slice(0, idx).trim(),
+        value: chunk.slice(idx + 1).trim(),
+      }
+    })
+}
+
+function parseScore(text: string): number | null {
+  const outOf100 = text.match(/(?:nutrition\s*score|NUTRITION\s*SCORE)[:\s]*(\d{1,3})\s*\/\s*100/i)
+  if (outOf100) return Math.min(100, Math.max(0, parseInt(outOf100[1], 10)))
+  const simple100 = text.match(/\b(\d{1,3})\s*\/\s*100\b/)
+  if (simple100) return Math.min(100, Math.max(0, parseInt(simple100[1], 10)))
+  const outOf10 = text.match(/(?:health\s*score|score)[:\s]*(\d{1,2})\s*\/\s*10\b/i)
+  if (outOf10) return Math.min(100, Math.max(0, Math.round((parseInt(outOf10[1], 10) / 10) * 100)))
+  return null
+}
+
+type InfographyParsed = { foodLines: string[]; adviceLines: { tag: string; text: string }[] }
+
+/** Remove redundant TL;DR lines and separator-only lines from ingredient list */
+function cleanTldrFoodLines(lines: string[]): string[] {
+  return lines.filter((line) => {
+    const t = line.trim()
+    if (!t) return false
+    const lower = t.toLowerCase()
+    if (lower === 'tldr:' || lower === 'tl;dr:') return false
+    if (/^[-–—\s]+$/.test(t)) return false
+    return true
+  })
+}
+
+/** Split "Ingredient: takeaway" for display (ingredient emphasized) */
+function splitIngredientLine(line: string): { ingredient: string; takeaway: string } | null {
+  const colonIdx = line.indexOf(':')
+  if (colonIdx === -1) return null
+  return {
+    ingredient: line.slice(0, colonIdx).trim(),
+    takeaway: line.slice(colonIdx + 1).trim(),
+  }
+}
+
+function parseInfographyBlock(text: string): InfographyParsed {
+  const foodLines: string[] = []
+  const adviceLines: { tag: string; text: string }[] = []
+  const labelRegex = /^\[([^\]]+)\]\s*(.*)$/
+  const parts = text.split(/\n\s*---\s*\n/)
+  const hasDashed = parts.length > 1
+  const beforeDashed = (parts[0] || '').trim()
+  const afterDashed = parts.slice(1).join('\n---\n').trim()
+
+  if (hasDashed) {
+    beforeDashed.split('\n').forEach((line) => {
+      const t = line.trim()
+      if (t) foodLines.push(t)
+    })
+    afterDashed.split('\n').forEach((line) => {
+      const t = line.trim()
+      if (!t) return
+      const m = t.match(labelRegex)
+      if (m) adviceLines.push({ tag: m[1].trim(), text: m[2].trim() })
+      else adviceLines.push({ tag: '', text: t })
+    })
+  } else {
+    text.split('\n').forEach((line) => {
+      const t = line.trim()
+      if (!t) return
+      const m = t.match(labelRegex)
+      if (m) adviceLines.push({ tag: m[1].trim(), text: m[2].trim() })
+      else foodLines.push(t)
+    })
+  }
+  return { foodLines: cleanTldrFoodLines(foodLines), adviceLines }
 }
 
 function LoginScreen({
@@ -426,8 +664,10 @@ export default function App() {
   const { user, loading: authLoading, login, register, logout, error: authError, clearError: clearAuthError } = useAuth()
   const [authView, setAuthView] = useState<'landing' | 'auth' | 'about'>('landing')
   const [authTab, setAuthTab] = useState<'login' | 'register'>('login')
-  const [currentConditions, setCurrentConditions] = useState('')
-  const [concernedConditions, setConcernedConditions] = useState('')
+  const [currentConditionsList, setCurrentConditionsList] = useState<string[]>([])
+  const [concernedConditionsList, setConcernedConditionsList] = useState<string[]>([])
+  const [currentInput, setCurrentInput] = useState('')
+  const [concernedInput, setConcernedInput] = useState('')
   const [currentDropdownOpen, setCurrentDropdownOpen] = useState(false)
   const [concernedDropdownOpen, setConcernedDropdownOpen] = useState(false)
   const [userDescription, setUserDescription] = useState('')
@@ -438,6 +678,8 @@ export default function App() {
   const [analysisError, setAnalysisError] = useState<string | null>(null)
   const [analysesList, setAnalysesList] = useState<AnalysisEntry[]>([])
   const [sidebarSearch, setSidebarSearch] = useState('')
+  const [showCurrentCondition, setShowCurrentCondition] = useState(true)
+  const [showConcernedCondition, setShowConcernedCondition] = useState(true)
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null
@@ -455,8 +697,10 @@ export default function App() {
     setUserDescription('')
     setAnalysis(null)
     setAnalysisError(null)
-    setCurrentConditions('')
-    setConcernedConditions('')
+    setCurrentConditionsList([])
+    setConcernedConditionsList([])
+    setCurrentInput('')
+    setConcernedInput('')
     setSidebarSearch('')
   }
 
@@ -476,13 +720,8 @@ export default function App() {
     localStorage.setItem(analysesStorageKey(user.id), JSON.stringify(analysesList))
   }, [analysesList, user])
 
-  const currentMatches = CONDITION_OPTIONS.filter((c) =>
-    c.toLowerCase().includes(currentConditions.toLowerCase())
-  ).slice(0, 8)
-
-  const concernedMatches = CONDITION_OPTIONS.filter((c) =>
-    c.toLowerCase().includes(concernedConditions.toLowerCase())
-  ).slice(0, 8)
+  const currentConditionsStr = currentConditionsList.filter((c) => c !== 'None / No current conditions').join(', ') || 'No current medical conditions'
+  const concernedConditionsStr = concernedConditionsList.join(', ') || 'None specified'
 
   const filteredHistory = analysesList.filter((entry) => {
     const q = sidebarSearch.toLowerCase().trim()
@@ -495,8 +734,8 @@ export default function App() {
   })
 
   const loadHistoryEntry = (entry: AnalysisEntry) => {
-    setCurrentConditions(entry.currentConditions)
-    setConcernedConditions(entry.concernedConditions)
+    setCurrentConditionsList(entry.currentConditions ? entry.currentConditions.split(',').map((s) => s.trim()).filter(Boolean) : [])
+    setConcernedConditionsList(entry.concernedConditions ? entry.concernedConditions.split(',').map((s) => s.trim()).filter(Boolean) : [])
     setUserDescription(entry.userDescription)
     setAnalysis(entry.analysis)
     setPreview(entry.preview || null)
@@ -514,8 +753,8 @@ export default function App() {
     try {
       const form = new FormData()
       form.append('file', file)
-      form.append('current_conditions', currentConditions.trim() || 'No current medical conditions')
-      form.append('concerned_conditions', concernedConditions.trim() || 'None specified')
+      form.append('current_conditions', currentConditionsStr)
+      form.append('concerned_conditions', concernedConditionsStr)
       form.append('user_description', userDescription.trim())
       const res = await fetch(`${API_BASE}/analyze`, { method: 'POST', body: form })
       const data = await res.json().catch(() => ({}))
@@ -526,8 +765,8 @@ export default function App() {
       const entry: AnalysisEntry = {
         id: `${Date.now()}_${Math.random().toString(16).slice(2, 8)}`,
         date: new Date().toISOString(),
-        currentConditions: currentConditions.trim() || 'No current medical conditions',
-        concernedConditions: concernedConditions.trim() || 'None specified',
+        currentConditions: currentConditionsStr,
+        concernedConditions: concernedConditionsStr,
         userDescription: userDescription.trim(),
         analysis: nextAnalysis,
         preview: persistentPreview,
@@ -538,6 +777,260 @@ export default function App() {
     } finally {
       setLoadingAnalysis(false)
     }
+  }
+
+  const dishName = analysis ? extractOneLine(analysis, 'DISH') : null
+  const foodSummary = analysis
+    ? extractBlock(analysis, 'FOOD\\s*SUMMARY', ['KEY\\s*METRICS', 'CURRENT\\s*CONDITION\\s*SUMMARY', 'CONCERNED\\s*CONDITION\\s*SUMMARY'])
+    : null
+  const currentSummary = analysis
+    ? extractBlock(analysis, 'CURRENT\\s*CONDITION\\s*SUMMARY', ['CONCERNED\\s*CONDITION\\s*SUMMARY', 'ALTERNATIVES'])
+    : null
+  const concernedSummary = analysis
+    ? extractBlock(analysis, 'CONCERNED\\s*CONDITION\\s*SUMMARY', ['ALTERNATIVES'])
+    : null
+  const metrics = analysis ? parseKeyMetricsLine(analysis) : []
+  const nutritionScore = analysis ? parseScore(analysis) : null
+  const categoryChips = (() => {
+    const words = (dishName || '')
+      .split(/[\s\/,]+/)
+      .map((w) => w.trim())
+      .filter((w) => w.length > 1 && !/^(with|and|the|or|&)$/i.test(w))
+    const uniq = [...new Set(words)].slice(0, 6).map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    if (nutritionScore != null && nutritionScore >= 60 && !uniq.some((c) => /healthy/i.test(c))) uniq.push('Healthy')
+    return uniq
+  })()
+  const additionalInfo = analysis
+    ? extractBlock(analysis, 'ADDITIONAL\\s*INFORMATION|ADDITIONAL\\s*INFO|NOTES|TIPS', [])
+    : null
+  const alternatives = analysis ? extractBlock(analysis, 'ALTERNATIVES', []) : null
+  const alternativesList = alternatives ? alternatives.split('\n').map((l) => l.trim()).filter(Boolean) : []
+
+  const downloadPDF = () => {
+    if (!dishName && !analysis) return
+    const doc = new jsPDF()
+    const margin = 14
+    const pageW = 210
+    const contentW = pageW - margin * 2
+    const reportDate = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+
+    const ensurePage = (y: number, need: number) => {
+      if (y + need > 280) {
+        doc.addPage()
+        return 20
+      }
+      return y
+    }
+
+    let y = 20
+
+    // ----- Header: NutriMedAI, Nutrition Report., date -----
+    doc.setFontSize(18)
+    doc.setFont('helvetica', 'bold')
+    doc.text('NutriMedAI', margin, y)
+    doc.setFontSize(11)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Nutrition Report.', margin, y + 7)
+    doc.setFontSize(10)
+    doc.setTextColor(100, 100, 100)
+    const dateDims = 'getTextDimensions' in doc && typeof (doc as { getTextDimensions: (t: string) => { w: number } }).getTextDimensions === 'function'
+      ? (doc as { getTextDimensions: (t: string) => { w: number } }).getTextDimensions(reportDate).w
+      : reportDate.length * 2.2
+    doc.text(reportDate, pageW - margin - dateDims, y)
+    doc.setTextColor(0, 0, 0)
+    y += 18
+
+    // ----- Food / meal -----
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Food / meal', margin, y)
+    y += 6
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(12)
+    doc.text(dishName || '—', margin, y)
+    y += 6
+    doc.setFontSize(9)
+    doc.setTextColor(120, 120, 120)
+    doc.text('Image: ---', margin, y)
+    doc.setTextColor(0, 0, 0)
+    y += 12
+
+    // ----- Nutrition score -----
+    doc.setFontSize(11)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Nutrition score', margin, y)
+    y += 5
+    doc.setFont('helvetica', 'normal')
+    const scoreVal = nutritionScore != null ? Math.min(100, Math.max(0, nutritionScore)) : null
+    const scoreStr = scoreVal != null ? `${scoreVal}/100` : '—/100'
+    doc.setFontSize(12)
+    doc.text(scoreStr, margin, y)
+    const barW = 100
+    const barH = 5
+    const barY = y - 3
+    doc.setFillColor(220, 220, 220)
+    doc.rect(margin + 38, barY, barW, barH, 'F')
+    if (scoreVal != null && scoreVal > 0) {
+      doc.setFillColor(0, 140, 130)
+      doc.rect(margin + 38, barY, (barW * scoreVal) / 100, barH, 'F')
+    }
+    y += 12
+
+    // ----- Key metrics (colored boxes) -----
+    const metricColors: Record<string, [number, number, number]> = {
+      calories: [230, 140, 80],
+      protein: [200, 80, 140],
+      carbs: [240, 200, 80],
+      fat: [150, 200, 230],
+      fiber: [40, 120, 80],
+      sugar: [80, 200, 220],
+      sodium: [180, 150, 220],
+    }
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(10)
+    doc.text('Key metrics', margin, y)
+    y += 7
+    const boxW = (contentW - 12) / 4
+    const boxH = 16
+    const gap = 4
+    metrics.slice(0, 7).forEach((m, i) => {
+      const col = i % 4
+      const row = Math.floor(i / 4)
+      const x = margin + col * (boxW + gap)
+      const boxY = y + row * (boxH + gap)
+      const key = metricKey(m.label)
+      const [r, g, b] = metricColors[key] || [200, 200, 200]
+      doc.setFillColor(r, g, b)
+      doc.rect(x, boxY, boxW, boxH, 'F')
+      doc.setDrawColor(200, 200, 200)
+      doc.rect(x, boxY, boxW, boxH, 'S')
+      doc.setFontSize(8)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(40, 40, 40)
+      doc.text(m.label.toUpperCase(), x + 3, boxY + 5)
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(9)
+      doc.text(m.value || '—', x + 3, boxY + 11)
+      doc.setTextColor(0, 0, 0)
+    })
+    const metricRows = Math.ceil(Math.min(metrics.length, 7) / 4)
+    y += metricRows * (boxH + gap) + 8
+
+    // ----- Condition summary blocks with TL;DR + numbered recommendations -----
+    const recNumberColors: [number, number, number][] = [
+      [0, 140, 130],
+      [230, 140, 60],
+      [60, 120, 200],
+      [160, 100, 60],
+      [220, 100, 140],
+    ]
+    const renderConditionBlock = (title: string, rawSummary: string) => {
+      y = ensurePage(y, 60)
+      const blockStartY = y
+      doc.setDrawColor(0, 140, 130)
+      doc.setLineWidth(0.4)
+      y += 5
+      doc.setFontSize(11)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(40, 40, 40)
+      doc.text(title, margin + 2, y)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(0, 0, 0)
+      y += 6
+      const parsed = parseInfographyBlock(rawSummary)
+      if (parsed.foodLines.length > 0) {
+        doc.setFontSize(9)
+        doc.setFont('helvetica', 'bold')
+        doc.setTextColor(60, 60, 60)
+        doc.text('TL;DR (ingredient-wise)', margin + 2, y)
+        y += 5
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(0, 0, 0)
+        const getW = (txt: string) => ('getTextDimensions' in doc && typeof (doc as { getTextDimensions: (t: string) => { w: number } }).getTextDimensions === 'function'
+          ? (doc as { getTextDimensions: (t: string) => { w: number } }).getTextDimensions(txt).w
+          : txt.length * 1.2)
+        parsed.foodLines.forEach((line) => {
+          y = ensurePage(y, 8)
+          const split = splitIngredientLine(line)
+          if (split) {
+            const prefix = '• ' + split.ingredient + ': '
+            doc.setFont('helvetica', 'bold')
+            doc.text(prefix, margin + 4, y)
+            const preW = getW(prefix)
+            doc.setFont('helvetica', 'normal')
+            const takeawayWrap = doc.splitTextToSize(split.takeaway, contentW - 12 - preW)
+            if (takeawayWrap[0]) doc.text(takeawayWrap[0], margin + 4 + preW, y)
+            y += 5
+            for (let j = 1; j < takeawayWrap.length; j++) {
+              y = ensurePage(y, 6)
+              doc.text(takeawayWrap[j], margin + 4, y)
+              y += 5
+            }
+          } else {
+            const wrap = doc.splitTextToSize(line, contentW - 8)
+            wrap.forEach((w: string) => {
+              doc.text('• ' + w, margin + 4, y)
+              y += 5
+            })
+          }
+          y += 1
+        })
+        y += 4
+      }
+      if (parsed.adviceLines.length > 0) {
+        y = ensurePage(y, 10)
+        parsed.adviceLines.slice(0, 8).forEach((item, idx) => {
+          y = ensurePage(y, 18)
+          const num = String(idx + 1).padStart(2, '0')
+          const [r, g, b] = recNumberColors[idx % recNumberColors.length]
+          doc.setFillColor(r, g, b)
+          doc.rect(margin + 2, y - 4, 8, 8, 'F')
+          doc.setFontSize(8)
+          doc.setTextColor(255, 255, 255)
+          doc.setFont('helvetica', 'bold')
+          doc.text(num, margin + 4.5, y + 0.5)
+          doc.setTextColor(0, 0, 0)
+          doc.setFont('helvetica', 'normal')
+          doc.setFontSize(9)
+          const lineText = item.tag ? `[${item.tag}] ${item.text}` : item.text
+          const lines = doc.splitTextToSize(lineText, contentW - 18)
+          lines.forEach((w: string) => {
+            doc.text(w, margin + 14, y)
+            y += 5
+          })
+          y += 3
+        })
+      }
+      y += 4
+      doc.rect(margin, blockStartY, contentW, y - blockStartY, 'S')
+      y += 6
+    }
+
+    if (currentSummary) {
+      renderConditionBlock('Current medical condition summary', currentSummary)
+    }
+    if (concernedSummary) {
+      renderConditionBlock('Concerned condition summary', concernedSummary)
+    }
+
+    // ----- Alternatives (if present) -----
+    const alternatives = analysis ? extractBlock(analysis, 'ALTERNATIVES', []) : null
+    if (alternatives && alternatives.trim()) {
+      y = ensurePage(y, 25)
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'bold')
+      doc.text('Alternatives', margin, y)
+      y += 6
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(9)
+      alternatives.split('\n').filter((l) => l.trim()).forEach((line) => {
+        y = ensurePage(y, 6)
+        doc.text('• ' + line.trim(), margin + 2, y)
+        y += 5
+      })
+    }
+
+    doc.save(`${(dishName || 'nutrition').replace(/[^a-z0-9-_]/gi, '_')}.pdf`)
   }
 
   if (authLoading) {
@@ -579,14 +1072,15 @@ export default function App() {
     )
   }
 
+  const isLightResultView = !!analysis
   return (
-    <div className="min-h-screen bg-[#0f2f34] text-white flex">
-      <aside className="hidden md:flex w-[290px] shrink-0 border-r border-white/10 bg-[#123740] flex-col">
-        <div className="p-3 border-b border-white/10">
+    <div className={`min-h-screen flex ${isLightResultView ? 'bg-[#e5e7eb] text-[#1e293b]' : 'bg-[#0f2f34] text-white'}`}>
+      <aside className={`hidden md:flex w-[290px] shrink-0 border-r flex-col ${isLightResultView ? 'border-gray-200 bg-white' : 'border-white/10 bg-[#123740]'}`}>
+        <div className={`p-3 border-b ${isLightResultView ? 'border-gray-200' : 'border-white/10'}`}>
           <button
             type="button"
             onClick={startNewAnalysis}
-            className="w-full px-3 py-2.5 rounded-lg text-sm font-medium bg-emerald-500 text-[#0f2f34] hover:bg-emerald-400 transition-colors"
+            className={`w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isLightResultView ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-emerald-500 text-[#0f2f34] hover:bg-emerald-400'}`}
           >
             New analysis
           </button>
@@ -597,25 +1091,25 @@ export default function App() {
             value={sidebarSearch}
             onChange={(e) => setSidebarSearch(e.target.value)}
             placeholder="Search history..."
-            className="w-full px-3 py-2 rounded-lg border border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+            className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-emerald-500/40 ${isLightResultView ? 'border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-500' : 'border-white/20 bg-white/10 text-white placeholder:text-white/50'}`}
           />
         </div>
         <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-2">
           {filteredHistory.length === 0 ? (
-            <p className="text-sm text-white/50 px-2 py-1">No analyses yet.</p>
+            <p className={`text-sm px-2 py-1 ${isLightResultView ? 'text-gray-500' : 'text-white/50'}`}>No analyses yet.</p>
           ) : (
             filteredHistory.map((entry) => (
               <button
                 key={entry.id}
                 type="button"
                 onClick={() => loadHistoryEntry(entry)}
-                className="w-full text-left rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors px-2 py-2"
+                className={`w-full text-left rounded-lg border transition-colors px-2 py-2 ${isLightResultView ? 'border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-800' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}
               >
-                <div className="text-xs text-white/50 mb-1">
+                <div className={`text-xs mb-1 ${isLightResultView ? 'text-gray-500' : 'text-white/50'}`}>
                   {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                 </div>
-                <div className="text-sm text-white/90 truncate">{entry.currentConditions || 'No current condition'}</div>
-                <div className="text-xs text-white/60 truncate">{entry.concernedConditions || 'No monitored conditions'}</div>
+                <div className={`text-sm truncate ${isLightResultView ? 'text-gray-800' : 'text-white/90'}`}>{entry.currentConditions || 'No current condition'}</div>
+                <div className={`text-xs truncate ${isLightResultView ? 'text-gray-500' : 'text-white/60'}`}>{entry.concernedConditions || 'No monitored conditions'}</div>
               </button>
             ))
           )}
@@ -623,96 +1117,64 @@ export default function App() {
       </aside>
 
       <div className="flex-1 min-w-0 flex flex-col">
-        <header className="sticky top-0 z-[9999] border-b border-white/10 bg-[#0f2f34]/95 backdrop-blur">
+        <header className={`sticky top-0 z-[9999] border-b backdrop-blur ${isLightResultView ? 'bg-white/95 border-gray-200' : 'border-white/10 bg-[#0f2f34]/95'}`}>
           <div className="max-w-7xl mx-auto px-4 md:px-8 h-14 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <img src="/logo.svg" alt="" className="h-9 w-9" />
-              <h1 className="text-lg font-semibold">NutriMedAI</h1>
+              <h1 className={`text-lg font-semibold ${isLightResultView ? 'text-gray-900' : 'text-white'}`}>NutriMedAI</h1>
             </div>
-            <span className="text-sm text-white/70 truncate max-w-[200px]" title={user.email}>{user.email}</span>
-            <button type="button" onClick={logout} className="px-3 py-1.5 rounded-xl text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 border border-white/20">
-              Log out
-            </button>
+            <div className="flex items-center gap-3">
+              <span className={`text-sm truncate max-w-[200px] ${isLightResultView ? 'text-gray-600' : 'text-white/70'}`} title={user.email}>{user.email}</span>
+              <button type="button" onClick={logout} className={`px-3 py-1.5 rounded-xl text-sm font-medium ${isLightResultView ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' : 'text-white/80 hover:text-white hover:bg-white/10 border border-white/20'}`}>
+                Log out
+              </button>
+              {analysis && (
+                <button type="button" onClick={downloadPDF} className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-medium bg-emerald-500 text-white hover:bg-emerald-600">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                  Download PDF
+                </button>
+              )}
+            </div>
           </div>
         </header>
 
-        <main className="max-w-7xl mx-auto px-4 md:px-8 py-8 w-full space-y-6">
-          <section className="rounded-2xl bg-[#123740] border border-white/10 p-4 md:p-6">
+        <main className={`max-w-7xl mx-auto px-4 md:px-8 py-8 w-full space-y-6 ${isLightResultView ? 'bg-[#e5e7eb]' : ''}`}>
+          {!analysis && (
+          <section className={`rounded-2xl p-4 md:p-6 ${isLightResultView ? 'bg-white border border-gray-200 shadow-sm' : 'bg-[#123740] border border-white/10'}`}>
             <div className="flex items-center justify-between gap-3 mb-5">
-              <h2 className="text-lg md:text-xl font-semibold">Medical profile & analysis</h2>
+              <h2 className={`text-lg md:text-xl font-semibold ${isLightResultView ? 'text-gray-900' : 'text-white'}`}>Medical profile & analysis</h2>
               <button
                 type="button"
                 onClick={startNewAnalysis}
-                className="px-3 py-1.5 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 border border-white/20"
+                className={isLightResultView ? 'px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 border border-gray-200' : 'px-3 py-1.5 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 border border-white/20'}
               >
                 New analysis
               </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div className="relative">
-                <label className="block text-sm font-medium text-white/80 mb-1.5">Current medical condition</label>
-                <input
-                  type="text"
-                  value={currentConditions}
-                  onChange={(e) => { setCurrentConditions(e.target.value); setCurrentDropdownOpen(true) }}
-                  onFocus={() => setCurrentDropdownOpen(true)}
-                  onBlur={() => setTimeout(() => setCurrentDropdownOpen(false), 140)}
-                  placeholder="e.g. Diabetes, Hypertension"
-                  className="w-full px-3 py-2.5 rounded-lg border border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                />
-                {currentDropdownOpen && currentMatches.length > 0 && (
-                  <ul className="absolute z-30 mt-1 w-full rounded-lg border border-white/20 bg-[#123740] shadow-lg py-1 max-h-48 overflow-auto">
-                    {currentMatches.map((c) => (
-                      <li key={c}>
-                        <button
-                          type="button"
-                          className="w-full text-left px-3 py-2 text-sm text-white/90 hover:bg-white/10"
-                          onMouseDown={(e) => {
-                            e.preventDefault()
-                            setCurrentConditions(c)
-                            setCurrentDropdownOpen(false)
-                          }}
-                        >
-                          {c}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              <div className="relative">
-                <label className="block text-sm font-medium text-white/80 mb-1.5">Conditions to monitor</label>
-                <input
-                  type="text"
-                  value={concernedConditions}
-                  onChange={(e) => { setConcernedConditions(e.target.value); setConcernedDropdownOpen(true) }}
-                  onFocus={() => setConcernedDropdownOpen(true)}
-                  onBlur={() => setTimeout(() => setConcernedDropdownOpen(false), 140)}
-                  placeholder="e.g. Heart health, Blood sugar"
-                  className="w-full px-3 py-2.5 rounded-lg border border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                />
-                {concernedDropdownOpen && concernedMatches.length > 0 && (
-                  <ul className="absolute z-30 mt-1 w-full rounded-lg border border-white/20 bg-[#123740] shadow-lg py-1 max-h-48 overflow-auto">
-                    {concernedMatches.map((c) => (
-                      <li key={c}>
-                        <button
-                          type="button"
-                          className="w-full text-left px-3 py-2 text-sm text-white/90 hover:bg-white/10"
-                          onMouseDown={(e) => {
-                            e.preventDefault()
-                            setConcernedConditions(c)
-                            setConcernedDropdownOpen(false)
-                          }}
-                        >
-                          {c}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
+              <ConditionMultiSelect
+                label="Current medical condition"
+                placeholder="Search or type a condition (e.g. Diabetes, Hypertension)"
+                selected={currentConditionsList}
+                onSelectedChange={setCurrentConditionsList}
+                dropdownOpen={currentDropdownOpen}
+                onDropdownOpenChange={setCurrentDropdownOpen}
+                inputValue={currentInput}
+                onInputValueChange={setCurrentInput}
+                options={CONDITION_OPTIONS}
+              />
+              <ConditionMultiSelect
+                label="Conditions to monitor"
+                placeholder="Search or type a condition (e.g. Heart health, Blood sugar)"
+                selected={concernedConditionsList}
+                onSelectedChange={setConcernedConditionsList}
+                dropdownOpen={concernedDropdownOpen}
+                onDropdownOpenChange={setConcernedDropdownOpen}
+                inputValue={concernedInput}
+                onInputValueChange={setConcernedInput}
+                options={CONDITION_OPTIONS}
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
@@ -761,14 +1223,224 @@ export default function App() {
               </div>
             </div>
           </section>
+          )}
 
           {analysis && (
-            <section className="rounded-2xl bg-[#123740] border border-white/10 p-5 md:p-6">
-              <h3 className="text-lg font-semibold mb-3">Nutrition summary</h3>
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-white/85 whitespace-pre-wrap leading-relaxed">
-                {analysis}
+            <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-6">
+              {/* Left: IDENTIFIED FOOD card + circular image + Nutrition score */}
+              <div className="space-y-4">
+                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                  <div className="bg-emerald-50 border-b border-emerald-100 px-4 py-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-emerald-800">Identified food</span>
+                  </div>
+                  <div className="p-4">
+                    <h3 className="text-lg font-bold text-gray-900">{dishName || 'Food item'}</h3>
+                    <div className="mt-4 flex justify-center">
+                      {preview ? (
+                        <img src={preview} alt={dishName || 'Uploaded food'} className="w-48 h-48 rounded-full object-cover border-4 border-gray-100 shadow-inner" />
+                      ) : (
+                        <div className="w-48 h-48 rounded-full bg-gray-100 border-4 border-gray-200 flex items-center justify-center text-gray-400 text-sm">No image</div>
+                      )}
+                    </div>
+                    <div className="mt-4">
+                      <div className="text-sm font-medium text-gray-700 mb-2">Nutrition score</div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 h-2.5 rounded-full bg-gray-200 overflow-hidden">
+                          <div className="h-full rounded-full bg-emerald-500 transition-all animate-progress" style={{ width: `${nutritionScore != null ? Math.min(100, Math.max(0, nutritionScore)) : 0}%` }} />
+                        </div>
+                        <span className="text-sm font-bold text-gray-900 tabular-nums flex-shrink-0">{nutritionScore != null ? `${nutritionScore}/100` : '—/100'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </section>
+
+              {/* Right: Nutrition summary, metrics, concern tags, SHOW checkboxes, condition summaries */}
+              <div className="space-y-5 min-w-0">
+                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">Nutrition summary</h3>
+                  <p className="text-gray-700 leading-relaxed mb-4">{foodSummary || 'Analysis generated successfully.'}</p>
+
+                  {metrics.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                      {metrics.map((m) => {
+                        const key = metricKey(m.label)
+                        return (
+                          <div key={`${m.label}_${m.value}`} className={`metric-${key} metric-card-hover rounded-xl p-3 flex items-center gap-3 border`}>
+                            <span className="text-gray-700 flex-shrink-0 [&>svg]:w-5 [&>svg]:h-5">{METRIC_ICONS[key] || METRIC_ICONS.calories}</span>
+                            <div className="min-w-0">
+                              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-600">{m.label}</div>
+                              <div className="text-sm font-bold text-gray-900 truncate">{m.value || '—'}</div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {currentConditionsList.filter((c) => c && c !== 'None / No current conditions').map((c) => (
+                      <span key={c} className="px-3 py-1 rounded-full text-xs font-medium bg-blue-600 text-white">{c}</span>
+                    ))}
+                    {concernedConditionsList.filter(Boolean).map((c) => (
+                      <span key={c} className="px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-900 border border-amber-200">Concern: {c}</span>
+                    ))}
+                    {categoryChips.length > 0 && categoryChips.map((chip) => (
+                      <span key={chip} className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">{chip}</span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-4 mb-4">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Show:</span>
+                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                      <input type="checkbox" checked={showCurrentCondition} onChange={(e) => setShowCurrentCondition(e.target.checked)} className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" />
+                      Current condition
+                    </label>
+                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                      <input type="checkbox" checked={showConcernedCondition} onChange={(e) => setShowConcernedCondition(e.target.checked)} className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" />
+                      Concerned condition
+                    </label>
+                  </div>
+
+                  {currentSummary && showCurrentCondition && (() => {
+                    const parsed = parseInfographyBlock(currentSummary)
+                    return (
+                      <div className="mb-6">
+                        <div className="flex items-center gap-2 rounded-t-xl bg-emerald-50 border border-emerald-200 border-b-0 px-4 py-3">
+                          <svg className="w-5 h-5 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                          <span className="text-sm font-bold uppercase tracking-wide text-gray-800">Current medical condition summary</span>
+                        </div>
+                        <div className="rounded-b-xl border border-t-0 border-emerald-200 bg-white p-4">
+                          <div className="text-xs font-semibold text-gray-500 mb-2">{parsed.adviceLines.length} POINTS</div>
+                          {parsed.foodLines.length > 0 && (
+                            <>
+                              <div className="rounded-lg bg-gray-50 border border-gray-100 px-3 py-2.5 mb-4">
+                                <div className="text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-2">TL;DR (ingredient-wise)</div>
+                                <ul className="space-y-2">
+                                  {parsed.foodLines.map((line, i) => {
+                                    const split = splitIngredientLine(line)
+                                    return (
+                                      <li key={i} className="text-sm flex flex-wrap gap-1.5">
+                                        {split ? (
+                                          <>
+                                            <span className="font-semibold text-gray-800">{split.ingredient}:</span>
+                                            <span className="text-gray-600">{split.takeaway}</span>
+                                          </>
+                                        ) : (
+                                          <span className="text-gray-700">{line}</span>
+                                        )}
+                                      </li>
+                                    )
+                                  })}
+                                </ul>
+                              </div>
+                            </>
+                          )}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {parsed.adviceLines.map((item, i) => {
+                              const tag = (item.tag || '').toLowerCase()
+                              const bg = tag.includes('important') ? 'bg-red-100 border-red-200' : tag.includes('reasoning') ? 'bg-orange-100 border-orange-200' : tag.includes('action') ? 'bg-blue-100 border-blue-200' : tag.includes('benefit') ? 'bg-emerald-100 border-emerald-200' : tag.includes('ask your doctor') ? 'bg-purple-100 border-purple-200' : 'bg-gray-100 border-gray-200'
+                              const icon = tag.includes('important') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>) : tag.includes('reasoning') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>) : tag.includes('action') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>) : tag.includes('benefit') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>) : tag.includes('ask your doctor') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>) : null
+                              return (
+                                <div key={i} className={`rounded-xl border p-3 flex gap-3 ${bg}`}>
+                                  {icon}
+                                  <div className="min-w-0">
+                                    {item.tag && <div className="text-xs font-bold uppercase text-gray-600 mb-0.5">{item.tag}</div>}
+                                    <p className="text-sm text-gray-800">{item.text}</p>
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })()}
+
+                  {concernedSummary && showConcernedCondition && (() => {
+                    const parsed = parseInfographyBlock(concernedSummary)
+                    return (
+                      <div className="mb-6">
+                        <div className="flex items-center gap-2 rounded-t-xl bg-amber-50 border border-amber-200 border-b-0 px-4 py-3">
+                          <svg className="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                          <span className="text-sm font-bold uppercase tracking-wide text-gray-800">Concerned condition summary</span>
+                        </div>
+                        <div className="rounded-b-xl border border-t-0 border-amber-200 bg-white p-4">
+                          <div className="text-xs font-semibold text-gray-500 mb-2">{parsed.adviceLines.length} POINTS</div>
+                          {parsed.foodLines.length > 0 && (
+                            <>
+                              <div className="rounded-lg bg-amber-50/80 border border-amber-100 px-3 py-2.5 mb-4">
+                                <div className="text-[11px] font-bold uppercase tracking-wider text-amber-800/80 mb-2">TL;DR (ingredient-wise)</div>
+                                <ul className="space-y-2">
+                                  {parsed.foodLines.map((line, i) => {
+                                    const split = splitIngredientLine(line)
+                                    return (
+                                      <li key={i} className="text-sm flex flex-wrap gap-1.5">
+                                        {split ? (
+                                          <>
+                                            <span className="font-semibold text-gray-800">{split.ingredient}:</span>
+                                            <span className="text-gray-600">{split.takeaway}</span>
+                                          </>
+                                        ) : (
+                                          <span className="text-gray-700">{line}</span>
+                                        )}
+                                      </li>
+                                    )
+                                  })}
+                                </ul>
+                              </div>
+                            </>
+                          )}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {parsed.adviceLines.map((item, i) => {
+                              const tag = (item.tag || '').toLowerCase()
+                              const bg = tag.includes('important') ? 'bg-red-100 border-red-200' : tag.includes('reasoning') ? 'bg-orange-100 border-orange-200' : tag.includes('action') ? 'bg-blue-100 border-blue-200' : tag.includes('benefit') ? 'bg-emerald-100 border-emerald-200' : tag.includes('ask your doctor') ? 'bg-purple-100 border-purple-200' : 'bg-gray-100 border-gray-200'
+                              const icon = tag.includes('important') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>) : tag.includes('reasoning') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>) : tag.includes('action') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>) : tag.includes('benefit') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>) : tag.includes('ask your doctor') ? (<svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>) : null
+                              return (
+                                <div key={i} className={`rounded-xl border p-3 flex gap-3 ${bg}`}>
+                                  {icon}
+                                  <div className="min-w-0">
+                                    {item.tag && <div className="text-xs font-bold uppercase text-gray-600 mb-0.5">{item.tag}</div>}
+                                    <p className="text-sm text-gray-800">{item.text}</p>
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })()}
+
+                  {alternativesList.length > 0 && (
+                    <div className="mb-4">
+                      <h4 className="text-sm font-bold uppercase tracking-wide text-gray-700 mb-2">Similar but safer</h4>
+                      <ul className="space-y-1.5">
+                        {alternativesList.map((line, i) => (
+                          <li key={i} className="flex items-center gap-2 text-sm text-gray-700">
+                            <svg className="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                            {line}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {additionalInfo && (
+                    <div className="mb-4 rounded-xl border border-gray-200 bg-gray-50 p-3 flex gap-3">
+                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs font-bold">i</span>
+                      <p className="text-sm text-gray-700 leading-relaxed">{additionalInfo}</p>
+                    </div>
+                  )}
+
+                  {!foodSummary && metrics.length === 0 && !currentSummary && !concernedSummary && (
+                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-gray-700 whitespace-pre-wrap leading-relaxed text-sm">{analysis}</div>
+                  )}
+                </div>
+
+                <p className="text-xs text-gray-500 text-center">General dietary guidance; not a substitute for medical advice. When in doubt, discuss with your doctor.</p>
+              </div>
+            </div>
           )}
         </main>
       </div>

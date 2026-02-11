@@ -220,7 +220,8 @@ ALTERNATIVES:
 1–2 short suggestions for a similar but safer option. One per line. Examples: "Grilled instead of fried." "Request sauce on the side." "Try half portion with a side salad."
 
 ---
-Optional: one line "Health score: X/10" somewhere if you want."""
+NUTRITION SCORE:
+One line only: "X/100" where X is an integer from 0 to 100 (overall how suitable this meal is for the user's profile; 100 = excellent, 0 = poor). Example: "65/100"."""
 
 
 @app.get("/")
