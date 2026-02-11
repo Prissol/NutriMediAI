@@ -914,6 +914,11 @@ export default function App() {
     setAnalysisError(null)
   }
 
+  const deleteHistoryEntry = (e: React.MouseEvent, entry: AnalysisEntry) => {
+    e.stopPropagation()
+    setAnalysesList((prev) => prev.filter((x) => x.id !== entry.id))
+  }
+
   const analyzeFood = async () => {
     if (!file) {
       setAnalysisError('Please upload an image first.')
@@ -1298,18 +1303,30 @@ export default function App() {
             <p className="text-sm px-2 py-1 text-violet-600">No analyses yet.</p>
           ) : (
             filteredHistory.map((entry) => (
-              <button
+              <div
                 key={entry.id}
-                type="button"
-                onClick={() => loadHistoryEntry(entry)}
-                className="w-full text-left rounded-lg border border-violet-200/50 bg-white/40 hover:bg-violet-50/80 transition-colors px-2 py-2 text-violet-900"
+                className="flex items-stretch gap-1 rounded-lg border border-violet-200/50 bg-white/40 hover:bg-violet-50/80 transition-colors overflow-hidden"
               >
-                <div className="text-xs mb-1 text-violet-600">
-                  {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                </div>
-                <div className="text-sm truncate">{entry.currentConditions || 'No current condition'}</div>
-                <div className="text-xs truncate text-violet-600">{entry.concernedConditions || 'No monitored conditions'}</div>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => loadHistoryEntry(entry)}
+                  className="flex-1 min-w-0 text-left px-2 py-2 text-violet-900"
+                >
+                  <div className="text-xs mb-1 text-violet-600">
+                    {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  </div>
+                  <div className="text-sm truncate">{entry.currentConditions || 'No current condition'}</div>
+                  <div className="text-xs truncate text-violet-600">{entry.concernedConditions || 'No monitored conditions'}</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => deleteHistoryEntry(e, entry)}
+                  className="p-2 text-violet-500 hover:text-red-600 hover:bg-red-50/80 flex-shrink-0"
+                  aria-label="Delete this entry"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                </button>
+              </div>
             ))
           )}
         </div>
@@ -1349,18 +1366,30 @@ export default function App() {
                 <p className="text-sm px-2 py-1 text-violet-600">No analyses yet.</p>
               ) : (
                 filteredHistory.map((entry) => (
-                  <button
+                  <div
                     key={entry.id}
-                    type="button"
-                    onClick={() => { loadHistoryEntry(entry); setMobileSidebarOpen(false) }}
-                    className="w-full text-left rounded-lg border border-violet-200/50 bg-white/40 hover:bg-violet-50/80 transition-colors px-2 py-2 text-violet-900"
+                    className="flex items-stretch gap-1 rounded-lg border border-violet-200/50 bg-white/40 hover:bg-violet-50/80 transition-colors overflow-hidden"
                   >
-                    <div className="text-xs mb-1 text-violet-600">
-                      {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                    </div>
-                    <div className="text-sm truncate">{entry.currentConditions || 'No current condition'}</div>
-                    <div className="text-xs truncate text-violet-600">{entry.concernedConditions || 'No monitored conditions'}</div>
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => { loadHistoryEntry(entry); setMobileSidebarOpen(false) }}
+                      className="flex-1 min-w-0 text-left px-2 py-2 text-violet-900"
+                    >
+                      <div className="text-xs mb-1 text-violet-600">
+                        {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                      </div>
+                      <div className="text-sm truncate">{entry.currentConditions || 'No current condition'}</div>
+                      <div className="text-xs truncate text-violet-600">{entry.concernedConditions || 'No monitored conditions'}</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => deleteHistoryEntry(e, entry)}
+                      className="p-2 text-violet-500 hover:text-red-600 hover:bg-red-50/80 flex-shrink-0"
+                      aria-label="Delete this entry"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                  </div>
                 ))
               )}
             </div>
