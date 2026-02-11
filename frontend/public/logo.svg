@@ -1,38 +1,29 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" aria-hidden="true">
   <defs>
-    <linearGradient id="leafGrad" x1="15%" y1="5%" x2="88%" y2="92%">
+    <linearGradient id="leafGrad" x1="10%" y1="10%" x2="90%" y2="90%">
       <stop offset="0%" stop-color="#c4b5fd"/>
-      <stop offset="35%" stop-color="#8b5cf6"/>
-      <stop offset="75%" stop-color="#7c3aed"/>
+      <stop offset="40%" stop-color="#8b5cf6"/>
       <stop offset="100%" stop-color="#5b21b6"/>
     </linearGradient>
     <linearGradient id="leafShine" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ede9fe" stop-opacity="0.5"/>
-      <stop offset="45%" stop-color="transparent" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#ede9fe" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
     </linearGradient>
-    <filter id="softShadow" x="-40%" y="-40%" width="180%" height="180%">
-      <feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#6d28d9" flood-opacity="0.28"/>
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#6d28d9" flood-opacity="0.4"/>
     </filter>
   </defs>
   <style>
-    @keyframes leafPulse {
-      0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
-      50% { transform: scale(1.06) rotate(-1deg); opacity: 0.94; }
-    }
-    @keyframes veinFlow {
-      0%, 100% { stroke-dashoffset: 0; opacity: 0.45; }
-      50% { stroke-dashoffset: -6; opacity: 0.9; }
-    }
-    .leaf-main { animation: leafPulse 2.6s ease-in-out infinite; transform-origin: 24px 8px; }
-    .vein { animation: veinFlow 2s ease-in-out infinite; }
+    @keyframes wind1 { 0%,100%{transform:translate(0,0) rotate(0deg) rotateY(0deg)} 20%{transform:translate(1.2px,-2.5px) rotate(5deg) rotateY(18deg)} 40%{transform:translate(-1.8px,1px) rotate(-4deg) rotateY(-12deg)} 60%{transform:translate(2px,1.5px) rotate(6deg) rotateY(14deg)} 80%{transform:translate(-1px,-1.5px) rotate(-3deg) rotateY(-10deg)} }
+    @keyframes wind2 { 0%,100%{transform:translate(0,0) rotate(0deg) rotateY(0deg)} 25%{transform:translate(-2px,-1px) rotate(-5deg) rotateY(-15deg)} 50%{transform:translate(1.5px,2px) rotate(4deg) rotateY(12deg)} 75%{transform:translate(-1.2px,1px) rotate(-4deg) rotateY(-8deg)} }
+    @keyframes wind3 { 0%,100%{transform:translate(0,0) rotate(0deg) rotateY(0deg)} 33%{transform:translate(1.5px,2px) rotate(7deg) rotateY(20deg)} 66%{transform:translate(-2px,-1px) rotate(-6deg) rotateY(-16deg)} }
+    @keyframes veinFlow { 0%{stroke-dashoffset:0;opacity:0.5} 50%{stroke-dashoffset:-14;opacity:1} 100%{stroke-dashoffset:-28;opacity:0.5} }
+    .w1{animation:wind1 4.2s ease-in-out infinite;transform-origin:14px 16px}
+    .w2{animation:wind2 4.8s ease-in-out infinite 0.6s;transform-origin:34px 17px}
+    .w3{animation:wind3 3.6s ease-in-out infinite 1.2s;transform-origin:24px 39px}
+    .v{animation:veinFlow 2s ease-in-out infinite}
   </style>
-  <!-- Unique single leaf: pointed tip, rounded base, asymmetric lobes -->
-  <path class="leaf-main" d="M24 2.8
-    c-4 1.2-8 5.2-9.2 10.8-1 4.2 .2 8.6 2.4 11.8 2.6 3.8 6.6 6 9 6 2.6 0 6.4-2.2 9-6 2.2-3.2 3.4-7.6 2.4-11.8C32 8 28 4 24 2.8z" fill="url(#leafGrad)" filter="url(#softShadow)" stroke="#6d28d9" stroke-width="0.5" stroke-linejoin="round"/>
-  <path class="leaf-main" d="M24 2.8
-    c-4 1.2-8 5.2-9.2 10.8-1 4.2 .2 8.6 2.4 11.8 2.6 3.8 6.6 6 9 6 2.6 0 6.4-2.2 9-6 2.2-3.2 3.4-7.6 2.4-11.8C32 8 28 4 24 2.8z" fill="url(#leafShine)" stroke="none" opacity="0.85"/>
-  <!-- Midrib with subtle animation -->
-  <path class="vein" d="M24 5 v26" stroke="#7c3aed" stroke-width="0.55" stroke-linecap="round" fill="none" stroke-dasharray="3 4"/>
-  <!-- Stem -->
-  <path d="M24 1.6 v2.4" stroke="#5b21b6" stroke-width="0.75" stroke-linecap="round" opacity="0.75"/>
+  <g class="w1"><path d="M14 4 C 9 8 8 18 14 26 C 19 18 19 8 14 4 Z" fill="url(#leafGrad)" filter="url(#softShadow)" stroke="#6d28d9" stroke-width="0.4" stroke-linejoin="round"/><path d="M14 4 C 9 8 8 18 14 26 C 19 18 19 8 14 4 Z" fill="url(#leafShine)" stroke="none" opacity="0.85"/><path class="v" d="M14 5 Q14 15 14 25" stroke="#a78bfa" stroke-width="0.35" stroke-linecap="round" fill="none" stroke-dasharray="3 3"/></g>
+  <g class="w2"><path d="M34 5 C 29 9 28 19 34 27 C 40 19 39 9 34 5 Z" fill="url(#leafGrad)" filter="url(#softShadow)" stroke="#6d28d9" stroke-width="0.4" stroke-linejoin="round"/><path d="M34 5 C 29 9 28 19 34 27 C 40 19 39 9 34 5 Z" fill="url(#leafShine)" stroke="none" opacity="0.85"/><path class="v" d="M34 6 Q34 16 34 26" stroke="#a78bfa" stroke-width="0.35" stroke-linecap="round" fill="none" stroke-dasharray="3 3"/></g>
+  <g class="w3"><path d="M24 30 C 21 33 20 40 24 45 C 28 40 27 33 24 30 Z" fill="url(#leafGrad)" filter="url(#softShadow)" stroke="#6d28d9" stroke-width="0.4" stroke-linejoin="round"/><path d="M24 30 C 21 33 20 40 24 45 C 28 40 27 33 24 30 Z" fill="url(#leafShine)" stroke="none" opacity="0.85"/><path class="v" d="M24 31 v13" stroke="#a78bfa" stroke-width="0.3" stroke-linecap="round" fill="none" stroke-dasharray="2 2"/></g>
 </svg>

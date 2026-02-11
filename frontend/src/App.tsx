@@ -25,44 +25,45 @@ function metricKey(label: string): string {
   return 'calories'
 }
 
-/** Animated leaf logo in site lavender/violet palette */
+/** Logo: floating leaves in wind — 3D sway, drift, hawa ke jhonke, realistic */
 function Logo({ className }: { className?: string }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" aria-hidden="true" className={className}>
-      <defs>
-        <linearGradient id="logoLeafGrad" x1="15%" y1="5%" x2="88%" y2="92%">
-          <stop offset="0%" stopColor="#c4b5fd" />
-          <stop offset="35%" stopColor="#8b5cf6" />
-          <stop offset="75%" stopColor="#7c3aed" />
-          <stop offset="100%" stopColor="#5b21b6" />
-        </linearGradient>
-        <linearGradient id="logoLeafShine" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#ede9fe" stopOpacity={0.5} />
-          <stop offset="45%" stopColor="transparent" stopOpacity={0} />
-        </linearGradient>
-        <filter id="logoSoftShadow" x="-40%" y="-40%" width="180%" height="180%">
-          <feDropShadow dx={0} dy={2} stdDeviation={1.5} floodColor="#6d28d9" floodOpacity={0.28} />
-        </filter>
-      </defs>
-      <path
-        className="logo-leaf"
-        d="M24 2.8c-4 1.2-8 5.2-9.2 10.8-1 4.2 .2 8.6 2.4 11.8 2.6 3.8 6.6 6 9 6 2.6 0 6.4-2.2 9-6 2.2-3.2 3.4-7.6 2.4-11.8C32 8 28 4 24 2.8z"
-        fill="url(#logoLeafGrad)"
-        filter="url(#logoSoftShadow)"
-        stroke="#6d28d9"
-        strokeWidth={0.5}
-        strokeLinejoin="round"
-      />
-      <path
-        className="logo-leaf"
-        d="M24 2.8c-4 1.2-8 5.2-9.2 10.8-1 4.2 .2 8.6 2.4 11.8 2.6 3.8 6.6 6 9 6 2.6 0 6.4-2.2 9-6 2.2-3.2 3.4-7.6 2.4-11.8C32 8 28 4 24 2.8z"
-        fill="url(#logoLeafShine)"
-        stroke="none"
-        opacity={0.85}
-      />
-      <path className="logo-vein" d="M24 5 v26" stroke="#7c3aed" strokeWidth={0.55} strokeLinecap="round" fill="none" strokeDasharray="3 4" />
-      <path d="M24 1.6 v2.4" stroke="#5b21b6" strokeWidth={0.75} strokeLinecap="round" opacity={0.75} />
-    </svg>
+    <span className={`logo-glow inline-block ${className ?? ''}`}>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" aria-hidden="true" className="w-full h-full block" style={{ transformStyle: 'preserve-3d', perspective: '180px' }}>
+        <defs>
+          <linearGradient id="logoLeafGrad" x1="10%" y1="10%" x2="90%" y2="90%">
+            <stop offset="0%" stopColor="#c4b5fd" />
+            <stop offset="40%" stopColor="#8b5cf6" />
+            <stop offset="100%" stopColor="#5b21b6" />
+          </linearGradient>
+          <linearGradient id="logoLeafShine" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ede9fe" stopOpacity={0.7} />
+            <stop offset="100%" stopColor="transparent" stopOpacity={0} />
+          </linearGradient>
+          <filter id="logoSoftShadow" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx={0} dy={2} stdDeviation={1.5} floodColor="#6d28d9" floodOpacity={0.4} />
+          </filter>
+        </defs>
+        {/* Leaf 1: organic shape — rounded base, curved sides, pointed tip */}
+        <g className="logo-leaf-wrap logo-leaf-1" style={{ transformOrigin: '14px 16px' }}>
+          <path d="M14 4 C 9 8 8 18 14 26 C 19 18 19 8 14 4 Z" fill="url(#logoLeafGrad)" filter="url(#logoSoftShadow)" stroke="#6d28d9" strokeWidth={0.4} strokeLinejoin="round" />
+          <path className="logo-shine-layer" d="M14 4 C 9 8 8 18 14 26 C 19 18 19 8 14 4 Z" fill="url(#logoLeafShine)" stroke="none" />
+          <path className="logo-vein" d="M14 5 Q14 15 14 25" stroke="#a78bfa" strokeWidth={0.35} strokeLinecap="round" fill="none" strokeDasharray="3 3" />
+        </g>
+        {/* Leaf 2: same organic shape, mirrored feel */}
+        <g className="logo-leaf-wrap logo-leaf-2" style={{ transformOrigin: '34px 17px' }}>
+          <path d="M34 5 C 29 9 28 19 34 27 C 40 19 39 9 34 5 Z" fill="url(#logoLeafGrad)" filter="url(#logoSoftShadow)" stroke="#6d28d9" strokeWidth={0.4} strokeLinejoin="round" />
+          <path className="logo-shine-layer" d="M34 5 C 29 9 28 19 34 27 C 40 19 39 9 34 5 Z" fill="url(#logoLeafShine)" stroke="none" />
+          <path className="logo-vein" d="M34 6 Q34 16 34 26" stroke="#a78bfa" strokeWidth={0.35} strokeLinecap="round" fill="none" strokeDasharray="3 3" />
+        </g>
+        {/* Leaf 3: smaller organic leaf */}
+        <g className="logo-leaf-wrap logo-leaf-3" style={{ transformOrigin: '24px 39px' }}>
+          <path d="M24 30 C 21 33 20 40 24 45 C 28 40 27 33 24 30 Z" fill="url(#logoLeafGrad)" filter="url(#logoSoftShadow)" stroke="#6d28d9" strokeWidth={0.4} strokeLinejoin="round" />
+          <path className="logo-shine-layer" d="M24 30 C 21 33 20 40 24 45 C 28 40 27 33 24 30 Z" fill="url(#logoLeafShine)" stroke="none" />
+          <path className="logo-vein" d="M24 31 v13" stroke="#a78bfa" strokeWidth={0.3} strokeLinecap="round" fill="none" strokeDasharray="2 2" />
+        </g>
+      </svg>
+    </span>
   )
 }
 
