@@ -229,6 +229,7 @@ function cleanTldrFoodLines(lines: string[]): string[] {
     if (!t) return false
     const lower = t.toLowerCase()
     if (lower === 'tldr:' || lower === 'tl;dr:') return false
+    if (lower === 'tl;dr (ingredient-wise):' || lower === 'tl;dr (ingredient-wise)') return false
     if (/^[-–—\s]+$/.test(t)) return false
     return true
   })
@@ -1074,9 +1075,9 @@ export default function App() {
 
   const isLightResultView = !!analysis
   return (
-    <div className={`min-h-screen flex ${isLightResultView ? 'bg-[#e5e7eb] text-[#1e293b]' : 'bg-[#0f2f34] text-white'}`}>
-      <aside className={`hidden md:flex w-[290px] shrink-0 border-r flex-col ${isLightResultView ? 'border-gray-200 bg-white' : 'border-white/10 bg-[#123740]'}`}>
-        <div className={`p-3 border-b ${isLightResultView ? 'border-gray-200' : 'border-white/10'}`}>
+    <div className={`min-h-screen flex ${isLightResultView ? 'bg-[#e6f2ef] text-[#0f2f34]' : 'bg-[#0f2f34] text-white'}`}>
+      <aside className={`hidden md:flex w-[290px] shrink-0 border-r flex-col ${isLightResultView ? 'border-emerald-200 bg-white' : 'border-white/10 bg-[#123740]'}`}>
+        <div className={`p-3 border-b ${isLightResultView ? 'border-emerald-200' : 'border-white/10'}`}>
           <button
             type="button"
             onClick={startNewAnalysis}
@@ -1091,25 +1092,25 @@ export default function App() {
             value={sidebarSearch}
             onChange={(e) => setSidebarSearch(e.target.value)}
             placeholder="Search history..."
-            className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-emerald-500/40 ${isLightResultView ? 'border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-500' : 'border-white/20 bg-white/10 text-white placeholder:text-white/50'}`}
+            className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-emerald-500/40 ${isLightResultView ? 'border-emerald-200 bg-emerald-50/50 text-[#0f2f34] placeholder:text-emerald-700/60' : 'border-white/20 bg-white/10 text-white placeholder:text-white/50'}`}
           />
         </div>
         <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-2">
           {filteredHistory.length === 0 ? (
-            <p className={`text-sm px-2 py-1 ${isLightResultView ? 'text-gray-500' : 'text-white/50'}`}>No analyses yet.</p>
+            <p className={`text-sm px-2 py-1 ${isLightResultView ? 'text-emerald-700/70' : 'text-white/50'}`}>No analyses yet.</p>
           ) : (
             filteredHistory.map((entry) => (
               <button
                 key={entry.id}
                 type="button"
                 onClick={() => loadHistoryEntry(entry)}
-                className={`w-full text-left rounded-lg border transition-colors px-2 py-2 ${isLightResultView ? 'border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-800' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}
+                className={`w-full text-left rounded-lg border transition-colors px-2 py-2 ${isLightResultView ? 'border-emerald-200 bg-emerald-50/50 hover:bg-emerald-100/70 text-[#0f2f34]' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}
               >
-                <div className={`text-xs mb-1 ${isLightResultView ? 'text-gray-500' : 'text-white/50'}`}>
+                <div className={`text-xs mb-1 ${isLightResultView ? 'text-emerald-700/70' : 'text-white/50'}`}>
                   {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                 </div>
-                <div className={`text-sm truncate ${isLightResultView ? 'text-gray-800' : 'text-white/90'}`}>{entry.currentConditions || 'No current condition'}</div>
-                <div className={`text-xs truncate ${isLightResultView ? 'text-gray-500' : 'text-white/60'}`}>{entry.concernedConditions || 'No monitored conditions'}</div>
+                <div className={`text-sm truncate ${isLightResultView ? 'text-[#0f2f34]' : 'text-white/90'}`}>{entry.currentConditions || 'No current condition'}</div>
+                <div className={`text-xs truncate ${isLightResultView ? 'text-emerald-700/70' : 'text-white/60'}`}>{entry.concernedConditions || 'No monitored conditions'}</div>
               </button>
             ))
           )}
@@ -1117,15 +1118,15 @@ export default function App() {
       </aside>
 
       <div className="flex-1 min-w-0 flex flex-col">
-        <header className={`sticky top-0 z-[9999] border-b backdrop-blur ${isLightResultView ? 'bg-white/95 border-gray-200' : 'border-white/10 bg-[#0f2f34]/95'}`}>
+        <header className={`sticky top-0 z-[9999] border-b backdrop-blur ${isLightResultView ? 'bg-white/95 border-emerald-200' : 'border-white/10 bg-[#0f2f34]/95'}`}>
           <div className="max-w-7xl mx-auto px-4 md:px-8 h-14 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <img src="/logo.svg" alt="" className="h-9 w-9" />
-              <h1 className={`text-lg font-semibold ${isLightResultView ? 'text-gray-900' : 'text-white'}`}>NutriMedAI</h1>
+              <h1 className={`text-lg font-semibold ${isLightResultView ? 'text-[#0f2f34]' : 'text-white'}`}>NutriMedAI</h1>
             </div>
             <div className="flex items-center gap-3">
-              <span className={`text-sm truncate max-w-[200px] ${isLightResultView ? 'text-gray-600' : 'text-white/70'}`} title={user.email}>{user.email}</span>
-              <button type="button" onClick={logout} className={`px-3 py-1.5 rounded-xl text-sm font-medium ${isLightResultView ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' : 'text-white/80 hover:text-white hover:bg-white/10 border border-white/20'}`}>
+              <span className={`text-sm truncate max-w-[200px] ${isLightResultView ? 'text-emerald-800' : 'text-white/70'}`} title={user.email}>{user.email}</span>
+              <button type="button" onClick={logout} className={`px-3 py-1.5 rounded-xl text-sm font-medium ${isLightResultView ? 'text-emerald-800 hover:text-[#0f2f34] hover:bg-emerald-100' : 'text-white/80 hover:text-white hover:bg-white/10 border border-white/20'}`}>
                 Log out
               </button>
               {analysis && (
@@ -1138,15 +1139,15 @@ export default function App() {
           </div>
         </header>
 
-        <main className={`max-w-7xl mx-auto px-4 md:px-8 py-8 w-full space-y-6 ${isLightResultView ? 'bg-[#e5e7eb]' : ''}`}>
+        <main className={`max-w-7xl mx-auto px-4 md:px-8 py-8 w-full space-y-6 ${isLightResultView ? 'bg-[#e6f2ef]' : ''}`}>
           {!analysis && (
-          <section className={`rounded-2xl p-4 md:p-6 ${isLightResultView ? 'bg-white border border-gray-200 shadow-sm' : 'bg-[#123740] border border-white/10'}`}>
+          <section className={`rounded-2xl p-4 md:p-6 ${isLightResultView ? 'bg-white border border-emerald-200 shadow-sm' : 'bg-[#123740] border border-white/10'}`}>
             <div className="flex items-center justify-between gap-3 mb-5">
-              <h2 className={`text-lg md:text-xl font-semibold ${isLightResultView ? 'text-gray-900' : 'text-white'}`}>Medical profile & analysis</h2>
+              <h2 className={`text-lg md:text-xl font-semibold ${isLightResultView ? 'text-[#0f2f34]' : 'text-white'}`}>Medical profile & analysis</h2>
               <button
                 type="button"
                 onClick={startNewAnalysis}
-                className={isLightResultView ? 'px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 border border-gray-200' : 'px-3 py-1.5 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 border border-white/20'}
+                className={isLightResultView ? 'px-3 py-1.5 rounded-lg text-sm font-medium text-emerald-800 hover:text-[#0f2f34] hover:bg-emerald-100 border border-emerald-200' : 'px-3 py-1.5 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 border border-white/20'}
               >
                 New analysis
               </button>
@@ -1226,29 +1227,29 @@ export default function App() {
           )}
 
           {analysis && (
-            <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-6">
-              {/* Left: IDENTIFIED FOOD card + circular image + Nutrition score */}
-              <div className="space-y-4">
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                  <div className="bg-emerald-50 border-b border-emerald-100 px-4 py-2">
+            <div className="flex flex-col lg:flex-row gap-6 w-full">
+              {/* Left: IDENTIFIED FOOD card + circular image + Nutrition score - fixed width so it never collapses */}
+              <div className="w-full lg:w-[340px] lg:flex-shrink-0 lg:min-w-[340px] space-y-4">
+                <div className="bg-white rounded-2xl border border-emerald-200 shadow-sm overflow-hidden">
+                  <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-2">
                     <span className="text-xs font-semibold uppercase tracking-wider text-emerald-800">Identified food</span>
                   </div>
                   <div className="p-4">
-                    <h3 className="text-lg font-bold text-gray-900">{dishName || 'Food item'}</h3>
+                    <h3 className="text-lg font-bold text-[#0f2f34]">{dishName || 'Food item'}</h3>
                     <div className="mt-4 flex justify-center">
                       {preview ? (
-                        <img src={preview} alt={dishName || 'Uploaded food'} className="w-48 h-48 rounded-full object-cover border-4 border-gray-100 shadow-inner" />
+                        <img src={preview} alt={dishName || 'Uploaded food'} className="w-48 h-48 rounded-full object-cover border-4 border-emerald-100 shadow-inner" />
                       ) : (
-                        <div className="w-48 h-48 rounded-full bg-gray-100 border-4 border-gray-200 flex items-center justify-center text-gray-400 text-sm">No image</div>
+                        <div className="w-48 h-48 rounded-full bg-emerald-50 border-4 border-emerald-200 flex items-center justify-center text-emerald-600 text-sm">No image</div>
                       )}
                     </div>
                     <div className="mt-4">
-                      <div className="text-sm font-medium text-gray-700 mb-2">Nutrition score</div>
+                      <div className="text-sm font-medium text-emerald-800 mb-2">Nutrition score</div>
                       <div className="flex items-center gap-3">
-                        <div className="flex-1 h-2.5 rounded-full bg-gray-200 overflow-hidden">
+                        <div className="flex-1 h-2.5 rounded-full bg-emerald-100 overflow-hidden">
                           <div className="h-full rounded-full bg-emerald-500 transition-all animate-progress" style={{ width: `${nutritionScore != null ? Math.min(100, Math.max(0, nutritionScore)) : 0}%` }} />
                         </div>
-                        <span className="text-sm font-bold text-gray-900 tabular-nums flex-shrink-0">{nutritionScore != null ? `${nutritionScore}/100` : '—/100'}</span>
+                        <span className="text-sm font-bold text-[#0f2f34] tabular-nums flex-shrink-0">{nutritionScore != null ? `${nutritionScore}/100` : '—/100'}</span>
                       </div>
                     </div>
                   </div>
@@ -1256,21 +1257,21 @@ export default function App() {
               </div>
 
               {/* Right: Nutrition summary, metrics, concern tags, SHOW checkboxes, condition summaries */}
-              <div className="space-y-5 min-w-0">
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">Nutrition summary</h3>
-                  <p className="text-gray-700 leading-relaxed mb-4">{foodSummary || 'Analysis generated successfully.'}</p>
+              <div className="flex-1 min-w-0">
+                <div className="bg-white rounded-2xl border border-emerald-200 shadow-sm p-5 md:p-6">
+                  <h3 className="text-xl font-semibold text-[#0f2f34] mb-3">Nutrition summary</h3>
+                  <p className="text-emerald-900/90 leading-relaxed mb-4">{foodSummary || 'Analysis generated successfully.'}</p>
 
                   {metrics.length > 0 && (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
                       {metrics.map((m) => {
                         const key = metricKey(m.label)
                         return (
-                          <div key={`${m.label}_${m.value}`} className={`metric-${key} metric-card-hover rounded-xl p-3 flex items-center gap-3 border`}>
-                            <span className="text-gray-700 flex-shrink-0 [&>svg]:w-5 [&>svg]:h-5">{METRIC_ICONS[key] || METRIC_ICONS.calories}</span>
+                          <div key={`${m.label}_${m.value}`} className={`metric-${key} metric-card-hover rounded-xl p-3 flex items-center gap-3 border border-emerald-200/50`}>
+                            <span className="text-emerald-800 flex-shrink-0 [&>svg]:w-5 [&>svg]:h-5">{METRIC_ICONS[key] || METRIC_ICONS.calories}</span>
                             <div className="min-w-0">
-                              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-600">{m.label}</div>
-                              <div className="text-sm font-bold text-gray-900 truncate">{m.value || '—'}</div>
+                              <div className="text-[11px] font-semibold uppercase tracking-wide text-emerald-800">{m.label}</div>
+                              <div className="text-sm font-bold text-[#0f2f34] truncate">{m.value || '—'}</div>
                             </div>
                           </div>
                         )
@@ -1280,24 +1281,24 @@ export default function App() {
 
                   <div className="flex flex-wrap gap-2 mb-4">
                     {currentConditionsList.filter((c) => c && c !== 'None / No current conditions').map((c) => (
-                      <span key={c} className="px-3 py-1 rounded-full text-xs font-medium bg-blue-600 text-white">{c}</span>
+                      <span key={c} className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-600 text-white">{c}</span>
                     ))}
                     {concernedConditionsList.filter(Boolean).map((c) => (
-                      <span key={c} className="px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-900 border border-amber-200">Concern: {c}</span>
+                      <span key={c} className="px-3 py-1 rounded-full text-xs font-medium bg-teal-100 text-teal-900 border border-teal-200">Concern: {c}</span>
                     ))}
                     {categoryChips.length > 0 && categoryChips.map((chip) => (
-                      <span key={chip} className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">{chip}</span>
+                      <span key={chip} className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">{chip}</span>
                     ))}
                   </div>
 
                   <div className="flex items-center gap-4 mb-4">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Show:</span>
-                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                      <input type="checkbox" checked={showCurrentCondition} onChange={(e) => setShowCurrentCondition(e.target.checked)} className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Show:</span>
+                    <label className="flex items-center gap-2 text-sm text-emerald-900 cursor-pointer">
+                      <input type="checkbox" checked={showCurrentCondition} onChange={(e) => setShowCurrentCondition(e.target.checked)} className="rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500" />
                       Current condition
                     </label>
-                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                      <input type="checkbox" checked={showConcernedCondition} onChange={(e) => setShowConcernedCondition(e.target.checked)} className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" />
+                    <label className="flex items-center gap-2 text-sm text-emerald-900 cursor-pointer">
+                      <input type="checkbox" checked={showConcernedCondition} onChange={(e) => setShowConcernedCondition(e.target.checked)} className="rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500" />
                       Concerned condition
                     </label>
                   </div>
@@ -1308,14 +1309,14 @@ export default function App() {
                       <div className="mb-6">
                         <div className="flex items-center gap-2 rounded-t-xl bg-emerald-50 border border-emerald-200 border-b-0 px-4 py-3">
                           <svg className="w-5 h-5 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                          <span className="text-sm font-bold uppercase tracking-wide text-gray-800">Current medical condition summary</span>
+                          <span className="text-sm font-bold uppercase tracking-wide text-emerald-900">Current medical condition summary</span>
                         </div>
                         <div className="rounded-b-xl border border-t-0 border-emerald-200 bg-white p-4">
-                          <div className="text-xs font-semibold text-gray-500 mb-2">{parsed.adviceLines.length} POINTS</div>
+                          <div className="text-xs font-semibold text-emerald-700 mb-2">{parsed.adviceLines.length} POINTS</div>
                           {parsed.foodLines.length > 0 && (
                             <>
-                              <div className="rounded-lg bg-gray-50 border border-gray-100 px-3 py-2.5 mb-4">
-                                <div className="text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-2">TL;DR (ingredient-wise)</div>
+                              <div className="rounded-lg bg-emerald-50/80 border border-emerald-100 px-3 py-2.5 mb-4">
+                                <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 mb-2">TL;DR (ingredient-wise)</div>
                                 <ul className="space-y-2">
                                   {parsed.foodLines.map((line, i) => {
                                     const split = splitIngredientLine(line)
@@ -1323,11 +1324,11 @@ export default function App() {
                                       <li key={i} className="text-sm flex flex-wrap gap-1.5">
                                         {split ? (
                                           <>
-                                            <span className="font-semibold text-gray-800">{split.ingredient}:</span>
-                                            <span className="text-gray-600">{split.takeaway}</span>
+                                            <span className="font-semibold text-[#0f2f34]">{split.ingredient}:</span>
+                                            <span className="text-emerald-800">{split.takeaway}</span>
                                           </>
                                         ) : (
-                                          <span className="text-gray-700">{line}</span>
+                                          <span className="text-emerald-900">{line}</span>
                                         )}
                                       </li>
                                     )
@@ -1361,16 +1362,16 @@ export default function App() {
                     const parsed = parseInfographyBlock(concernedSummary)
                     return (
                       <div className="mb-6">
-                        <div className="flex items-center gap-2 rounded-t-xl bg-amber-50 border border-amber-200 border-b-0 px-4 py-3">
-                          <svg className="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                          <span className="text-sm font-bold uppercase tracking-wide text-gray-800">Concerned condition summary</span>
+                        <div className="flex items-center gap-2 rounded-t-xl bg-teal-50 border border-teal-200 border-b-0 px-4 py-3">
+                          <svg className="w-5 h-5 text-teal-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                          <span className="text-sm font-bold uppercase tracking-wide text-teal-900">Concerned condition summary</span>
                         </div>
-                        <div className="rounded-b-xl border border-t-0 border-amber-200 bg-white p-4">
-                          <div className="text-xs font-semibold text-gray-500 mb-2">{parsed.adviceLines.length} POINTS</div>
+                        <div className="rounded-b-xl border border-t-0 border-teal-200 bg-white p-4">
+                          <div className="text-xs font-semibold text-teal-700 mb-2">{parsed.adviceLines.length} POINTS</div>
                           {parsed.foodLines.length > 0 && (
                             <>
-                              <div className="rounded-lg bg-amber-50/80 border border-amber-100 px-3 py-2.5 mb-4">
-                                <div className="text-[11px] font-bold uppercase tracking-wider text-amber-800/80 mb-2">TL;DR (ingredient-wise)</div>
+                              <div className="rounded-lg bg-teal-50/80 border border-teal-100 px-3 py-2.5 mb-4">
+                                <div className="text-[11px] font-bold uppercase tracking-wider text-teal-700 mb-2">TL;DR (ingredient-wise)</div>
                                 <ul className="space-y-2">
                                   {parsed.foodLines.map((line, i) => {
                                     const split = splitIngredientLine(line)
@@ -1378,11 +1379,11 @@ export default function App() {
                                       <li key={i} className="text-sm flex flex-wrap gap-1.5">
                                         {split ? (
                                           <>
-                                            <span className="font-semibold text-gray-800">{split.ingredient}:</span>
-                                            <span className="text-gray-600">{split.takeaway}</span>
+                                            <span className="font-semibold text-[#0f2f34]">{split.ingredient}:</span>
+                                            <span className="text-teal-800">{split.takeaway}</span>
                                           </>
                                         ) : (
-                                          <span className="text-gray-700">{line}</span>
+                                          <span className="text-teal-900">{line}</span>
                                         )}
                                       </li>
                                     )
@@ -1414,10 +1415,10 @@ export default function App() {
 
                   {alternativesList.length > 0 && (
                     <div className="mb-4">
-                      <h4 className="text-sm font-bold uppercase tracking-wide text-gray-700 mb-2">Similar but safer</h4>
+                      <h4 className="text-sm font-bold uppercase tracking-wide text-emerald-800 mb-2">Similar but safer</h4>
                       <ul className="space-y-1.5">
                         {alternativesList.map((line, i) => (
-                          <li key={i} className="flex items-center gap-2 text-sm text-gray-700">
+                          <li key={i} className="flex items-center gap-2 text-sm text-emerald-900">
                             <svg className="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                             {line}
                           </li>
@@ -1427,18 +1428,18 @@ export default function App() {
                   )}
 
                   {additionalInfo && (
-                    <div className="mb-4 rounded-xl border border-gray-200 bg-gray-50 p-3 flex gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs font-bold">i</span>
-                      <p className="text-sm text-gray-700 leading-relaxed">{additionalInfo}</p>
+                    <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50/60 p-3 flex gap-3">
+                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-800 text-xs font-bold">i</span>
+                      <p className="text-sm text-emerald-900 leading-relaxed">{additionalInfo}</p>
                     </div>
                   )}
 
                   {!foodSummary && metrics.length === 0 && !currentSummary && !concernedSummary && (
-                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-gray-700 whitespace-pre-wrap leading-relaxed text-sm">{analysis}</div>
+                    <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-emerald-900 whitespace-pre-wrap leading-relaxed text-sm">{analysis}</div>
                   )}
                 </div>
 
-                <p className="text-xs text-gray-500 text-center">General dietary guidance; not a substitute for medical advice. When in doubt, discuss with your doctor.</p>
+                <p className="text-xs text-emerald-700/80 text-center">General dietary guidance; not a substitute for medical advice. When in doubt, discuss with your doctor.</p>
               </div>
             </div>
           )}
