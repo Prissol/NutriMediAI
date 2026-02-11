@@ -538,8 +538,8 @@ function LandingPage({
           style={{ background: 'linear-gradient(0deg, rgba(139,92,246,0.55) 0%, rgba(139,92,246,0.25) 50%, rgba(245,243,255,0.4) 100%)' }}
         />
         <div className="relative z-20 max-w-6xl mx-auto px-4 md:px-8 py-20 text-center w-full">
-          <h1 className="text-4xl md:text-6xl font-semibold leading-tight text-violet-900">Take control of your health</h1>
-          <p className="mt-4 text-lg text-violet-700">Smarter nutrition. Made personal.</p>
+          <h1 className="text-4xl md:text-6xl font-semibold leading-tight text-white drop-shadow-md" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3)' }}>Take control of your health</h1>
+          <p className="mt-4 text-lg text-white font-medium" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.5)' }}>Smarter nutrition. Made personal.</p>
           <button
             type="button"
             onClick={onRegister}
@@ -612,8 +612,8 @@ function LandingPage({
         }}
       >
         <div className="max-w-6xl mx-auto px-4 md:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-semibold text-violet-900">Your everyday health navigator.</h2>
-          <p className="mt-4 text-violet-700">
+          <h2 className="text-3xl md:text-4xl font-semibold text-white" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3)' }}>Your everyday health navigator.</h2>
+          <p className="mt-4 text-white font-medium" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.5)' }}>
             Built to meet your body and brain where they are. Then helps you level up.
           </p>
           <div className="mt-10 grid gap-6 md:grid-cols-3 text-left">
@@ -622,10 +622,10 @@ function LandingPage({
               { title: 'Macro + micro breakdowns', text: 'Calories, protein, carbs, fat, fiber, sugar, sodium, vitamins.' },
               { title: 'Smart alternatives', text: 'Safer swaps and portion guidance for your goals.' },
             ].map((tile, idx) => (
-              <div key={tile.title} className="rounded-2xl border border-violet-200/50 bg-white/50 backdrop-blur-sm p-6 shadow-lg shadow-violet-200/20">
-                <div className="text-violet-500 font-semibold text-lg">{idx + 1}</div>
+              <div key={tile.title} className="rounded-2xl border border-violet-200/50 bg-white/70 backdrop-blur-sm p-6 shadow-lg shadow-violet-200/20">
+                <div className="text-violet-600 font-semibold text-lg">{idx + 1}</div>
                 <div className="mt-2 text-violet-900 font-semibold">{tile.title}</div>
-                <div className="mt-2 text-violet-600 text-sm">{tile.text}</div>
+                <div className="mt-2 text-violet-900 text-sm">{tile.text}</div>
               </div>
             ))}
           </div>
@@ -721,8 +721,7 @@ export default function App() {
   const [analysisError, setAnalysisError] = useState<string | null>(null)
   const [analysesList, setAnalysesList] = useState<AnalysisEntry[]>([])
   const [sidebarSearch, setSidebarSearch] = useState('')
-  const [showCurrentCondition, setShowCurrentCondition] = useState(true)
-  const [showConcernedCondition, setShowConcernedCondition] = useState(true)
+  const [conditionTab, setConditionTab] = useState<'current' | 'concerned'>('current')
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null
@@ -860,6 +859,10 @@ export default function App() {
         return true
       })
   })()
+
+  useEffect(() => {
+    if (analysis && !currentSummary && concernedSummary) setConditionTab('concerned')
+  }, [analysis, currentSummary, concernedSummary])
 
   const downloadPDF = () => {
     if (!dishName && !analysis) return
@@ -1357,19 +1360,30 @@ export default function App() {
                     ))}
                   </div>
 
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-violet-700">Show:</span>
-                    <label className="flex items-center gap-2 text-sm text-violet-900 cursor-pointer">
-                      <input type="checkbox" checked={showCurrentCondition} onChange={(e) => setShowCurrentCondition(e.target.checked)} className="rounded border-violet-300 text-violet-600 focus:ring-violet-500" />
-                      Current condition
-                    </label>
-                    <label className="flex items-center gap-2 text-sm text-violet-900 cursor-pointer">
-                      <input type="checkbox" checked={showConcernedCondition} onChange={(e) => setShowConcernedCondition(e.target.checked)} className="rounded border-violet-300 text-violet-600 focus:ring-violet-500" />
-                      Concerned condition
-                    </label>
-                  </div>
+                  {(currentSummary || concernedSummary) && (
+                    <div className="flex items-center gap-1 p-1 rounded-lg bg-violet-100/60 border border-violet-200/50 mb-2">
+                      {currentSummary && (
+                        <button
+                          type="button"
+                          onClick={() => setConditionTab('current')}
+                          className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold transition-colors ${conditionTab === 'current' ? 'bg-violet-500 text-white shadow-sm' : 'text-violet-700 hover:bg-violet-200/60'}`}
+                        >
+                          Current condition
+                        </button>
+                      )}
+                      {concernedSummary && (
+                        <button
+                          type="button"
+                          onClick={() => setConditionTab('concerned')}
+                          className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold transition-colors ${conditionTab === 'concerned' ? 'bg-violet-500 text-white shadow-sm' : 'text-violet-700 hover:bg-violet-200/60'}`}
+                        >
+                          Concerned condition
+                        </button>
+                      )}
+                    </div>
+                  )}
 
-                  {currentSummary && showCurrentCondition && (() => {
+                  {currentSummary && conditionTab === 'current' && (() => {
                     const parsed = parseInfographyBlock(currentSummary)
                     return (
                       <div className="mb-3">
@@ -1424,7 +1438,7 @@ export default function App() {
                     )
                   })()}
 
-                  {concernedSummary && showConcernedCondition && (() => {
+                  {concernedSummary && conditionTab === 'concerned' && (() => {
                     const parsed = parseInfographyBlock(concernedSummary)
                     return (
                       <div className="mb-3">
