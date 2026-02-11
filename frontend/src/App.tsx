@@ -850,6 +850,7 @@ export default function App() {
   const [analysesList, setAnalysesList] = useState<AnalysisEntry[]>([])
   const [sidebarSearch, setSidebarSearch] = useState('')
   const [conditionTab, setConditionTab] = useState<'current' | 'concerned'>('current')
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null
@@ -1314,22 +1315,83 @@ export default function App() {
         </div>
       </aside>
 
+      {/* Mobile history drawer */}
+      {mobileSidebarOpen && (
+        <>
+          <div className="fixed inset-0 z-[10000] bg-black/40 md:hidden" aria-hidden onClick={() => setMobileSidebarOpen(false)} />
+          <aside className="fixed top-0 left-0 bottom-0 z-[10001] w-[min(320px,85vw)] flex flex-col border-r border-violet-200/50 bg-[#f5f3ff] shadow-xl md:hidden">
+            <div className="p-3 border-b border-violet-200/50 flex items-center justify-between">
+              <span className="text-sm font-semibold text-violet-900">Recent history</span>
+              <button type="button" onClick={() => setMobileSidebarOpen(false)} className="p-2 rounded-lg text-violet-600 hover:bg-violet-100" aria-label="Close">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="p-3 border-b border-violet-200/50">
+              <button
+                type="button"
+                onClick={() => { startNewAnalysis(); setMobileSidebarOpen(false) }}
+                className="w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors bg-violet-500 text-white hover:bg-violet-600"
+              >
+                New analysis
+              </button>
+            </div>
+            <div className="p-3">
+              <input
+                type="text"
+                value={sidebarSearch}
+                onChange={(e) => setSidebarSearch(e.target.value)}
+                placeholder="Search history..."
+                className="w-full px-3 py-2 rounded-lg border border-violet-200/60 bg-white/50 text-violet-900 placeholder:text-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-400/40"
+              />
+            </div>
+            <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-2">
+              {filteredHistory.length === 0 ? (
+                <p className="text-sm px-2 py-1 text-violet-600">No analyses yet.</p>
+              ) : (
+                filteredHistory.map((entry) => (
+                  <button
+                    key={entry.id}
+                    type="button"
+                    onClick={() => { loadHistoryEntry(entry); setMobileSidebarOpen(false) }}
+                    className="w-full text-left rounded-lg border border-violet-200/50 bg-white/40 hover:bg-violet-50/80 transition-colors px-2 py-2 text-violet-900"
+                  >
+                    <div className="text-xs mb-1 text-violet-600">
+                      {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    </div>
+                    <div className="text-sm truncate">{entry.currentConditions || 'No current condition'}</div>
+                    <div className="text-xs truncate text-violet-600">{entry.concernedConditions || 'No monitored conditions'}</div>
+                  </button>
+                ))
+              )}
+            </div>
+          </aside>
+        </>
+      )}
+
       <div className="flex-1 min-w-0 flex flex-col">
         <header className="sticky top-0 z-[9999] border-b border-violet-200/50 bg-[#f5f3ff]/95 backdrop-blur-md">
-          <div className="max-w-7xl mx-auto px-4 md:px-8 h-14 flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div className="max-w-7xl mx-auto px-4 md:px-8 py-2 min-h-14 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => setMobileSidebarOpen(true)}
+                className="md:hidden p-2 -ml-1 rounded-lg text-violet-700 hover:bg-violet-100/80 transition-colors"
+                aria-label="Open history"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              </button>
               <Logo className="h-9 w-9" />
-              <h1 className="text-lg font-semibold text-violet-900">NutriMedAI</h1>
+              <h1 className="text-lg font-semibold text-violet-900 truncate">NutriMedAI</h1>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="text-sm truncate max-w-[200px] text-violet-700" title={user.email}>{user.email}</span>
-              <button type="button" onClick={logout} className="px-3 py-1.5 rounded-xl text-sm font-medium text-violet-700 hover:text-violet-900 hover:bg-violet-100 border border-violet-200/60">
+            <div className="flex items-center gap-2 flex-wrap min-w-0">
+              <span className="text-sm truncate max-w-[140px] sm:max-w-[200px] text-violet-700" title={user.email}>{user.email}</span>
+              <button type="button" onClick={logout} className="flex-shrink-0 px-3 py-1.5 rounded-xl text-sm font-medium text-violet-700 hover:text-violet-900 hover:bg-violet-100 border border-violet-200/60">
                 Log out
               </button>
               {analysis && (
-                <button type="button" onClick={downloadPDF} className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-medium bg-violet-500 text-white hover:bg-violet-600">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                  Download PDF
+                <button type="button" onClick={downloadPDF} className="flex-shrink-0 flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl text-sm font-medium bg-violet-500 text-white hover:bg-violet-600" title="Download PDF">
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                  <span className="hidden sm:inline">Download PDF</span>
                 </button>
               )}
             </div>
@@ -1457,7 +1519,15 @@ export default function App() {
               <div className="flex-1 min-w-0">
                 <div className="bg-white/80 backdrop-blur rounded-xl border border-violet-200/60 shadow-sm p-4">
                   <h3 className="text-lg font-semibold text-violet-900 mb-1">Nutrition summary</h3>
-                  <p className="text-violet-800 text-sm leading-snug mb-2">{foodSummary || 'Analysis generated successfully.'}</p>
+                  {(() => {
+                    const summary = foodSummary || 'Analysis generated successfully.'
+                    const isErrorLike = /sorry|can't help|error|unable/i.test(summary)
+                    return (
+                      <p className={`text-sm leading-snug mb-2 ${isErrorLike ? 'rounded-lg bg-amber-50 border border-amber-200/80 text-amber-900 px-3 py-2' : 'text-violet-800'}`}>
+                        {summary}
+                      </p>
+                    )
+                  })()}
 
                   {metrics.length > 0 && (
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mb-2">
