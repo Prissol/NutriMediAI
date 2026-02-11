@@ -3,6 +3,42 @@ import { useAuth } from './AuthContext'
 
 const API_BASE = import.meta.env.DEV ? (import.meta.env.VITE_API_URL || '/api') : '/api'
 
+const CONDITION_OPTIONS = [
+  'Diabetes',
+  'Hypertension (High BP)',
+  'Heart disease',
+  'Kidney disease',
+  'Obesity / Weight management',
+  'Celiac disease',
+  'Lactose intolerance',
+  'GERD / Acid reflux',
+  'High cholesterol',
+  'Thyroid disorder',
+]
+
+type AnalysisEntry = {
+  id: string
+  date: string
+  currentConditions: string
+  concernedConditions: string
+  userDescription: string
+  analysis: string
+  preview?: string
+}
+
+function analysesStorageKey(userId?: string) {
+  return `nutrimedai_analyses_${userId || 'guest'}`
+}
+
+function toDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader()
+    r.onload = () => resolve(String(r.result || ''))
+    r.onerror = () => reject(new Error('Failed to read file'))
+    r.readAsDataURL(file)
+  })
+}
+
 function LoginScreen({
   onLogin,
   onRegister,
@@ -392,12 +428,16 @@ export default function App() {
   const [authTab, setAuthTab] = useState<'login' | 'register'>('login')
   const [currentConditions, setCurrentConditions] = useState('')
   const [concernedConditions, setConcernedConditions] = useState('')
+  const [currentDropdownOpen, setCurrentDropdownOpen] = useState(false)
+  const [concernedDropdownOpen, setConcernedDropdownOpen] = useState(false)
   const [userDescription, setUserDescription] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [analysis, setAnalysis] = useState<string | null>(null)
   const [loadingAnalysis, setLoadingAnalysis] = useState(false)
   const [analysisError, setAnalysisError] = useState<string | null>(null)
+  const [analysesList, setAnalysesList] = useState<AnalysisEntry[]>([])
+  const [sidebarSearch, setSidebarSearch] = useState('')
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null
@@ -414,6 +454,53 @@ export default function App() {
     setPreview(null)
     setUserDescription('')
     setAnalysis(null)
+    setAnalysisError(null)
+    setCurrentConditions('')
+    setConcernedConditions('')
+    setSidebarSearch('')
+  }
+
+  useEffect(() => {
+    if (!user) return
+    try {
+      const raw = localStorage.getItem(analysesStorageKey(user.id))
+      const parsed = raw ? JSON.parse(raw) as AnalysisEntry[] : []
+      setAnalysesList(Array.isArray(parsed) ? parsed : [])
+    } catch {
+      setAnalysesList([])
+    }
+  }, [user])
+
+  useEffect(() => {
+    if (!user) return
+    localStorage.setItem(analysesStorageKey(user.id), JSON.stringify(analysesList))
+  }, [analysesList, user])
+
+  const currentMatches = CONDITION_OPTIONS.filter((c) =>
+    c.toLowerCase().includes(currentConditions.toLowerCase())
+  ).slice(0, 8)
+
+  const concernedMatches = CONDITION_OPTIONS.filter((c) =>
+    c.toLowerCase().includes(concernedConditions.toLowerCase())
+  ).slice(0, 8)
+
+  const filteredHistory = analysesList.filter((entry) => {
+    const q = sidebarSearch.toLowerCase().trim()
+    if (!q) return true
+    return (
+      entry.currentConditions.toLowerCase().includes(q) ||
+      entry.concernedConditions.toLowerCase().includes(q) ||
+      entry.analysis.toLowerCase().includes(q)
+    )
+  })
+
+  const loadHistoryEntry = (entry: AnalysisEntry) => {
+    setCurrentConditions(entry.currentConditions)
+    setConcernedConditions(entry.concernedConditions)
+    setUserDescription(entry.userDescription)
+    setAnalysis(entry.analysis)
+    setPreview(entry.preview || null)
+    setFile(null)
     setAnalysisError(null)
   }
 
@@ -433,7 +520,19 @@ export default function App() {
       const res = await fetch(`${API_BASE}/analyze`, { method: 'POST', body: form })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.detail || 'Analysis failed')
-      setAnalysis(data.analysis || 'No analysis returned.')
+      const nextAnalysis = data.analysis || 'No analysis returned.'
+      setAnalysis(nextAnalysis)
+      const persistentPreview = await toDataUrl(file)
+      const entry: AnalysisEntry = {
+        id: `${Date.now()}_${Math.random().toString(16).slice(2, 8)}`,
+        date: new Date().toISOString(),
+        currentConditions: currentConditions.trim() || 'No current medical conditions',
+        concernedConditions: concernedConditions.trim() || 'None specified',
+        userDescription: userDescription.trim(),
+        analysis: nextAnalysis,
+        preview: persistentPreview,
+      }
+      setAnalysesList((prev) => [entry, ...prev].slice(0, 50))
     } catch (e) {
       setAnalysisError(e instanceof Error ? e.message : 'Something went wrong.')
     } finally {
@@ -481,111 +580,198 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f2f34] text-white flex flex-col">
-      <header className="sticky top-0 z-[9999] border-b border-white/10 bg-[#0f2f34]/95 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img src="/logo.svg" alt="" className="h-9 w-9" />
-            <h1 className="text-lg font-semibold">NutriMedAI</h1>
-          </div>
-          <span className="text-sm text-white/70 truncate max-w-[200px]" title={user.email}>{user.email}</span>
-          <button type="button" onClick={logout} className="px-3 py-1.5 rounded-xl text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 border border-white/20">
-            Log out
+    <div className="min-h-screen bg-[#0f2f34] text-white flex">
+      <aside className="hidden md:flex w-[290px] shrink-0 border-r border-white/10 bg-[#123740] flex-col">
+        <div className="p-3 border-b border-white/10">
+          <button
+            type="button"
+            onClick={startNewAnalysis}
+            className="w-full px-3 py-2.5 rounded-lg text-sm font-medium bg-emerald-500 text-[#0f2f34] hover:bg-emerald-400 transition-colors"
+          >
+            New analysis
           </button>
         </div>
-      </header>
-      <main className="max-w-7xl mx-auto px-4 md:px-8 py-8 w-full space-y-6">
-        <section className="rounded-2xl bg-[#123740] border border-white/10 p-4 md:p-6">
-          <div className="flex items-center justify-between gap-3 mb-5">
-            <h2 className="text-lg md:text-xl font-semibold">Medical profile & analysis</h2>
-            <button
-              type="button"
-              onClick={startNewAnalysis}
-              className="px-3 py-1.5 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 border border-white/20"
-            >
-              New analysis
+        <div className="p-3">
+          <input
+            type="text"
+            value={sidebarSearch}
+            onChange={(e) => setSidebarSearch(e.target.value)}
+            placeholder="Search history..."
+            className="w-full px-3 py-2 rounded-lg border border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+          />
+        </div>
+        <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-2">
+          {filteredHistory.length === 0 ? (
+            <p className="text-sm text-white/50 px-2 py-1">No analyses yet.</p>
+          ) : (
+            filteredHistory.map((entry) => (
+              <button
+                key={entry.id}
+                type="button"
+                onClick={() => loadHistoryEntry(entry)}
+                className="w-full text-left rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors px-2 py-2"
+              >
+                <div className="text-xs text-white/50 mb-1">
+                  {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                </div>
+                <div className="text-sm text-white/90 truncate">{entry.currentConditions || 'No current condition'}</div>
+                <div className="text-xs text-white/60 truncate">{entry.concernedConditions || 'No monitored conditions'}</div>
+              </button>
+            ))
+          )}
+        </div>
+      </aside>
+
+      <div className="flex-1 min-w-0 flex flex-col">
+        <header className="sticky top-0 z-[9999] border-b border-white/10 bg-[#0f2f34]/95 backdrop-blur">
+          <div className="max-w-7xl mx-auto px-4 md:px-8 h-14 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <img src="/logo.svg" alt="" className="h-9 w-9" />
+              <h1 className="text-lg font-semibold">NutriMedAI</h1>
+            </div>
+            <span className="text-sm text-white/70 truncate max-w-[200px]" title={user.email}>{user.email}</span>
+            <button type="button" onClick={logout} className="px-3 py-1.5 rounded-xl text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 border border-white/20">
+              Log out
             </button>
           </div>
+        </header>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-1.5">Current medical condition</label>
-              <input
-                type="text"
-                value={currentConditions}
-                onChange={(e) => setCurrentConditions(e.target.value)}
-                placeholder="e.g. Diabetes, Hypertension"
-                className="w-full px-3 py-2.5 rounded-lg border border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-1.5">Conditions to monitor</label>
-              <input
-                type="text"
-                value={concernedConditions}
-                onChange={(e) => setConcernedConditions(e.target.value)}
-                placeholder="e.g. Heart health, Blood sugar"
-                className="w-full px-3 py-2.5 rounded-lg border border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-            <label className="flex flex-col items-center justify-center w-full min-h-[280px] rounded-lg border border-white/20 bg-white/5 cursor-pointer overflow-hidden transition-colors hover:bg-white/10">
-              <input type="file" accept="image/*" className="hidden" onChange={onFileChange} />
-              {preview ? (
-                <img src={preview} alt="Upload preview" className="w-full h-full min-h-[280px] max-h-[400px] object-contain bg-white/5" />
-              ) : (
-                <span className="flex flex-col items-center gap-3 text-center px-4 py-8">
-                  <span className="flex items-center justify-center w-11 h-11 rounded-lg bg-white/10 text-white/60" aria-hidden>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </span>
-                  <span className="text-sm font-medium text-white/80">Upload food image</span>
-                  <span className="text-xs text-white/50">PNG, JPG, JPEG, GIF, WEBP</span>
-                </span>
-              )}
-            </label>
-
-            <div className="flex flex-col min-h-[280px] rounded-lg border border-white/20 bg-white/5 p-5">
-              <label htmlFor="description-input" className="text-sm font-medium text-white/80 mb-2 block">
-                Description (optional)
-              </label>
-              <input
-                id="description-input"
-                type="text"
-                placeholder="e.g. Portion size, preparation method, or your question"
-                value={userDescription}
-                onChange={(e) => setUserDescription(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-lg border border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-sm"
-              />
+        <main className="max-w-7xl mx-auto px-4 md:px-8 py-8 w-full space-y-6">
+          <section className="rounded-2xl bg-[#123740] border border-white/10 p-4 md:p-6">
+            <div className="flex items-center justify-between gap-3 mb-5">
+              <h2 className="text-lg md:text-xl font-semibold">Medical profile & analysis</h2>
               <button
                 type="button"
-                onClick={analyzeFood}
-                disabled={!file || loadingAnalysis}
-                className="mt-5 w-full px-4 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-[#0f2f34] font-medium text-sm transition-colors"
+                onClick={startNewAnalysis}
+                className="px-3 py-1.5 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 border border-white/20"
               >
-                {loadingAnalysis ? 'Analyzing...' : 'Analyze food'}
+                New analysis
               </button>
-              {analysisError && (
-                <p className="mt-3 text-sm text-red-200 bg-red-500/20 border border-red-400/40 rounded-lg px-3 py-2">
-                  {analysisError}
-                </p>
-              )}
             </div>
-          </div>
-        </section>
 
-        {analysis && (
-          <section className="rounded-2xl bg-[#123740] border border-white/10 p-5 md:p-6">
-            <h3 className="text-lg font-semibold mb-3">Nutrition summary</h3>
-            <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-white/85 whitespace-pre-wrap leading-relaxed">
-              {analysis}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="relative">
+                <label className="block text-sm font-medium text-white/80 mb-1.5">Current medical condition</label>
+                <input
+                  type="text"
+                  value={currentConditions}
+                  onChange={(e) => { setCurrentConditions(e.target.value); setCurrentDropdownOpen(true) }}
+                  onFocus={() => setCurrentDropdownOpen(true)}
+                  onBlur={() => setTimeout(() => setCurrentDropdownOpen(false), 140)}
+                  placeholder="e.g. Diabetes, Hypertension"
+                  className="w-full px-3 py-2.5 rounded-lg border border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                />
+                {currentDropdownOpen && currentMatches.length > 0 && (
+                  <ul className="absolute z-30 mt-1 w-full rounded-lg border border-white/20 bg-[#123740] shadow-lg py-1 max-h-48 overflow-auto">
+                    {currentMatches.map((c) => (
+                      <li key={c}>
+                        <button
+                          type="button"
+                          className="w-full text-left px-3 py-2 text-sm text-white/90 hover:bg-white/10"
+                          onMouseDown={(e) => {
+                            e.preventDefault()
+                            setCurrentConditions(c)
+                            setCurrentDropdownOpen(false)
+                          }}
+                        >
+                          {c}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <div className="relative">
+                <label className="block text-sm font-medium text-white/80 mb-1.5">Conditions to monitor</label>
+                <input
+                  type="text"
+                  value={concernedConditions}
+                  onChange={(e) => { setConcernedConditions(e.target.value); setConcernedDropdownOpen(true) }}
+                  onFocus={() => setConcernedDropdownOpen(true)}
+                  onBlur={() => setTimeout(() => setConcernedDropdownOpen(false), 140)}
+                  placeholder="e.g. Heart health, Blood sugar"
+                  className="w-full px-3 py-2.5 rounded-lg border border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                />
+                {concernedDropdownOpen && concernedMatches.length > 0 && (
+                  <ul className="absolute z-30 mt-1 w-full rounded-lg border border-white/20 bg-[#123740] shadow-lg py-1 max-h-48 overflow-auto">
+                    {concernedMatches.map((c) => (
+                      <li key={c}>
+                        <button
+                          type="button"
+                          className="w-full text-left px-3 py-2 text-sm text-white/90 hover:bg-white/10"
+                          onMouseDown={(e) => {
+                            e.preventDefault()
+                            setConcernedConditions(c)
+                            setConcernedDropdownOpen(false)
+                          }}
+                        >
+                          {c}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+              <label className="flex flex-col items-center justify-center w-full min-h-[280px] rounded-lg border border-white/20 bg-white/5 cursor-pointer overflow-hidden transition-colors hover:bg-white/10">
+                <input type="file" accept="image/*" className="hidden" onChange={onFileChange} />
+                {preview ? (
+                  <img src={preview} alt="Upload preview" className="w-full h-full min-h-[280px] max-h-[400px] object-contain bg-white/5" />
+                ) : (
+                  <span className="flex flex-col items-center gap-3 text-center px-4 py-8">
+                    <span className="flex items-center justify-center w-11 h-11 rounded-lg bg-white/10 text-white/60" aria-hidden>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </span>
+                    <span className="text-sm font-medium text-white/80">Upload food image</span>
+                    <span className="text-xs text-white/50">PNG, JPG, JPEG, GIF, WEBP</span>
+                  </span>
+                )}
+              </label>
+
+              <div className="flex flex-col min-h-[280px] rounded-lg border border-white/20 bg-white/5 p-5">
+                <label htmlFor="description-input" className="text-sm font-medium text-white/80 mb-2 block">
+                  Description (optional)
+                </label>
+                <input
+                  id="description-input"
+                  type="text"
+                  placeholder="e.g. Portion size, preparation method, or your question"
+                  value={userDescription}
+                  onChange={(e) => setUserDescription(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-lg border border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={analyzeFood}
+                  disabled={!file || loadingAnalysis}
+                  className="mt-5 w-full px-4 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-[#0f2f34] font-medium text-sm transition-colors"
+                >
+                  {loadingAnalysis ? 'Analyzing...' : 'Analyze food'}
+                </button>
+                {analysisError && (
+                  <p className="mt-3 text-sm text-red-200 bg-red-500/20 border border-red-400/40 rounded-lg px-3 py-2">
+                    {analysisError}
+                  </p>
+                )}
+              </div>
             </div>
           </section>
-        )}
-      </main>
+
+          {analysis && (
+            <section className="rounded-2xl bg-[#123740] border border-white/10 p-5 md:p-6">
+              <h3 className="text-lg font-semibold mb-3">Nutrition summary</h3>
+              <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-white/85 whitespace-pre-wrap leading-relaxed">
+                {analysis}
+              </div>
+            </section>
+          )}
+        </main>
+      </div>
     </div>
   )
 }
