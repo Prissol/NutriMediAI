@@ -368,7 +368,7 @@ function LoginScreen({
   defaultTab: 'login' | 'register'
   onBack: () => void
 }) {
-  const SHOW_REGISTER_TAB = false // set true to show Login | Register again
+  const SHOW_REGISTER_TAB = true // set false to hide Register tab again
   const [tab, setTab] = useState<'login' | 'register'>(SHOW_REGISTER_TAB ? defaultTab : 'login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -832,7 +832,7 @@ function LandingPage({
 }
 
 export default function App() {
-  const { user, loading: authLoading, login, register, logout, error: authError, clearError: clearAuthError } = useAuth()
+  const { user, token, loading: authLoading, login, register, logout, error: authError, clearError: clearAuthError } = useAuth()
   const [authView, setAuthView] = useState<'landing' | 'auth' | 'about'>('landing')
   const [authTab, setAuthTab] = useState<'login' | 'register'>('login')
   const [currentConditionsList, setCurrentConditionsList] = useState<string[]>([])
@@ -877,14 +877,40 @@ export default function App() {
 
   useEffect(() => {
     if (!user) return
-    try {
-      const raw = localStorage.getItem(analysesStorageKey(user.id))
-      const parsed = raw ? JSON.parse(raw) as AnalysisEntry[] : []
-      setAnalysesList(Array.isArray(parsed) ? parsed : [])
-    } catch {
-      setAnalysesList([])
+    const loadAnalyses = async () => {
+      if (token) {
+        try {
+          const res = await fetch(`${API_BASE}/analyses`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          if (res.ok) {
+            const list = await res.json()
+            const entries: AnalysisEntry[] = (Array.isArray(list) ? list : []).map((r: { id: string; date: string; analysis: string; preview?: string; currentConditions?: string; concernedConditions?: string; userDescription?: string }) => ({
+              id: r.id,
+              date: r.date,
+              currentConditions: r.currentConditions ?? '',
+              concernedConditions: r.concernedConditions ?? '',
+              userDescription: r.userDescription ?? '',
+              analysis: r.analysis,
+              preview: r.preview ?? undefined,
+            }))
+            setAnalysesList(entries)
+            return
+          }
+        } catch {
+          /* fall back to localStorage */
+        }
+      }
+      try {
+        const raw = localStorage.getItem(analysesStorageKey(user.id))
+        const parsed = raw ? (JSON.parse(raw) as AnalysisEntry[]) : []
+        setAnalysesList(Array.isArray(parsed) ? parsed : [])
+      } catch {
+        setAnalysesList([])
+      }
     }
-  }, [user])
+    loadAnalyses()
+  }, [user, token])
 
   useEffect(() => {
     if (!user) return
@@ -916,6 +942,12 @@ export default function App() {
 
   const deleteHistoryEntry = (e: React.MouseEvent, entry: AnalysisEntry) => {
     e.stopPropagation()
+    if (token) {
+      fetch(`${API_BASE}/analyses/${encodeURIComponent(entry.id)}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(() => {})
+    }
     setAnalysesList((prev) => prev.filter((x) => x.id !== entry.id))
   }
 
@@ -938,6 +970,42 @@ export default function App() {
       const nextAnalysis = data.analysis || 'No analysis returned.'
       setAnalysis(nextAnalysis)
       const persistentPreview = await toDataUrl(file)
+      const dishNameForApi = extractOneLine(nextAnalysis, 'DISH') || 'Food'
+      if (token) {
+        try {
+          const createRes = await fetch(`${API_BASE}/analyses`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              dish_name: dishNameForApi,
+              analysis: nextAnalysis,
+              preview: persistentPreview,
+              current_conditions: currentConditionsStr,
+              concerned_conditions: concernedConditionsStr,
+              user_description: userDescription.trim(),
+            }),
+          })
+          if (createRes.ok) {
+            const created = await createRes.json()
+            const entry: AnalysisEntry = {
+              id: created.id,
+              date: created.date,
+              currentConditions: created.currentConditions ?? currentConditionsStr,
+              concernedConditions: created.concernedConditions ?? concernedConditionsStr,
+              userDescription: created.userDescription ?? userDescription.trim(),
+              analysis: created.analysis,
+              preview: created.preview ?? persistentPreview,
+            }
+            setAnalysesList((prev) => [entry, ...prev].slice(0, 50))
+            return
+          }
+        } catch {
+          /* fall back to local-only */
+        }
+      }
       const entry: AnalysisEntry = {
         id: `${Date.now()}_${Math.random().toString(16).slice(2, 8)}`,
         date: new Date().toISOString(),

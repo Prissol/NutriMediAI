@@ -120,10 +120,20 @@ def get_db():
                 analysis_text TEXT NOT NULL,
                 preview TEXT,
                 created_at TEXT NOT NULL,
+                current_conditions TEXT DEFAULT '',
+                concerned_conditions TEXT DEFAULT '',
+                user_description TEXT DEFAULT '',
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
         """)
         conn.commit()
+        # Add columns for existing DBs (ignore if already exist)
+        for col in ("current_conditions", "concerned_conditions", "user_description"):
+            try:
+                conn.execute(f"ALTER TABLE analyses ADD COLUMN {col} TEXT DEFAULT ''")
+                conn.commit()
+            except sqlite3.OperationalError:
+                pass
         yield conn
     except Exception:
         logger.exception("DB init/query failed")
@@ -244,6 +254,9 @@ class AnalysisCreate(BaseModel):
     dish_name: str
     analysis: str
     preview: Optional[str] = None
+    current_conditions: Optional[str] = ""
+    concerned_conditions: Optional[str] = ""
+    user_description: Optional[str] = ""
 
 
 class AnalysisPatch(BaseModel):
@@ -320,7 +333,11 @@ def auth_me(user_id: str = Depends(require_user)):
 def list_analyses(user_id: str = Depends(require_user)):
     with get_db() as conn:
         rows = conn.execute(
-            "SELECT id, dish_name, analysis_text, preview, created_at FROM analyses WHERE user_id = ? ORDER BY created_at DESC LIMIT 50",
+            """SELECT id, dish_name, analysis_text, preview, created_at,
+                      COALESCE(current_conditions, '') AS current_conditions,
+                      COALESCE(concerned_conditions, '') AS concerned_conditions,
+                      COALESCE(user_description, '') AS user_description
+               FROM analyses WHERE user_id = ? ORDER BY created_at DESC LIMIT 50""",
             (user_id,),
         ).fetchall()
     return [
@@ -330,6 +347,9 @@ def list_analyses(user_id: str = Depends(require_user)):
             "analysis": r["analysis_text"],
             "preview": r["preview"],
             "date": r["created_at"],
+            "currentConditions": r["current_conditions"],
+            "concernedConditions": r["concerned_conditions"],
+            "userDescription": r["user_description"],
         }
         for r in rows
     ]
@@ -339,13 +359,26 @@ def list_analyses(user_id: str = Depends(require_user)):
 def create_analysis(body: AnalysisCreate, user_id: str = Depends(require_user)):
     aid = str(uuid.uuid4())
     created = datetime.utcnow().isoformat()
+    cc = (body.current_conditions or "").strip()
+    coc = (body.concerned_conditions or "").strip()
+    ud = (body.user_description or "").strip()
     with get_db() as conn:
         conn.execute(
-            "INSERT INTO analyses (id, user_id, dish_name, analysis_text, preview, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-            (aid, user_id, body.dish_name, body.analysis, body.preview, created),
+            """INSERT INTO analyses (id, user_id, dish_name, analysis_text, preview, created_at, current_conditions, concerned_conditions, user_description)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (aid, user_id, body.dish_name, body.analysis, body.preview, created, cc, coc, ud),
         )
         conn.commit()
-    return {"id": aid, "dishName": body.dish_name, "analysis": body.analysis, "preview": body.preview, "date": created}
+    return {
+        "id": aid,
+        "dishName": body.dish_name,
+        "analysis": body.analysis,
+        "preview": body.preview,
+        "date": created,
+        "currentConditions": cc,
+        "concernedConditions": coc,
+        "userDescription": ud,
+    }
 
 
 @app.delete("/analyses/{analysis_id}")
