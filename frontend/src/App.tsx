@@ -100,43 +100,33 @@ function metricKey(label: string): string {
   return 'calories'
 }
 
-/** Logo: floating leaves in wind — 3D sway, drift, hawa ke jhonke, realistic */
+/** Logo: letter M integrated with stethoscope (earpieces + chestpiece), subtle animation */
 function Logo({ className }: { className?: string }) {
   return (
-    <span className={`logo-glow inline-block ${className ?? ''}`}>
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" aria-hidden="true" className="w-full h-full block" style={{ transformStyle: 'preserve-3d', perspective: '180px' }}>
+    <span className={`inline-block logo-m-wrap ${className ?? ''}`}>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" aria-hidden="true" className="w-full h-full block">
         <defs>
-          <linearGradient id="logoLeafGrad" x1="10%" y1="10%" x2="90%" y2="90%">
-            <stop offset="0%" stopColor="#c4b5fd" />
-            <stop offset="40%" stopColor="#8b5cf6" />
-            <stop offset="100%" stopColor="#5b21b6" />
+          <linearGradient id="logoMGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" stopColor="#5b21b6" />
+            <stop offset="50%" stopColor="#8b5cf6" />
+            <stop offset="100%" stopColor="#a78bfa" />
           </linearGradient>
-          <linearGradient id="logoLeafShine" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ede9fe" stopOpacity={0.7} />
-            <stop offset="100%" stopColor="transparent" stopOpacity={0} />
-          </linearGradient>
-          <filter id="logoSoftShadow" x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow dx={0} dy={2} stdDeviation={1.5} floodColor="#6d28d9" floodOpacity={0.4} />
-          </filter>
         </defs>
-        {/* Leaf 1: organic shape — rounded base, curved sides, pointed tip */}
-        <g className="logo-leaf-wrap logo-leaf-1" style={{ transformOrigin: '14px 16px' }}>
-          <path d="M14 4 C 9 8 8 18 14 26 C 19 18 19 8 14 4 Z" fill="url(#logoLeafGrad)" filter="url(#logoSoftShadow)" stroke="#6d28d9" strokeWidth={0.4} strokeLinejoin="round" />
-          <path className="logo-shine-layer" d="M14 4 C 9 8 8 18 14 26 C 19 18 19 8 14 4 Z" fill="url(#logoLeafShine)" stroke="none" />
-          <path className="logo-vein" d="M14 5 Q14 15 14 25" stroke="#a78bfa" strokeWidth={0.35} strokeLinecap="round" fill="none" strokeDasharray="3 3" />
-        </g>
-        {/* Leaf 2: same organic shape, mirrored feel */}
-        <g className="logo-leaf-wrap logo-leaf-2" style={{ transformOrigin: '34px 17px' }}>
-          <path d="M34 5 C 29 9 28 19 34 27 C 40 19 39 9 34 5 Z" fill="url(#logoLeafGrad)" filter="url(#logoSoftShadow)" stroke="#6d28d9" strokeWidth={0.4} strokeLinejoin="round" />
-          <path className="logo-shine-layer" d="M34 5 C 29 9 28 19 34 27 C 40 19 39 9 34 5 Z" fill="url(#logoLeafShine)" stroke="none" />
-          <path className="logo-vein" d="M34 6 Q34 16 34 26" stroke="#a78bfa" strokeWidth={0.35} strokeLinecap="round" fill="none" strokeDasharray="3 3" />
-        </g>
-        {/* Leaf 3: smaller organic leaf */}
-        <g className="logo-leaf-wrap logo-leaf-3" style={{ transformOrigin: '24px 39px' }}>
-          <path d="M24 30 C 21 33 20 40 24 45 C 28 40 27 33 24 30 Z" fill="url(#logoLeafGrad)" filter="url(#logoSoftShadow)" stroke="#6d28d9" strokeWidth={0.4} strokeLinejoin="round" />
-          <path className="logo-shine-layer" d="M24 30 C 21 33 20 40 24 45 C 28 40 27 33 24 30 Z" fill="url(#logoLeafShine)" stroke="none" />
-          <path className="logo-vein" d="M24 31 v13" stroke="#a78bfa" strokeWidth={0.3} strokeLinecap="round" fill="none" strokeDasharray="2 2" />
-        </g>
+        {/* M shape (stethoscope tubing) */}
+        <path
+          className="logo-m-letter"
+          fill="url(#logoMGrad)"
+          stroke="#6d28d9"
+          strokeWidth={0.8}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          d="M10 40 L10 20 L24 32 L38 20 L38 40 Z"
+        />
+        {/* Stethoscope earpieces (top of M legs) */}
+        <circle className="logo-m-letter" cx={10} cy={14} r={4} fill="url(#logoMGrad)" stroke="#6d28d9" strokeWidth={0.6} />
+        <circle className="logo-m-letter" cx={38} cy={14} r={4} fill="url(#logoMGrad)" stroke="#6d28d9" strokeWidth={0.6} />
+        {/* Stethoscope chestpiece (bottom center) */}
+        <circle className="logo-m-letter" cx={24} cy={38} r={5} fill="url(#logoMGrad)" stroke="#6d28d9" strokeWidth={0.6} />
       </svg>
     </span>
   )

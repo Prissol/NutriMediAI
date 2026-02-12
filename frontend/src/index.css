@@ -252,52 +252,18 @@ body {
   50% { transform: scale(1.15); }
 }
 
-/* Logo: floating leaves in wind — 3D sway, drift, twist */
-@keyframes logo-wind-float-1 {
-  0%, 100% { transform: translate(0, 0) rotate(0deg) rotateY(0deg) scale(1); }
-  20% { transform: translate(1.2px, -2.5px) rotate(5deg) rotateY(18deg) scale(1.02); }
-  40% { transform: translate(-1.8px, 1px) rotate(-4deg) rotateY(-12deg) scale(0.98); }
-  60% { transform: translate(2px, 1.5px) rotate(6deg) rotateY(14deg) scale(1.01); }
-  80% { transform: translate(-1px, -1.5px) rotate(-3deg) rotateY(-10deg) scale(0.99); }
+/* Logo M: subtle pulse */
+@keyframes logo-m-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.92; transform: scale(1.03); }
 }
-@keyframes logo-wind-float-2 {
-  0%, 100% { transform: translate(0, 0) rotate(0deg) rotateY(0deg) scale(1); }
-  25% { transform: translate(-2px, -1px) rotate(-5deg) rotateY(-15deg) scale(1.02); }
-  50% { transform: translate(1.5px, 2px) rotate(4deg) rotateY(12deg) scale(0.98); }
-  75% { transform: translate(-1.2px, 1px) rotate(-4deg) rotateY(-8deg) scale(1.01); }
+.logo-m-wrap {
+  display: inline-block;
 }
-@keyframes logo-wind-float-3 {
-  0%, 100% { transform: translate(0, 0) rotate(0deg) rotateY(0deg) scale(1); }
-  33% { transform: translate(1.5px, 2px) rotate(7deg) rotateY(20deg) scale(1.03); }
-  66% { transform: translate(-2px, -1px) rotate(-6deg) rotateY(-16deg) scale(0.97); }
+.logo-m-letter {
+  animation: logo-m-pulse 2.5s ease-in-out infinite;
+  transform-origin: center center;
 }
-@keyframes logo-vein-flow {
-  0% { stroke-dashoffset: 0; opacity: 0.5; }
-  50% { stroke-dashoffset: -14; opacity: 1; }
-  100% { stroke-dashoffset: -28; opacity: 0.5; }
-}
-@keyframes logo-shine-pulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-@keyframes logo-glow-pulse {
-  0%, 100% { filter: drop-shadow(0 0 6px rgba(139, 92, 246, 0.35)) drop-shadow(0 0 12px rgba(139, 92, 246, 0.15)); }
-  50% { filter: drop-shadow(0 0 14px rgba(139, 92, 246, 0.5)) drop-shadow(0 0 24px rgba(139, 92, 246, 0.25)); }
-}
-.logo-glow {
-  animation: logo-glow-pulse 3s ease-in-out infinite;
-  perspective: 180px;
-  transform-style: preserve-3d;
-}
-.logo-leaf-wrap {
-  transform-origin: 24px 24px;
-  transform-style: preserve-3d;
-}
-.logo-leaf-1 { animation: logo-wind-float-1 4.2s ease-in-out infinite; }
-.logo-leaf-2 { animation: logo-wind-float-2 4.8s ease-in-out infinite 0.6s; }
-.logo-leaf-3 { animation: logo-wind-float-3 3.6s ease-in-out infinite 1.2s; }
-.logo-vein { animation: logo-vein-flow 2s ease-in-out infinite; }
-.logo-shine-layer { animation: logo-shine-pulse 2.2s ease-in-out infinite; }
 
 @keyframes float-slow {
   0%, 100% { transform: translateY(0); }

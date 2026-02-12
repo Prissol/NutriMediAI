@@ -1,29 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" aria-hidden="true">
   <defs>
-    <linearGradient id="leafGrad" x1="10%" y1="10%" x2="90%" y2="90%">
-      <stop offset="0%" stop-color="#c4b5fd"/>
-      <stop offset="40%" stop-color="#8b5cf6"/>
-      <stop offset="100%" stop-color="#5b21b6"/>
+    <linearGradient id="mg" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#5b21b6"/>
+      <stop offset="50%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
     </linearGradient>
-    <linearGradient id="leafShine" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ede9fe" stop-opacity="0.7"/>
-      <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
-    </linearGradient>
-    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
-      <feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#6d28d9" flood-opacity="0.4"/>
-    </filter>
   </defs>
-  <style>
-    @keyframes wind1 { 0%,100%{transform:translate(0,0) rotate(0deg) rotateY(0deg)} 20%{transform:translate(1.2px,-2.5px) rotate(5deg) rotateY(18deg)} 40%{transform:translate(-1.8px,1px) rotate(-4deg) rotateY(-12deg)} 60%{transform:translate(2px,1.5px) rotate(6deg) rotateY(14deg)} 80%{transform:translate(-1px,-1.5px) rotate(-3deg) rotateY(-10deg)} }
-    @keyframes wind2 { 0%,100%{transform:translate(0,0) rotate(0deg) rotateY(0deg)} 25%{transform:translate(-2px,-1px) rotate(-5deg) rotateY(-15deg)} 50%{transform:translate(1.5px,2px) rotate(4deg) rotateY(12deg)} 75%{transform:translate(-1.2px,1px) rotate(-4deg) rotateY(-8deg)} }
-    @keyframes wind3 { 0%,100%{transform:translate(0,0) rotate(0deg) rotateY(0deg)} 33%{transform:translate(1.5px,2px) rotate(7deg) rotateY(20deg)} 66%{transform:translate(-2px,-1px) rotate(-6deg) rotateY(-16deg)} }
-    @keyframes veinFlow { 0%{stroke-dashoffset:0;opacity:0.5} 50%{stroke-dashoffset:-14;opacity:1} 100%{stroke-dashoffset:-28;opacity:0.5} }
-    .w1{animation:wind1 4.2s ease-in-out infinite;transform-origin:14px 16px}
-    .w2{animation:wind2 4.8s ease-in-out infinite 0.6s;transform-origin:34px 17px}
-    .w3{animation:wind3 3.6s ease-in-out infinite 1.2s;transform-origin:24px 39px}
-    .v{animation:veinFlow 2s ease-in-out infinite}
-  </style>
-  <g class="w1"><path d="M14 4 C 9 8 8 18 14 26 C 19 18 19 8 14 4 Z" fill="url(#leafGrad)" filter="url(#softShadow)" stroke="#6d28d9" stroke-width="0.4" stroke-linejoin="round"/><path d="M14 4 C 9 8 8 18 14 26 C 19 18 19 8 14 4 Z" fill="url(#leafShine)" stroke="none" opacity="0.85"/><path class="v" d="M14 5 Q14 15 14 25" stroke="#a78bfa" stroke-width="0.35" stroke-linecap="round" fill="none" stroke-dasharray="3 3"/></g>
-  <g class="w2"><path d="M34 5 C 29 9 28 19 34 27 C 40 19 39 9 34 5 Z" fill="url(#leafGrad)" filter="url(#softShadow)" stroke="#6d28d9" stroke-width="0.4" stroke-linejoin="round"/><path d="M34 5 C 29 9 28 19 34 27 C 40 19 39 9 34 5 Z" fill="url(#leafShine)" stroke="none" opacity="0.85"/><path class="v" d="M34 6 Q34 16 34 26" stroke="#a78bfa" stroke-width="0.35" stroke-linecap="round" fill="none" stroke-dasharray="3 3"/></g>
-  <g class="w3"><path d="M24 30 C 21 33 20 40 24 45 C 28 40 27 33 24 30 Z" fill="url(#leafGrad)" filter="url(#softShadow)" stroke="#6d28d9" stroke-width="0.4" stroke-linejoin="round"/><path d="M24 30 C 21 33 20 40 24 45 C 28 40 27 33 24 30 Z" fill="url(#leafShine)" stroke="none" opacity="0.85"/><path class="v" d="M24 31 v13" stroke="#a78bfa" stroke-width="0.3" stroke-linecap="round" fill="none" stroke-dasharray="2 2"/></g>
+  <path fill="url(#mg)" stroke="#6d28d9" stroke-width="0.8" stroke-linejoin="round" stroke-linecap="round" d="M10 40 L10 16 L24 30 L38 16 L38 40 Z"/>
 </svg>
