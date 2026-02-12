@@ -4,14 +4,89 @@ import { useAuth } from './AuthContext'
 
 const API_BASE = import.meta.env.DEV ? (import.meta.env.VITE_API_URL || '/api') : '/api'
 
+const iconCl = 'w-5 h-5 flex-shrink-0'
 const METRIC_ICONS: Record<string, React.ReactNode> = {
-  calories: <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" /></svg>,
-  protein: <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><ellipse cx="12" cy="14" rx="6" ry="8" strokeWidth={1.8} /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 6v0a4 4 0 014 4" /></svg>,
-  carbs: <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 10h16v8a2 2 0 01-2 2H6a2 2 0 01-2-2v-8z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 10V8a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>,
-  fat: <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 4c-2 4-4 7-4 10a4 4 0 108 0c0-3-2-6-4-10z" /></svg>,
-  fiber: <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 3c-2 2-4 6-4 9s2 7 4 9 4-4 4-9-2-7-4-9z" /></svg>,
-  sugar: <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M5 8h4v4H5V8zm10 0h4v4h-4V8zM5 14h4v4H5v-4zm10 0h4v4h-4v-4z" /></svg>,
-  sodium: <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 20h6v-4H9v4zM10 16V8l2-3 2 3v8" /><circle cx="11" cy="6" r="0.8" fill="currentColor" /><circle cx="13" cy="6" r="0.8" fill="currentColor" /></svg>,
+  calories: (
+    <svg className={iconCl} viewBox="0 0 32 32" fill="none" filter="url(#iconShadow)">
+      <defs>
+        <filter id="iconShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1" stdDeviation="0.8" floodOpacity="0.35" /></filter>
+        <linearGradient id="flameGrad" x1="16" y1="28" x2="16" y2="4" gradientUnits="userSpaceOnUse"><stop stopColor="#f97316" /><stop offset="0.5" stopColor="#ea580c" /><stop offset="1" stopColor="#c2410c" /></linearGradient>
+        <linearGradient id="flameTip" x1="16" y1="8" x2="16" y2="2" gradientUnits="userSpaceOnUse"><stop stopColor="#fed7aa" /><stop offset="1" stopColor="#fdba74" /></linearGradient>
+      </defs>
+      <path fill="url(#flameGrad)" d="M16 28c-4-3-8-7-8-12 0-4 2-6 4-8 0 2-2 4-2 6 0 2 2 4 4 4s4-2 4-4c0-2-2-4-2-6 2 2 4 4 4 8 0 5-4 9-8 12z" />
+      <path fill="url(#flameTip)" d="M16 10c1 2 2 4 2 6 0 3-2 5-4 5s-4-2-4-5c0-2 1-4 2-6 1-1 2-2 4-2s3 1 4 2z" opacity="0.9" />
+    </svg>
+  ),
+  protein: (
+    <svg className={iconCl} viewBox="0 0 32 32" fill="none" filter="url(#iconShadow2)">
+      <defs>
+        <filter id="iconShadow2" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1" stdDeviation="0.8" floodOpacity="0.3" /></filter>
+        <radialGradient id="eggGrad" cx="50%" cy="40%" r="50%"><stop offset="0%" stopColor="#fef3c7" /><stop offset="70%" stopColor="#fde68a" /><stop offset="100%" stopColor="#d97706" /></radialGradient>
+      </defs>
+      <ellipse cx="16" cy="18" rx="8" ry="10" fill="url(#eggGrad)" stroke="#b45309" strokeWidth="0.8" />
+      <ellipse cx="16" cy="10" rx="4" ry="4" fill="url(#eggGrad)" stroke="#b45309" strokeWidth="0.6" opacity="0.95" />
+    </svg>
+  ),
+  carbs: (
+    <svg className={iconCl} viewBox="0 0 32 32" fill="none" filter="url(#iconShadow3)">
+      <defs>
+        <filter id="iconShadow3" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1" stdDeviation="0.8" floodOpacity="0.3" /></filter>
+        <linearGradient id="wheatGrad" x1="0" y1="1" x2="0" y2="0" gradientUnits="objectBoundingBox"><stop stopColor="#a16207" /><stop offset="0.5" stopColor="#ca8a04" /><stop offset="1" stopColor="#eab308" /></linearGradient>
+      </defs>
+      <path fill="url(#wheatGrad)" d="M8 8v14h3V12l2 10h2l2-10v10h3V8h-3l-2 8-2-8H11V8H8z" />
+      <ellipse cx="8" cy="8" rx="2.5" ry="2" fill="#fef08a" />
+      <ellipse cx="14" cy="8" rx="2.5" ry="2" fill="#fef08a" />
+      <ellipse cx="20" cy="8" rx="2.5" ry="2" fill="#fef08a" />
+      <path fill="url(#wheatGrad)" d="M14 8v2h4V8h-4z" opacity="0.8" />
+    </svg>
+  ),
+  fat: (
+    <svg className={iconCl} viewBox="0 0 32 32" fill="none" filter="url(#iconShadow4)">
+      <defs>
+        <filter id="iconShadow4" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1" stdDeviation="0.8" floodOpacity="0.3" /></filter>
+        <linearGradient id="dropGrad" x1="16" y1="4" x2="16" y2="28" gradientUnits="userSpaceOnUse"><stop stopColor="#fde047" /><stop offset="0.5" stopColor="#facc15" /><stop offset="1" stopColor="#eab308" /></linearGradient>
+        <linearGradient id="dropShine" x1="10" y1="8" x2="20" y2="16" gradientUnits="userSpaceOnUse"><stop stopColor="#fef9c3" stopOpacity="0.8" /><stop offset="1" stopColor="transparent" /></linearGradient>
+      </defs>
+      <path fill="url(#dropGrad)" d="M16 4c-6 8-10 14-10 20a10 10 0 0020 0c0-6-4-12-10-20z" stroke="#ca8a04" strokeWidth="0.6" />
+      <ellipse cx="13" cy="12" rx="4" ry="5" fill="url(#dropShine)" />
+    </svg>
+  ),
+  fiber: (
+    <svg className={iconCl} viewBox="0 0 32 32" fill="none" filter="url(#iconShadow5)">
+      <defs>
+        <filter id="iconShadow5" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1" stdDeviation="0.8" floodOpacity="0.3" /></filter>
+        <linearGradient id="leafGrad" x1="0" y1="1" x2="1" y2="0" gradientUnits="objectBoundingBox"><stop stopColor="#15803d" /><stop offset="0.5" stopColor="#22c55e" /><stop offset="1" stopColor="#4ade80" /></linearGradient>
+        <linearGradient id="leafVein" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox"><stop stopColor="#14532d" /><stop offset="1" stopColor="#166534" /></linearGradient>
+      </defs>
+      <path fill="url(#leafGrad)" d="M16 4c-2 4-6 8-6 14 0 4 3 8 6 10 3-2 6-6 6-10 0-6-4-10-6-14z" stroke="#166534" strokeWidth="0.6" />
+      <path fill="url(#leafVein)" d="M16 6v20M13 10l3 4 3-4M14 16l2 4 2-4" strokeWidth="0.5" opacity="0.7" />
+    </svg>
+  ),
+  sugar: (
+    <svg className={iconCl} viewBox="0 0 32 32" fill="none" filter="url(#iconShadow6)">
+      <defs>
+        <filter id="iconShadow6" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1" stdDeviation="0.8" floodOpacity="0.3" /></filter>
+        <linearGradient id="candyGrad" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox"><stop stopColor="#fda4af" /><stop offset="0.4" stopColor="#f43f5e" /><stop offset="1" stopColor="#be123c" /></linearGradient>
+        <linearGradient id="candyWrap" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox"><stop stopColor="#fecdd3" /><stop offset="1" stopColor="#fda4af" /></linearGradient>
+      </defs>
+      <rect x="8" y="10" width="16" height="14" rx="2" fill="url(#candyWrap)" stroke="#e11d48" strokeWidth="0.8" />
+      <rect x="10" y="12" width="12" height="10" rx="1" fill="url(#candyGrad)" />
+      <circle cx="14" cy="17" r="2" fill="#fff" opacity="0.5" />
+    </svg>
+  ),
+  sodium: (
+    <svg className={iconCl} viewBox="0 0 32 32" fill="none" filter="url(#iconShadow7)">
+      <defs>
+        <filter id="iconShadow7" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1" stdDeviation="0.8" floodOpacity="0.3" /></filter>
+        <linearGradient id="saltGrad" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox"><stop stopColor="#e0f2fe" /><stop offset="0.5" stopColor="#7dd3fc" /><stop offset="1" stopColor="#0ea5e9" /></linearGradient>
+        <linearGradient id="saltCap" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox"><stop stopColor="#f0f9ff" /><stop offset="1" stopColor="#bae6fd" /></linearGradient>
+      </defs>
+      <path fill="url(#saltGrad)" d="M12 8h8v16h-8V8z" stroke="#0284c7" strokeWidth="0.8" />
+      <rect x="11" y="4" width="10" height="5" rx="1" fill="url(#saltCap)" stroke="#0ea5e9" strokeWidth="0.6" />
+      <circle cx="14" cy="6" r="0.8" fill="#0c4a6e" />
+      <circle cx="18" cy="6" r="0.8" fill="#0c4a6e" />
+    </svg>
+  ),
 }
 function metricKey(label: string): string {
   const k = label.toLowerCase().replace(/\s+/g, '').replace(/[^a-z]/g, '')
