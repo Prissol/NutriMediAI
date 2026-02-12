@@ -508,7 +508,7 @@ function LoginScreen({
   defaultTab: 'login' | 'register'
   onBack: () => void
 }) {
-  const SHOW_REGISTER_TAB = true // set false to hide Register tab again
+  const SHOW_REGISTER_TAB = false // set true to show Login | Register again
   const [tab, setTab] = useState<'login' | 'register'>(SHOW_REGISTER_TAB ? defaultTab : 'login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

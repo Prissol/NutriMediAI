@@ -30,6 +30,14 @@ AI-powered nutrition analysis for food images. Set your medical profile, upload 
 
 See **RUN_REACT_UI.md** for detailed setup and **TECHNICAL_ARCHITECTURE.md** for design.
 
+## How it works (process)
+
+1. **Sign up / log in** – Create an account or sign in so your analyses are saved and synced across devices.
+2. **Set your profile** – Choose **current medical condition** (e.g. diabetes, hypertension) and **conditions to monitor** (e.g. heart health). This tailors the advice.
+3. **Snap or upload food** – Take a photo or upload an image of your meal. Add an optional note (e.g. portion, preparation).
+4. **Analyze** – Tap **Analyze food**. The app sends the image and profile to the AI and shows a short progress screen.
+5. **View results** – You get a **nutrition score**, **key metrics** (calories, protein, carbs, fat, etc.), **condition-specific advice** (current vs. concerned), and **alternatives**. You can open past analyses from **Recent history** or **Download PDF**.
+
 ## Features
 
 - Medical profile (current conditions, conditions to monitor)
