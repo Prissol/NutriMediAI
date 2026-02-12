@@ -100,7 +100,7 @@ function metricKey(label: string): string {
   return 'calories'
 }
 
-/** Logo: simple letter N with subtle animation */
+/** Logo: clear letter N (two verticals + diagonal) with subtle animation */
 function Logo({ className }: { className?: string }) {
   return (
     <span className={`inline-block logo-m-wrap ${className ?? ''}`}>
@@ -112,14 +112,15 @@ function Logo({ className }: { className?: string }) {
             <stop offset="100%" stopColor="#a78bfa" />
           </linearGradient>
         </defs>
+        {/* N: left vertical, diagonal, right vertical — stroke so the letter reads clearly */}
         <path
           className="logo-m-letter"
-          fill="url(#logoNGrad)"
-          stroke="#6d28d9"
-          strokeWidth={0.8}
-          strokeLinejoin="round"
+          fill="none"
+          stroke="url(#logoNGrad)"
+          strokeWidth={3.5}
           strokeLinecap="round"
-          d="M10 40 L10 16 L38 40 L38 16 Z"
+          strokeLinejoin="round"
+          d="M12 38 L12 14 L36 38 L36 14"
         />
       </svg>
     </span>
