@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { jsPDF } from 'jspdf'
 import { useAuth } from './AuthContext'
 
@@ -875,6 +875,30 @@ export default function App() {
     setSidebarSearch('')
   }
 
+  const fetchAnalysesFromServer = useCallback(async () => {
+    if (!user || !token) return
+    try {
+      const res = await fetch(`${API_BASE}/analyses`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        const list = await res.json()
+        const entries: AnalysisEntry[] = (Array.isArray(list) ? list : []).map((r: { id: string; date: string; analysis: string; preview?: string; currentConditions?: string; concernedConditions?: string; userDescription?: string }) => ({
+          id: r.id,
+          date: r.date,
+          currentConditions: r.currentConditions ?? '',
+          concernedConditions: r.concernedConditions ?? '',
+          userDescription: r.userDescription ?? '',
+          analysis: r.analysis,
+          preview: r.preview ?? undefined,
+        }))
+        setAnalysesList(entries)
+      }
+    } catch {
+      /* keep current list */
+    }
+  }, [user, token])
+
   useEffect(() => {
     if (!user) return
     const loadAnalyses = async () => {
@@ -911,6 +935,13 @@ export default function App() {
     }
     loadAnalyses()
   }, [user, token])
+
+  useEffect(() => {
+    if (!user || !token) return
+    const onFocus = () => fetchAnalysesFromServer()
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
+  }, [user, token, fetchAnalysesFromServer])
 
   useEffect(() => {
     if (!user) return
@@ -970,8 +1001,21 @@ export default function App() {
       const nextAnalysis = data.analysis || 'No analysis returned.'
       setAnalysis(nextAnalysis)
       const persistentPreview = await toDataUrl(file)
-      const dishNameForApi = extractOneLine(nextAnalysis, 'DISH') || 'Food'
+      const now = new Date().toISOString()
+      const tempId = `temp_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`
+      const entry: AnalysisEntry = {
+        id: tempId,
+        date: now,
+        currentConditions: currentConditionsStr,
+        concernedConditions: concernedConditionsStr,
+        userDescription: userDescription.trim(),
+        analysis: nextAnalysis,
+        preview: persistentPreview,
+      }
+      setAnalysesList((prev) => [entry, ...prev].slice(0, 50))
+
       if (token) {
+        const dishNameForApi = extractOneLine(nextAnalysis, 'DISH') || 'Food'
         try {
           const createRes = await fetch(`${API_BASE}/analyses`, {
             method: 'POST',
@@ -990,32 +1034,26 @@ export default function App() {
           })
           if (createRes.ok) {
             const created = await createRes.json()
-            const entry: AnalysisEntry = {
-              id: created.id,
-              date: created.date,
-              currentConditions: created.currentConditions ?? currentConditionsStr,
-              concernedConditions: created.concernedConditions ?? concernedConditionsStr,
-              userDescription: created.userDescription ?? userDescription.trim(),
-              analysis: created.analysis,
-              preview: created.preview ?? persistentPreview,
-            }
-            setAnalysesList((prev) => [entry, ...prev].slice(0, 50))
-            return
+            setAnalysesList((prev) =>
+              prev.map((e) =>
+                e.id === tempId
+                  ? {
+                      id: created.id,
+                      date: created.date,
+                      currentConditions: created.currentConditions ?? currentConditionsStr,
+                      concernedConditions: created.concernedConditions ?? concernedConditionsStr,
+                      userDescription: created.userDescription ?? userDescription.trim(),
+                      analysis: created.analysis,
+                      preview: created.preview ?? persistentPreview,
+                    }
+                  : e
+              )
+            )
           }
         } catch {
-          /* fall back to local-only */
+          /* keep local entry with temp id; it's already in the list */
         }
       }
-      const entry: AnalysisEntry = {
-        id: `${Date.now()}_${Math.random().toString(16).slice(2, 8)}`,
-        date: new Date().toISOString(),
-        currentConditions: currentConditionsStr,
-        concernedConditions: concernedConditionsStr,
-        userDescription: userDescription.trim(),
-        analysis: nextAnalysis,
-        preview: persistentPreview,
-      }
-      setAnalysesList((prev) => [entry, ...prev].slice(0, 50))
     } catch (e) {
       setAnalysisError(e instanceof Error ? e.message : 'Something went wrong.')
     } finally {
@@ -1348,14 +1386,25 @@ export default function App() {
   return (
     <div className={`min-h-screen flex ${isLightResultView ? 'bg-[#f5f3ff] text-violet-900' : 'bg-[#f5f3ff] text-violet-900'}`}>
       <aside className="hidden md:flex w-[290px] shrink-0 border-r flex-col border-violet-200/50 bg-[#f5f3ff]">
-        <div className="p-3 border-b border-violet-200/50">
+        <div className="p-3 border-b border-violet-200/50 flex gap-2">
           <button
             type="button"
             onClick={startNewAnalysis}
-            className="w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors bg-violet-500 text-white hover:bg-violet-600"
+            className="flex-1 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors bg-violet-500 text-white hover:bg-violet-600"
           >
             New analysis
           </button>
+          {token && (
+            <button
+              type="button"
+              onClick={() => fetchAnalysesFromServer()}
+              className="p-2.5 rounded-lg text-violet-600 hover:bg-violet-100 border border-violet-200/60 flex-shrink-0"
+              title="Sync from other devices"
+              aria-label="Sync history"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+            </button>
+          )}
         </div>
         <div className="p-3">
           <input
@@ -1411,14 +1460,25 @@ export default function App() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
-            <div className="p-3 border-b border-violet-200/50">
+            <div className="p-3 border-b border-violet-200/50 flex gap-2">
               <button
                 type="button"
                 onClick={() => { startNewAnalysis(); setMobileSidebarOpen(false) }}
-                className="w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors bg-violet-500 text-white hover:bg-violet-600"
+                className="flex-1 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors bg-violet-500 text-white hover:bg-violet-600"
               >
                 New analysis
               </button>
+              {token && (
+                <button
+                  type="button"
+                  onClick={() => fetchAnalysesFromServer()}
+                  className="p-2.5 rounded-lg text-violet-600 hover:bg-violet-100 border border-violet-200/60 flex-shrink-0"
+                  title="Sync from other devices"
+                  aria-label="Sync history"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                </button>
+              )}
             </div>
             <div className="p-3">
               <input
