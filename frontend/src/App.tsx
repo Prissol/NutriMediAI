@@ -851,6 +851,28 @@ export default function App() {
   const [sidebarSearch, setSidebarSearch] = useState('')
   const [conditionTab, setConditionTab] = useState<'current' | 'concerned'>('current')
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0)
+
+  const ANALYSIS_LOADING_MESSAGES = [
+    "Asking the food what it's made of...",
+    "Counting calories (we're judging just a little)...",
+    "Consulting the nutrition council...",
+    "Your meal is in the hot seat...",
+    "Almost there... your plate is blushing.",
+    "Decoding those delicious secrets...",
+    "Running it past the health police...",
+    "One sec — checking if it's too good to be true...",
+    "The AI is drooling over your photo...",
+    "Turning pixels into advice...",
+  ]
+
+  useEffect(() => {
+    if (!loadingAnalysis) return
+    const interval = setInterval(() => {
+      setLoadingMessageIndex((i) => (i + 1) % ANALYSIS_LOADING_MESSAGES.length)
+    }, 3500)
+    return () => clearInterval(interval)
+  }, [loadingAnalysis])
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null
@@ -1594,8 +1616,28 @@ export default function App() {
               />
             </div>
 
+            {loadingAnalysis && (
+              <div className="mb-6 rounded-2xl border-2 border-violet-200/70 bg-white/80 backdrop-blur-xl p-6 md:p-8 shadow-lg shadow-violet-200/25">
+                <div className="flex flex-col items-center text-center max-w-md mx-auto">
+                  <span className="analysis-loading-emoji text-4xl mb-4" role="img" aria-hidden>🍳</span>
+                  <p className="text-violet-900 font-medium mb-1">
+                    {ANALYSIS_LOADING_MESSAGES[loadingMessageIndex]}
+                  </p>
+                  <div className="flex gap-1 mb-4">
+                    <span className="analysis-loading-dot w-2 h-2 rounded-full bg-violet-400" />
+                    <span className="analysis-loading-dot w-2 h-2 rounded-full bg-violet-500" />
+                    <span className="analysis-loading-dot w-2 h-2 rounded-full bg-violet-600" />
+                  </div>
+                  <div className="w-full h-2.5 rounded-full bg-violet-100 overflow-hidden">
+                    <div className="analysis-loading-bar h-full rounded-full bg-gradient-to-r from-violet-400 via-violet-500 to-violet-600" />
+                  </div>
+                  <p className="mt-3 text-xs text-violet-500">Grab a sip of water. We’re almost there.</p>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-              <label className="flex flex-col items-center justify-center w-full min-h-[280px] rounded-lg border border-violet-200/60 bg-white/40 cursor-pointer overflow-hidden transition-colors hover:bg-violet-50/60">
+              <label className={`flex flex-col items-center justify-center w-full min-h-[280px] rounded-lg border border-violet-200/60 bg-white/40 cursor-pointer overflow-hidden transition-colors hover:bg-violet-50/60 ${loadingAnalysis ? 'opacity-60 pointer-events-none' : ''}`}>
                 <input type="file" accept="image/*" className="hidden" onChange={onFileChange} />
                 {preview ? (
                   <img src={preview} alt="Upload preview" className="w-full h-full min-h-[280px] max-h-[400px] object-contain bg-white/40" />

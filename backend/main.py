@@ -79,6 +79,8 @@ async def log_startup():
     print("NutriMedAI startup complete")
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "").strip()
+# Use gpt-4o-mini for faster (and cheaper) analysis; gpt-4o for best quality. Both support vision.
+OPENAI_VISION_MODEL = os.environ.get("OPENAI_VISION_MODEL", "gpt-4o-mini").strip() or "gpt-4o-mini"
 
 # Auth & DB
 _default_db_path = Path(__file__).resolve().parent / "data" / "nutrimedai.db"
@@ -454,7 +456,7 @@ Use the above to tailor your analysis. Then provide the full assessment below.
     try:
         client = OpenAI(api_key=OPENAI_API_KEY)
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model=OPENAI_VISION_MODEL,
             messages=[
                 {
                     "role": "user",

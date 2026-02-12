@@ -118,6 +118,38 @@ body {
   to { opacity: 1; }
 }
 
+/* Analysis loading – entertaining progress */
+@keyframes analysis-progress-shimmer {
+  0% { width: 0%; opacity: 1; }
+  45% { width: 85%; opacity: 1; }
+  50% { width: 88%; opacity: 0.9; }
+  55% { width: 90%; opacity: 1; }
+  100% { width: 90%; opacity: 0.95; }
+}
+@keyframes analysis-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.05); }
+}
+@keyframes analysis-pulse-soft {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+@keyframes analysis-wiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+.analysis-loading-bar {
+  animation: analysis-progress-shimmer 2.2s ease-in-out infinite;
+}
+.analysis-loading-emoji {
+  animation: analysis-bounce 1.2s ease-in-out infinite;
+}
+.analysis-loading-dot {
+  animation: analysis-pulse-soft 0.8s ease-in-out infinite;
+}
+.analysis-loading-dot:nth-child(2) { animation-delay: 0.15s; }
+.analysis-loading-dot:nth-child(3) { animation-delay: 0.3s; }
+
 @keyframes scale-in {
   from {
     opacity: 0;
