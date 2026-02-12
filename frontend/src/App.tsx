@@ -245,26 +245,86 @@ function toDataUrl(file: File): Promise<string> {
   })
 }
 
+const PREVIEW_MAX_SIZE = 480
+const PREVIEW_JPEG_QUALITY = 0.72
+
+/** Compressed data URL for storage (avoids mobile crash from huge base64). */
+function toCompressedDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      try {
+        let w = img.width
+        let h = img.height
+        if (w > PREVIEW_MAX_SIZE || h > PREVIEW_MAX_SIZE) {
+          if (w > h) {
+            h = Math.round((h * PREVIEW_MAX_SIZE) / w)
+            w = PREVIEW_MAX_SIZE
+          } else {
+            w = Math.round((w * PREVIEW_MAX_SIZE) / h)
+            h = PREVIEW_MAX_SIZE
+          }
+        }
+        const canvas = document.createElement('canvas')
+        canvas.width = w
+        canvas.height = h
+        const ctx = canvas.getContext('2d')
+        if (!ctx) {
+          toDataUrl(file).then(resolve).catch(reject)
+          return
+        }
+        ctx.drawImage(img, 0, 0, w, h)
+        const dataUrl = canvas.toDataURL('image/jpeg', PREVIEW_JPEG_QUALITY)
+        resolve(dataUrl)
+      } catch (e) {
+        toDataUrl(file).then(resolve).catch(reject)
+      }
+    }
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      toDataUrl(file).then(resolve).catch(reject)
+    }
+    img.src = url
+  })
+}
+
 function stripMarkdown(text: string): string {
-  return text
-    .replace(/\*\*([^*]+)\*\*/g, '$1')
-    .replace(/\*([^*]+)\*/g, '$1')
-    .replace(/_([^_]+)_/g, '$1')
-    .trim()
+  if (text == null || typeof text !== 'string') return ''
+  try {
+    return text
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/\*([^*]+)\*/g, '$1')
+      .replace(/_([^_]+)_/g, '$1')
+      .trim()
+  } catch {
+    return String(text).trim()
+  }
 }
 
 function extractOneLine(text: string, label: string): string | null {
-  const re = new RegExp(`${label}\\s*:?\\s*\\n?\\s*([^\\n]+)`, 'i')
-  const m = stripMarkdown(text).match(re)
-  return m?.[1]?.trim() || null
+  if (text == null || typeof text !== 'string') return null
+  try {
+    const re = new RegExp(`${label}\\s*:?\\s*\\n?\\s*([^\\n]+)`, 'i')
+    const m = stripMarkdown(text).match(re)
+    return m?.[1]?.trim() || null
+  } catch {
+    return null
+  }
 }
 
 function extractBlock(text: string, startLabel: string, endLabels: string[]): string | null {
-  const cleaned = stripMarkdown(text)
-  const endPart = endLabels.length > 0 ? `(?=\\n\\s*(?:${endLabels.join('|')})\\s*:?|$)` : '$'
-  const re = new RegExp(`${startLabel}\\s*:?\\s*\\n?\\s*([\\s\\S]*?)${endPart}`, 'i')
-  const m = cleaned.match(re)
-  return m?.[1]?.trim() || null
+  if (text == null || typeof text !== 'string') return null
+  try {
+    const cleaned = stripMarkdown(text)
+    const endPart = endLabels.length > 0 ? `(?=\\n\\s*(?:${endLabels.join('|')})\\s*:?|$)` : '$'
+    const re = new RegExp(`${startLabel}\\s*:?\\s*\\n?\\s*([\\s\\S]*?)${endPart}`, 'i')
+    const m = cleaned.match(re)
+    return m?.[1]?.trim() || null
+  } catch {
+    return null
+  }
 }
 
 function parseKeyMetricsLine(text: string): Array<{ label: string; value: string }> {
@@ -286,13 +346,18 @@ function parseKeyMetricsLine(text: string): Array<{ label: string; value: string
 }
 
 function parseScore(text: string): number | null {
-  const outOf100 = text.match(/(?:nutrition\s*score|NUTRITION\s*SCORE)[:\s]*(\d{1,3})\s*\/\s*100/i)
-  if (outOf100) return Math.min(100, Math.max(0, parseInt(outOf100[1], 10)))
-  const simple100 = text.match(/\b(\d{1,3})\s*\/\s*100\b/)
-  if (simple100) return Math.min(100, Math.max(0, parseInt(simple100[1], 10)))
-  const outOf10 = text.match(/(?:health\s*score|score)[:\s]*(\d{1,2})\s*\/\s*10\b/i)
-  if (outOf10) return Math.min(100, Math.max(0, Math.round((parseInt(outOf10[1], 10) / 10) * 100)))
-  return null
+  if (text == null || typeof text !== 'string') return null
+  try {
+    const outOf100 = text.match(/(?:nutrition\s*score|NUTRITION\s*SCORE)[:\s]*(\d{1,3})\s*\/\s*100/i)
+    if (outOf100) return Math.min(100, Math.max(0, parseInt(outOf100[1], 10)))
+    const simple100 = text.match(/\b(\d{1,3})\s*\/\s*100\b/)
+    if (simple100) return Math.min(100, Math.max(0, parseInt(simple100[1], 10)))
+    const outOf10 = text.match(/(?:health\s*score|score)[:\s]*(\d{1,2})\s*\/\s*10\b/i)
+    if (outOf10) return Math.min(100, Math.max(0, Math.round((parseInt(outOf10[1], 10) / 10) * 100)))
+    return null
+  } catch {
+    return null
+  }
 }
 
 type InfographyParsed = { foodLines: string[]; adviceLines: { tag: string; text: string }[] }
@@ -1021,8 +1086,9 @@ export default function App() {
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.detail || 'Analysis failed')
       const nextAnalysis = data.analysis || 'No analysis returned.'
+      const persistentPreview = await toCompressedDataUrl(file)
       setAnalysis(nextAnalysis)
-      const persistentPreview = await toDataUrl(file)
+      setPreview(persistentPreview)
       const now = new Date().toISOString()
       const tempId = `temp_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`
       const entry: AnalysisEntry = {
@@ -1454,8 +1520,8 @@ export default function App() {
                   <div className="text-xs mb-1 text-violet-600">
                     {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                   </div>
-                  <div className="text-sm truncate">{entry.currentConditions || 'No current condition'}</div>
-                  <div className="text-xs truncate text-violet-600">{entry.concernedConditions || 'No monitored conditions'}</div>
+                  <div className="text-sm font-medium truncate">{extractOneLine(entry.analysis, 'DISH') || 'Food analysis'}</div>
+                  <div className="text-xs truncate text-violet-600">{entry.currentConditions || 'No condition'} · {entry.concernedConditions || '—'}</div>
                 </button>
                 <button
                   type="button"
@@ -1528,8 +1594,8 @@ export default function App() {
                       <div className="text-xs mb-1 text-violet-600">
                         {new Date(entry.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                       </div>
-                      <div className="text-sm truncate">{entry.currentConditions || 'No current condition'}</div>
-                      <div className="text-xs truncate text-violet-600">{entry.concernedConditions || 'No monitored conditions'}</div>
+                      <div className="text-sm font-medium truncate">{extractOneLine(entry.analysis, 'DISH') || 'Food analysis'}</div>
+                      <div className="text-xs truncate text-violet-600">{entry.currentConditions || 'No condition'} · {entry.concernedConditions || '—'}</div>
                     </button>
                     <button
                       type="button"
