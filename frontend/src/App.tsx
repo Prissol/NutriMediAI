@@ -100,33 +100,27 @@ function metricKey(label: string): string {
   return 'calories'
 }
 
-/** Logo: letter M integrated with stethoscope (earpieces + chestpiece), subtle animation */
+/** Logo: simple letter N with subtle animation */
 function Logo({ className }: { className?: string }) {
   return (
     <span className={`inline-block logo-m-wrap ${className ?? ''}`}>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" aria-hidden="true" className="w-full h-full block">
         <defs>
-          <linearGradient id="logoMGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+          <linearGradient id="logoNGrad" x1="0%" y1="100%" x2="0%" y2="0%">
             <stop offset="0%" stopColor="#5b21b6" />
             <stop offset="50%" stopColor="#8b5cf6" />
             <stop offset="100%" stopColor="#a78bfa" />
           </linearGradient>
         </defs>
-        {/* M shape (stethoscope tubing) */}
         <path
           className="logo-m-letter"
-          fill="url(#logoMGrad)"
+          fill="url(#logoNGrad)"
           stroke="#6d28d9"
           strokeWidth={0.8}
           strokeLinejoin="round"
           strokeLinecap="round"
-          d="M10 40 L10 20 L24 32 L38 20 L38 40 Z"
+          d="M10 40 L10 16 L38 40 L38 16 Z"
         />
-        {/* Stethoscope earpieces (top of M legs) */}
-        <circle className="logo-m-letter" cx={10} cy={14} r={4} fill="url(#logoMGrad)" stroke="#6d28d9" strokeWidth={0.6} />
-        <circle className="logo-m-letter" cx={38} cy={14} r={4} fill="url(#logoMGrad)" stroke="#6d28d9" strokeWidth={0.6} />
-        {/* Stethoscope chestpiece (bottom center) */}
-        <circle className="logo-m-letter" cx={24} cy={38} r={5} fill="url(#logoMGrad)" stroke="#6d28d9" strokeWidth={0.6} />
       </svg>
     </span>
   )
@@ -498,7 +492,7 @@ function LoginScreen({
   defaultTab: 'login' | 'register'
   onBack: () => void
 }) {
-  const SHOW_REGISTER_TAB = false // set true to show Login | Register again
+  const SHOW_REGISTER_TAB = true // set false to hide Register tab
   const [tab, setTab] = useState<'login' | 'register'>(SHOW_REGISTER_TAB ? defaultTab : 'login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
