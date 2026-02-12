@@ -73,8 +73,26 @@ async def log_requests(request: Request, call_next):
     return response
 
 
+def ensure_global_admin():
+    """Ensure the global admin user exists so prissol@admin.com can log in."""
+    with get_db() as conn:
+        row = conn.execute("SELECT id FROM users WHERE email = ?", (GLOBAL_ADMIN_EMAIL,)).fetchone()
+        if row:
+            return
+        password_hash = pwd_context.hash(GLOBAL_ADMIN_PASSWORD)
+        created = datetime.utcnow().isoformat()
+        conn.execute(
+            "INSERT INTO users (id, email, password_hash, created_at) VALUES (?, ?, ?, ?)",
+            (GLOBAL_ADMIN_ID, GLOBAL_ADMIN_EMAIL, password_hash, created),
+        )
+        conn.commit()
+    logger.info("Global admin user created: %s", GLOBAL_ADMIN_EMAIL)
+    print(f"Global admin user created: {GLOBAL_ADMIN_EMAIL}")
+
+
 @app.on_event("startup")
 async def log_startup():
+    ensure_global_admin()
     logger.info("NutriMedAI startup complete")
     print("NutriMedAI startup complete")
 
@@ -90,6 +108,11 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 30
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer(auto_error=False)
+
+# Global admin login (single shared account)
+GLOBAL_ADMIN_EMAIL = os.environ.get("GLOBAL_ADMIN_EMAIL", "prissol@admin.com").strip().lower()
+GLOBAL_ADMIN_PASSWORD = os.environ.get("GLOBAL_ADMIN_PASSWORD", "prissol@admin")
+GLOBAL_ADMIN_ID = "00000000-0000-0000-0000-000000000001"
 
 
 def _ensure_db_dir():
