@@ -1,8 +1,11 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { jsPDF } from 'jspdf'
+import { driver } from 'driver.js'
+import 'driver.js/dist/driver.css'
 import { useAuth } from './AuthContext'
 
 const API_BASE = import.meta.env.DEV ? (import.meta.env.VITE_API_URL || '/api') : '/api'
+const TOUR_STORAGE_KEY = 'nutrimedai_tour_done'
 
 const iconCl = 'w-5 h-5 flex-shrink-0'
 const METRIC_ICONS: Record<string, React.ReactNode> = {
@@ -1252,6 +1255,79 @@ export default function App() {
     if (analysis && !currentSummary && concernedSummary) setConditionTab('concerned')
   }, [analysis, currentSummary, concernedSummary])
 
+  const tourDriverRef = useRef<ReturnType<typeof driver> | null>(null)
+
+  const startAppTour = useCallback((force = false) => {
+    if (!force && typeof localStorage !== 'undefined' && localStorage.getItem(TOUR_STORAGE_KEY)) return
+    const driverObj = driver({
+      showProgress: true,
+      nextBtnText: 'Next',
+      prevBtnText: 'Back',
+      doneBtnText: 'Got it',
+      progressText: '{{current}} of {{total}}',
+      steps: [
+        {
+          element: '#tour-welcome',
+          popover: {
+            title: 'Welcome to NutriMedAI',
+            description: 'Your AI-powered nutrition assistant. This short tour shows what you can do here.',
+            side: 'bottom',
+            align: 'start',
+          },
+        },
+        {
+          element: '#tour-profile',
+          popover: {
+            title: 'Set your medical profile',
+            description: 'Add your current medical condition (e.g. diabetes, hypertension) and any conditions you want to monitor. Advice will be tailored to your profile.',
+            side: 'bottom',
+            align: 'start',
+          },
+        },
+        {
+          element: '#tour-upload',
+          popover: {
+            title: 'Upload & analyze food',
+            description: 'Upload a photo of your meal, add an optional note (e.g. portion size), then tap "Analyze food" to get a nutrition score, key metrics, and condition-specific advice.',
+            side: 'top',
+            align: 'start',
+          },
+        },
+        {
+          element: '#tour-history',
+          popover: {
+            title: 'Recent history',
+            description: 'Past analyses appear here. Open any item to view it again, or start a "New analysis". Use the sync button to load analyses from other devices.',
+            side: 'right',
+            align: 'start',
+          },
+        },
+        {
+          element: '#tour-welcome',
+          popover: {
+            title: "You're all set",
+            description: 'After each analysis you can download a PDF report from the header. Enjoy personalized nutrition insights!',
+            side: 'bottom',
+            align: 'start',
+          },
+        },
+      ],
+      onDestroyStarted: () => {
+        if (typeof localStorage !== 'undefined') localStorage.setItem(TOUR_STORAGE_KEY, '1')
+      },
+    })
+    tourDriverRef.current = driverObj
+    driverObj.drive()
+  }, [])
+
+  useEffect(() => {
+    if (!token || !user) return
+    const done = typeof localStorage !== 'undefined' && localStorage.getItem(TOUR_STORAGE_KEY)
+    if (done) return
+    const t = setTimeout(() => startAppTour(), 800)
+    return () => clearTimeout(t)
+  }, [token, user, startAppTour])
+
   const downloadPDF = () => {
     if (!dishName && !analysis) return
     const doc = new jsPDF()
@@ -1533,7 +1609,7 @@ export default function App() {
   const isLightResultView = !!analysis
   return (
     <div className={`min-h-screen flex ${isLightResultView ? 'bg-[#f5f3ff] text-violet-900' : 'bg-[#f5f3ff] text-violet-900'}`}>
-      <aside className="hidden md:flex w-[290px] shrink-0 border-r flex-col border-violet-200/50 bg-[#f5f3ff]">
+      <aside id="tour-history" className="hidden md:flex w-[290px] shrink-0 border-r flex-col border-violet-200/50 bg-[#f5f3ff]">
         <div className="p-3 border-b border-violet-200/50 flex gap-2">
           <button
             type="button"
@@ -1676,7 +1752,7 @@ export default function App() {
       <div className="flex-1 min-w-0 flex flex-col">
         <header className="sticky top-0 z-[9999] border-b border-violet-200/50 bg-[#f5f3ff]/95 backdrop-blur-md">
           <div className="max-w-7xl mx-auto px-4 md:px-8 py-2 min-h-14 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div id="tour-welcome" className="flex items-center gap-2 flex-shrink-0">
               <button
                 type="button"
                 onClick={() => setMobileSidebarOpen(true)}
@@ -1689,6 +1765,9 @@ export default function App() {
               <h1 className="text-lg font-semibold text-violet-900 truncate">NutriMedAI</h1>
             </div>
             <div className="flex items-center gap-2 flex-wrap min-w-0">
+              <button type="button" onClick={() => startAppTour(true)} className="flex-shrink-0 px-3 py-1.5 rounded-xl text-sm font-medium text-violet-600 hover:text-violet-800 hover:bg-violet-100/80 border border-violet-200/50" title="Show app tour">
+                Take a tour
+              </button>
               <span className="text-sm truncate max-w-[140px] sm:max-w-[200px] text-violet-700" title={user.email}>{user.email}</span>
               <button type="button" onClick={logout} className="flex-shrink-0 px-3 py-1.5 rounded-xl text-sm font-medium text-violet-700 hover:text-violet-900 hover:bg-violet-100 border border-violet-200/60">
                 Log out
@@ -1705,7 +1784,7 @@ export default function App() {
 
         <main className={`max-w-7xl mx-auto px-4 md:px-8 w-full ${isLightResultView ? 'bg-[#f5f3ff] py-4 space-y-4' : 'py-8 space-y-6'}`}>
           {!analysis && (
-          <section className="rounded-2xl p-4 md:p-6 border border-violet-200/50 bg-white/50 backdrop-blur-xl shadow-lg shadow-violet-200/20">
+          <section id="tour-profile" className="rounded-2xl p-4 md:p-6 border border-violet-200/50 bg-white/50 backdrop-blur-xl shadow-lg shadow-violet-200/20">
             <div className="flex items-center justify-between gap-3 mb-5">
               <h2 className="text-lg md:text-xl font-semibold text-violet-900">Medical profile & analysis</h2>
               <button
@@ -1762,7 +1841,7 @@ export default function App() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+            <div id="tour-upload" className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
               <label className={`flex flex-col items-center justify-center w-full min-h-[280px] rounded-lg border border-violet-200/60 bg-white/40 cursor-pointer overflow-hidden transition-colors hover:bg-violet-50/60 ${loadingAnalysis ? 'opacity-60 pointer-events-none' : ''}`}>
                 <input type="file" accept="image/*" className="hidden" onChange={onFileChange} />
                 {preview ? (
