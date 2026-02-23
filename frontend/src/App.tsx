@@ -1264,13 +1264,21 @@ export default function App() {
       nextBtnText: 'Next',
       prevBtnText: 'Back',
       doneBtnText: 'Got it',
-      progressText: '{{current}} of {{total}}',
+      progressText: 'Step {{current}} of {{total}}',
+      popoverClass: 'nutrimedai-tour',
+      overlayColor: 'rgb(76, 29, 149)',
+      overlayOpacity: 0.42,
+      animate: true,
+      smoothScroll: true,
+      stagePadding: 12,
+      stageRadius: 12,
+      popoverOffset: 14,
       steps: [
         {
           element: '#tour-welcome',
           popover: {
             title: 'Welcome to NutriMedAI',
-            description: 'Your AI-powered nutrition assistant. This short tour shows what you can do here.',
+            description: 'Your AI-powered nutrition assistant. This quick tour shows the main features—follow along to get the most out of the app.',
             side: 'bottom',
             align: 'start',
           },
@@ -1278,8 +1286,8 @@ export default function App() {
         {
           element: '#tour-profile',
           popover: {
-            title: 'Set your medical profile',
-            description: 'Add your current medical condition (e.g. diabetes, hypertension) and any conditions you want to monitor. Advice will be tailored to your profile.',
+            title: '1. Medical profile',
+            description: 'Set your current condition (e.g. diabetes, hypertension) and any conditions you want to monitor. All advice is tailored to this profile.',
             side: 'bottom',
             align: 'start',
           },
@@ -1287,8 +1295,8 @@ export default function App() {
         {
           element: '#tour-upload',
           popover: {
-            title: 'Upload & analyze food',
-            description: 'Upload a photo of your meal, add an optional note (e.g. portion size), then tap "Analyze food" to get a nutrition score, key metrics, and condition-specific advice.',
+            title: '2. Upload & analyze',
+            description: 'Upload a food photo and add an optional note (e.g. portion). Tap "Analyze food" to get a nutrition score, key metrics, and condition-specific tips.',
             side: 'top',
             align: 'start',
           },
@@ -1296,8 +1304,8 @@ export default function App() {
         {
           element: '#tour-history',
           popover: {
-            title: 'Recent history',
-            description: 'Past analyses appear here. Open any item to view it again, or start a "New analysis". Use the sync button to load analyses from other devices.',
+            title: '3. Recent history',
+            description: 'Past analyses appear here. Open any item to view it again, start a "New analysis", or use the sync button to load analyses from other devices.',
             side: 'right',
             align: 'start',
           },
@@ -1306,7 +1314,7 @@ export default function App() {
           element: '#tour-welcome',
           popover: {
             title: "You're all set",
-            description: 'After each analysis you can download a PDF report from the header. Enjoy personalized nutrition insights!',
+            description: 'After each analysis you can download a PDF report from the header. Enjoy personalized nutrition insights.',
             side: 'bottom',
             align: 'start',
           },
@@ -1314,6 +1322,7 @@ export default function App() {
       ],
       onDestroyStarted: () => {
         if (typeof localStorage !== 'undefined') localStorage.setItem(TOUR_STORAGE_KEY, '1')
+        driverObj.destroy()
       },
     })
     tourDriverRef.current = driverObj
