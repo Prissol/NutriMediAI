@@ -1259,6 +1259,18 @@ export default function App() {
 
   const startAppTour = useCallback((force = false) => {
     if (!force && typeof localStorage !== 'undefined' && localStorage.getItem(TOUR_STORAGE_KEY)) return
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+    const historyStep = {
+      element: isMobile ? '#tour-history-mobile' : '#tour-history',
+      popover: {
+        title: '3. Recent history',
+        description: isMobile
+          ? 'Tap this icon to open your past analyses. You can open any item, start a "New analysis", or sync from other devices.'
+          : 'Past analyses appear here. Open any item to view it again, start a "New analysis", or use the sync button to load analyses from other devices.',
+        side: isMobile ? 'bottom' as const : 'right' as const,
+        align: 'start' as const,
+      },
+    }
     const driverObj = driver({
       showProgress: true,
       nextBtnText: 'Next',
@@ -1270,9 +1282,9 @@ export default function App() {
       overlayOpacity: 0.42,
       animate: true,
       smoothScroll: true,
-      stagePadding: 12,
-      stageRadius: 12,
-      popoverOffset: 14,
+      stagePadding: isMobile ? 8 : 12,
+      stageRadius: isMobile ? 8 : 12,
+      popoverOffset: isMobile ? 10 : 14,
       steps: [
         {
           element: '#tour-welcome',
@@ -1297,19 +1309,11 @@ export default function App() {
           popover: {
             title: '2. Upload & analyze',
             description: 'Upload a food photo and add an optional note (e.g. portion). Tap "Analyze food" to get a nutrition score, key metrics, and condition-specific tips.',
-            side: 'top',
-            align: 'start',
+            side: isMobile ? 'bottom' as const : 'top' as const,
+            align: 'start' as const,
           },
         },
-        {
-          element: '#tour-history',
-          popover: {
-            title: '3. Recent history',
-            description: 'Past analyses appear here. Open any item to view it again, start a "New analysis", or use the sync button to load analyses from other devices.',
-            side: 'right',
-            align: 'start',
-          },
-        },
+        historyStep,
         {
           element: '#tour-welcome',
           popover: {
@@ -1763,6 +1767,7 @@ export default function App() {
           <div className="max-w-7xl mx-auto px-4 md:px-8 py-2 min-h-14 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div id="tour-welcome" className="flex items-center gap-2 flex-shrink-0">
               <button
+                id="tour-history-mobile"
                 type="button"
                 onClick={() => setMobileSidebarOpen(true)}
                 className="md:hidden p-2 -ml-1 rounded-lg text-violet-700 hover:bg-violet-100/80 transition-colors"
