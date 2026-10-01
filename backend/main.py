@@ -74,12 +74,46 @@ async def log_requests(request: Request, call_next):
 
 
 def ensure_global_admin():
-    """Ensure the global admin user exists so prissol@admin.com can log in."""
+    """Ensure the global admin exists and the configured password can log in."""
+    legacy_email = "prissol@admin.com"
     with get_db() as conn:
-        row = conn.execute("SELECT id FROM users WHERE email = ?", (GLOBAL_ADMIN_EMAIL,)).fetchone()
+        if GLOBAL_ADMIN_EMAIL != legacy_email:
+            legacy = conn.execute(
+                "SELECT id FROM users WHERE email = ?", (legacy_email,)
+            ).fetchone()
+            current = conn.execute(
+                "SELECT id FROM users WHERE email = ?", (GLOBAL_ADMIN_EMAIL,)
+            ).fetchone()
+            if legacy and not current:
+                conn.execute(
+                    "UPDATE users SET email = ? WHERE email = ?",
+                    (GLOBAL_ADMIN_EMAIL, legacy_email),
+                )
+                conn.commit()
+                logger.info("Global admin email updated to %s", GLOBAL_ADMIN_EMAIL)
+                print(f"Global admin email updated to {GLOBAL_ADMIN_EMAIL}")
+        row = conn.execute(
+            "SELECT id, password_hash FROM users WHERE email = ?",
+            (GLOBAL_ADMIN_EMAIL,),
+        ).fetchone()
+        password_matches = False
         if row:
+            try:
+                password_matches = pwd_context.verify(GLOBAL_ADMIN_PASSWORD, row["password_hash"])
+            except Exception:
+                password_matches = False
+        if row and password_matches:
             return
         password_hash = pwd_context.hash(GLOBAL_ADMIN_PASSWORD)
+        if row:
+            conn.execute(
+                "UPDATE users SET password_hash = ? WHERE email = ?",
+                (password_hash, GLOBAL_ADMIN_EMAIL),
+            )
+            conn.commit()
+            logger.info("Global admin password reset: %s", GLOBAL_ADMIN_EMAIL)
+            print(f"Global admin password reset: {GLOBAL_ADMIN_EMAIL}")
+            return
         created = datetime.utcnow().isoformat()
         conn.execute(
             "INSERT INTO users (id, email, password_hash, created_at) VALUES (?, ?, ?, ?)",
@@ -110,8 +144,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer(auto_error=False)
 
 # Global admin login (single shared account)
-GLOBAL_ADMIN_EMAIL = os.environ.get("GLOBAL_ADMIN_EMAIL", "prissol@admin.com").strip().lower()
-GLOBAL_ADMIN_PASSWORD = os.environ.get("GLOBAL_ADMIN_PASSWORD", "prissol@admin")
+GLOBAL_ADMIN_EMAIL = os.environ.get("GLOBAL_ADMIN_EMAIL", "nutriai@admin.com").strip().lower()
+GLOBAL_ADMIN_PASSWORD = os.environ.get("GLOBAL_ADMIN_PASSWORD", "nutriai@admin")
 GLOBAL_ADMIN_ID = "00000000-0000-0000-0000-000000000001"
 
 

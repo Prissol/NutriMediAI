@@ -29,8 +29,8 @@ AI-powered nutrition analysis for food images. Set your medical profile, upload 
 4. Open **http://localhost:5173** – set medical profile, upload a food image, then **Analyze food**.
 
 **Global admin login** (pre-configured account):  
-- Email: `prissol@admin.com`  
-- Password: `prissol@admin`  
+- Email: `nutriai@admin.com`  
+- Password: `nutriai@admin`  
 
 The backend creates this user on first startup if it doesn’t exist. Override with env: `GLOBAL_ADMIN_EMAIL`, `GLOBAL_ADMIN_PASSWORD`.
 
