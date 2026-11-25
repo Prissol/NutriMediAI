@@ -128,7 +128,17 @@ function Logo({ className }: { className?: string }) {
   )
 }
 
-/** "Launching soon" badge with exciting popover content */
+function TakeTourButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="px-3 py-1.5 rounded-full border border-violet-300 bg-white text-xs font-semibold text-violet-700 hover:bg-violet-50"
+    >
+      Take a tour
+    </button>
+  )
+}
 function LaunchSoonBadge() {
   const [open, setOpen] = useState(false)
   return (
@@ -482,28 +492,29 @@ function parseInfographyBlock(text: string): InfographyParsed {
 
 function AboutPage({
   onBack,
-  onStart,
+  onTour,
 }: {
   onBack: () => void
-  onStart: () => void
+  onTour: () => void
 }) {
   const steps = [
-    { n: 1, title: 'Set your profile', desc: 'Add your current medical condition (e.g. diabetes, hypertension) and any conditions you want to monitor.' },
-    { n: 2, title: 'Upload a photo', desc: 'Snap or upload a picture of your meal. Add an optional note like portion size or preparation.' },
-    { n: 3, title: 'Get tailored insights', desc: 'Receive a nutrition score, summary, key metrics, and condition-specific advice in seconds.' },
+    { n: 1, title: 'Photograph', desc: 'Use the scanner on the phone for a plate, a barcode, or a food label.' },
+    { n: 2, title: 'Correct', desc: 'Change the name and portion before anything is saved. The numbers are estimates.' },
+    { n: 3, title: 'See the day', desc: 'Calories left, protein, carbs, fat, fibre, water, and the plates you logged.' },
   ]
   const features = [
-    { title: 'Nutrition score', desc: 'A clear 0–100 score so you know at a glance how the meal fits your goals.' },
-    { title: 'Condition-aware advice', desc: 'Recommendations for your current condition and for conditions you’re monitoring.' },
-    { title: 'TL;DR by ingredient', desc: 'Quick takeaways per ingredient so you know what to watch or enjoy.' },
-    { title: 'Similar but safer', desc: 'Suggestions for swaps or tweaks to make the meal better for you.' },
-    { title: 'Downloadable report', desc: 'Export your analysis as a PDF to share with your care team or keep for later.' },
+    { title: 'Today’s chart', desc: 'Calories left, protein, carbs, fat, fibre, and water on the home screen.' },
+    { title: 'Meal plan', desc: 'Breakfast through snack, with a grocery list from that plan.' },
+    { title: 'Progress', desc: 'Weekly and monthly charts built only from what you logged.' },
+    { title: 'Health', desc: 'Notes, medicine, and files you keep. Nothing is diagnosed.' },
+    { title: 'Pantry', desc: 'One bottle photo a week. An upper estimate, not a lab reading.' },
+    { title: 'Assistant', desc: 'Answers from what you logged today. It cannot prescribe or change a medicine.' },
   ]
   const forYou = [
-    'Managing diabetes, hypertension, heart health, or other diet-sensitive conditions',
-    'Watching sodium, sugar, carbs, or calories with clear numbers and guidance',
-    'Exploring healthier swaps without giving up the foods you love',
-    'Keeping a simple record of what you eat and how it fits your profile',
+    'Seeing the day in one chart',
+    'Logging a meal from a photo, then correcting the portion',
+    'Keeping water, movement, and reminders on the phone',
+    'Looking back at a week that only uses what you logged',
   ]
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   return (
@@ -517,10 +528,10 @@ function AboutPage({
           <nav className="hidden md:flex items-center gap-6 text-sm text-violet-600">
             <button type="button" onClick={onBack} className="hover:text-violet-900 transition-colors">Home</button>
             <LaunchSoonBadge />
+            <TakeTourButton onClick={onTour} />
             <span className="text-violet-900">About</span>
           </nav>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={onStart} className="px-4 py-2 rounded-full text-sm font-semibold bg-violet-500 text-white hover:bg-violet-600 transition-colors">Get Started</button>
             <button
               type="button"
               onClick={() => setMobileNavOpen((o) => !o)}
@@ -535,6 +546,7 @@ function AboutPage({
           <div className="md:hidden border-t border-violet-200/50 bg-[#F8F3F9]/98 backdrop-blur-md px-4 py-3 flex flex-col gap-1">
             <button type="button" onClick={() => { onBack(); setMobileNavOpen(false) }} className="text-left py-2.5 px-3 rounded-lg text-sm font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100/60 transition-colors">Home</button>
             <div className="py-2.5 px-3" onClick={() => setMobileNavOpen(false)}><LaunchSoonBadge /></div>
+            <button type="button" onClick={() => { onTour(); setMobileNavOpen(false) }} className="text-left py-2.5 px-3 rounded-lg text-sm font-medium text-violet-700 hover:bg-violet-100/60">Take a tour</button>
             <span className="py-2.5 px-3 text-sm font-medium text-violet-900">About</span>
           </div>
         )}
@@ -543,16 +555,16 @@ function AboutPage({
         <div className="text-center mb-14">
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-violet-900">About NutriMedAI</h1>
           <p className="mt-4 text-lg text-violet-600 max-w-2xl mx-auto">
-            Personalized nutrition analysis powered by AI. We analyze your food against your health profile so you can eat with confidence.
+            NutriMed is the phone app. Photograph a meal, correct it, and see the day from what you logged.
           </p>
           <p className="mt-2 text-sm text-violet-500 max-w-xl mx-auto">
-            Not just calories — condition-aware guidance, key metrics, and actionable advice in one place.
+            The numbers are estimates. This website does not analyze a meal.
           </p>
         </div>
 
         <section className="rounded-2xl border border-violet-200/50 bg-white/60 backdrop-blur-xl p-6 md:p-8 mb-8 shadow-lg shadow-violet-200/20">
-          <h2 className="text-xl font-semibold text-violet-800 mb-1">How it works</h2>
-          <p className="text-sm text-violet-600 mb-6">Three steps from profile to personalized insights.</p>
+          <h2 className="text-xl font-semibold text-violet-800 mb-1">How the phone app works</h2>
+          <p className="text-sm text-violet-600 mb-6">Three steps. You stay in charge of what gets logged.</p>
           <div className="space-y-4">
             {steps.map((s) => (
               <div key={s.n} className="flex gap-4 rounded-xl bg-violet-50/60 border border-violet-200/50 p-4">
@@ -567,8 +579,8 @@ function AboutPage({
         </section>
 
         <section className="rounded-2xl border border-violet-200/50 bg-white/60 backdrop-blur-xl p-6 md:p-8 mb-8 shadow-lg shadow-violet-200/20">
-          <h2 className="text-xl font-semibold text-violet-800 mb-1">What you get</h2>
-          <p className="text-sm text-violet-600 mb-6">Every analysis includes:</p>
+          <h2 className="text-xl font-semibold text-violet-800 mb-1">On the phone</h2>
+          <p className="text-sm text-violet-600 mb-6">What the app actually includes:</p>
           <ul className="grid md:grid-cols-2 gap-3">
             {features.map((f) => (
               <li key={f.title} className="flex gap-3 rounded-lg bg-violet-50/50 border border-violet-200/40 p-3">
@@ -586,7 +598,7 @@ function AboutPage({
 
         <section className="rounded-2xl border border-violet-200/50 bg-white/60 backdrop-blur-xl p-6 md:p-8 mb-8 shadow-lg shadow-violet-200/20">
           <h2 className="text-xl font-semibold text-violet-800 mb-1">Who it's for</h2>
-          <p className="text-sm text-violet-600 mb-4">NutriMedAI helps when you’re:</p>
+          <p className="text-sm text-violet-600 mb-4">Useful when you want:</p>
           <ul className="space-y-2">
             {forYou.map((item) => (
               <li key={item} className="flex gap-2 text-sm text-violet-700">
@@ -602,12 +614,6 @@ function AboutPage({
             Built with AI to support your choices. NutriMedAI is for guidance only and is not a substitute for professional medical or dietary advice.
           </p>
         </section>
-
-        <div className="text-center">
-          <button type="button" onClick={onStart} className="px-6 py-3 rounded-full bg-violet-500 text-white font-semibold hover:bg-violet-600 transition-colors shadow-lg shadow-violet-200/30">
-            Get started free
-          </button>
-        </div>
       </main>
     </div>
   )
@@ -657,18 +663,72 @@ const HERO_IMAGES = [
 ]
 
 function LandingPage({
-  onStart,
   onAboutClick,
+  onTour,
+  tourToken,
 }: {
-  onStart: () => void
   onAboutClick: () => void
+  onTour: () => void
+  tourToken: number
 }) {
   const [heroSlide, setHeroSlide] = useState(0)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const tourRef = useRef<ReturnType<typeof driver> | null>(null)
   useEffect(() => {
     const t = setInterval(() => setHeroSlide((s) => (s + 1) % HERO_IMAGES.length), 5500)
     return () => clearInterval(t)
   }, [])
+  useEffect(() => {
+    if (!tourToken) return
+    tourRef.current?.destroy()
+    const isMobile = window.innerWidth < 768
+    const driverObj = driver({
+      showProgress: true,
+      nextBtnText: 'Next',
+      prevBtnText: 'Back',
+      doneBtnText: 'Done',
+      progressText: 'Step {{current}} of {{total}}',
+      popoverClass: 'nutrimedai-tour',
+      overlayColor: 'rgb(62, 37, 71)',
+      overlayOpacity: 0.42,
+      animate: true,
+      smoothScroll: true,
+      stagePadding: isMobile ? 8 : 12,
+      stageRadius: 12,
+      steps: [
+        {
+          element: '#phone-demo',
+          popover: {
+            title: 'The phone app',
+            description: 'Home shows calories still open, with protein, carbs, fat, fibre, and water. Plates sit under the chart. The round button in the middle is the scanner for a plate, a barcode, or a label.',
+            side: isMobile ? 'bottom' : 'left',
+            align: 'start',
+          },
+        },
+        {
+          element: '#how-it-works',
+          popover: {
+            title: 'Photograph, then correct',
+            description: 'You change the name and portion before anything is saved. The numbers are estimates.',
+            side: 'top',
+            align: 'center',
+          },
+        },
+        {
+          element: '#phone-features',
+          popover: {
+            title: 'Also on the phone',
+            description: 'A meal plan, weekly and monthly charts from what you logged, water, fitness, health notes and files that are stored and not diagnosed, reminders, a pantry photo as an upper estimate, and an assistant that cannot prescribe or change a medicine.',
+            side: 'top',
+            align: 'center',
+          },
+        },
+      ],
+    })
+    tourRef.current = driverObj
+    const timer = window.setTimeout(() => driverObj.drive(), 250)
+    return () => window.clearTimeout(timer)
+  }, [tourToken])
   return (
     <div className="min-h-screen bg-[#F8F3F9] text-violet-900">
       <header className="sticky top-0 z-[9999] bg-[#F8F3F9]/90 backdrop-blur-md border-b border-violet-200/50">
@@ -681,9 +741,9 @@ function LandingPage({
             <button type="button" className="hover:text-violet-900 transition-colors">Home</button>
             <button type="button" onClick={onAboutClick} className="hover:text-violet-900 transition-colors">About</button>
             <LaunchSoonBadge />
+            <TakeTourButton onClick={onTour} />
           </nav>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={onStart} className="px-4 py-2 rounded-full text-sm font-semibold bg-violet-500 text-white hover:bg-violet-600 transition-colors">Get Started</button>
             <button
               type="button"
               onClick={() => setMobileNavOpen((o) => !o)}
@@ -699,6 +759,7 @@ function LandingPage({
             <button type="button" className="text-left py-2.5 px-3 rounded-lg text-sm font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100/60 transition-colors">Home</button>
             <button type="button" onClick={() => { onAboutClick(); setMobileNavOpen(false) }} className="text-left py-2.5 px-3 rounded-lg text-sm font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100/60 transition-colors">About</button>
             <div className="py-2.5 px-3" onClick={() => setMobileNavOpen(false)}><LaunchSoonBadge /></div>
+            <button type="button" onClick={() => { onTour(); setMobileNavOpen(false) }} className="text-left py-2.5 px-3 rounded-lg text-sm font-medium text-violet-700 hover:bg-violet-100/60">Take a tour</button>
           </div>
         )}
       </header>
@@ -723,13 +784,6 @@ function LandingPage({
         <div className="relative z-20 max-w-6xl mx-auto px-4 md:px-8 py-20 text-center w-full">
           <h1 className="text-4xl md:text-6xl font-semibold leading-tight text-white drop-shadow-md" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3)' }}>Take control of your health</h1>
           <p className="mt-4 text-lg text-white font-medium" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.5)' }}>Smarter nutrition. Made personal.</p>
-          <button
-            type="button"
-            onClick={onStart}
-            className="mt-8 px-6 py-3 rounded-full bg-violet-500 text-white font-semibold hover:bg-violet-600"
-          >
-            Get started free
-          </button>
           <div className="flex justify-center gap-2 mt-10">
             {HERO_IMAGES.map((src, i) => (
               <button
@@ -744,7 +798,7 @@ function LandingPage({
         </div>
       </section>
 
-      <section className="bg-white">
+      <section id="phone-demo" className="bg-white">
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 md:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:py-20">
           <div>
             <h2 className="text-5xl font-semibold leading-[1.05] tracking-tight text-violet-950 md:text-6xl">
@@ -754,13 +808,22 @@ function LandingPage({
             <p className="mt-6 max-w-md text-lg leading-relaxed text-violet-700">
               A photo, a barcode, or a label. Correct the name and portion, then see calories, protein, carbs, fat, fibre, and water. The numbers are estimates.
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <button type="button" onClick={onStart} className="rounded-2xl bg-violet-500 px-6 py-3.5 text-base font-semibold text-white hover:bg-violet-600">
-                Get started
-              </button>
-              <a href="#phone-features" className="rounded-2xl border border-violet-300 px-6 py-3.5 text-center text-base font-semibold text-violet-600 hover:bg-violet-50">
+            <div className="mt-8">
+              <a href="#phone-features" className="inline-block rounded-2xl border border-violet-300 px-6 py-3.5 text-center text-base font-semibold text-violet-600 hover:bg-violet-50">
                 See the features
               </a>
+            </div>
+            <div className="mt-10 grid max-w-md grid-cols-3 gap-3">
+              {[
+                { n: '3', label: 'Scan ways' },
+                { n: '4', label: 'Macros' },
+                { n: '1', label: 'Day chart' },
+              ].map((item) => (
+                <div key={item.n}>
+                  <p className="text-3xl font-semibold tracking-tight text-violet-500 md:text-4xl">{item.n}</p>
+                  <p className="mt-1 text-[11px] font-medium uppercase leading-tight tracking-wide text-violet-400">{item.label}</p>
+                </div>
+              ))}
             </div>
           </div>
           <div className="relative mx-auto h-[430px] w-full sm:h-[520px] lg:h-[600px]">
@@ -838,7 +901,7 @@ function LandingPage({
         </div>
       </section>
 
-      <section className="border-y border-violet-100 bg-white py-16">
+      <section id="how-it-works" className="border-y border-violet-100 bg-white py-16">
         <div className="mx-auto max-w-6xl px-4 md:px-8">
           <h2 className="text-center text-3xl font-semibold tracking-tight text-violet-950 md:text-4xl">How it works</h2>
           <p className="mx-auto mt-3 max-w-lg text-center text-violet-600">Three steps. You stay in charge of what gets logged.</p>
@@ -885,10 +948,7 @@ function LandingPage({
       <section className="bg-white py-20">
         <div className="mx-auto max-w-2xl px-4 text-center">
           <h2 className="text-3xl font-semibold tracking-tight text-violet-950 md:text-5xl">Start with one meal.</h2>
-          <p className="mt-4 text-lg text-violet-600">Photograph it, correct the portion, and see it on today’s chart. No account needed.</p>
-          <button type="button" onClick={onStart} className="mt-8 rounded-2xl bg-violet-500 px-6 py-3.5 text-base font-semibold text-white hover:bg-violet-600">
-            Get started
-          </button>
+          <p className="mt-4 text-lg text-violet-600">On the phone, photograph it, correct the portion, and see it on today’s chart.</p>
         </div>
       </section>
 
@@ -957,7 +1017,12 @@ function LandingPage({
 }
 
 export default function App() {
-  const [view, setView] = useState<'landing' | 'about' | 'app'>('landing')
+  const [view, setView] = useState<'landing' | 'about'>('landing')
+  const [tourToken, setTourToken] = useState(0)
+  const openTour = () => {
+    setView('landing')
+    setTourToken((n) => n + 1)
+  }
   const [currentConditionsList, setCurrentConditionsList] = useState<string[]>([])
   const [concernedConditionsList, setConcernedConditionsList] = useState<string[]>([])
   const [currentInput, setCurrentInput] = useState('')
@@ -1222,14 +1287,6 @@ export default function App() {
     driverObj.drive()
   }, [])
 
-  useEffect(() => {
-    if (view !== 'app') return
-    const done = typeof localStorage !== 'undefined' && localStorage.getItem(TOUR_STORAGE_KEY)
-    if (done) return
-    const t = setTimeout(() => startAppTour(), 800)
-    return () => clearTimeout(t)
-  }, [view, startAppTour])
-
   const downloadPDF = () => {
     if (!dishName && !analysis) return
     const doc = new jsPDF()
@@ -1472,8 +1529,9 @@ export default function App() {
   if (view === 'landing') {
     return (
       <LandingPage
-        onStart={() => setView('app')}
         onAboutClick={() => setView('about')}
+        onTour={openTour}
+        tourToken={tourToken}
       />
     )
   }
@@ -1481,7 +1539,7 @@ export default function App() {
     return (
       <AboutPage
         onBack={() => setView('landing')}
-        onStart={() => setView('app')}
+        onTour={openTour}
       />
     )
   }
