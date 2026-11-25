@@ -2,8 +2,6 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { jsPDF } from 'jspdf'
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
-import { useAuth } from './AuthContext'
-
 const API_BASE = import.meta.env.DEV ? (import.meta.env.VITE_API_URL || '/api') : '/api'
 const TOUR_STORAGE_KEY = 'nutrimedai_tour_done'
 
@@ -481,116 +479,13 @@ function parseInfographyBlock(text: string): InfographyParsed {
   return { foodLines: cleanTldrFoodLines(foodLines), adviceLines }
 }
 
-function LoginScreen({
-  onLogin,
-  onRegister,
-  error,
-  onClearError,
-  defaultTab,
-  onBack,
-}: {
-  onLogin: (email: string, password: string) => Promise<void>
-  onRegister: (email: string, password: string) => Promise<void>
-  error: string | null
-  onClearError: () => void
-  defaultTab: 'login' | 'register'
-  onBack: () => void
-}) {
-  const SHOW_REGISTER_TAB = false // set false to hide Register tab
-  const [tab, setTab] = useState<'login' | 'register'>(SHOW_REGISTER_TAB ? defaultTab : 'login')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    onClearError()
-    setSubmitting(true)
-    try {
-      if (tab === 'login') await onLogin(email, password)
-      else await onRegister(email, password)
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F8F3F9] px-4">
-      <div className="w-full max-w-sm rounded-2xl border border-violet-200/60 bg-white/50 backdrop-blur-xl p-6 shadow-lg shadow-violet-200/30">
-        <button type="button" onClick={onBack} className="text-xs text-violet-500 hover:text-violet-800 mb-4">
-          ← Back to home
-        </button>
-        <div className="flex items-center gap-3 mb-6">
-          <Logo className="h-10 w-10" />
-          <h1 className="text-xl font-semibold text-violet-900">NutriMedAI</h1>
-        </div>
-        <p className="text-sm text-violet-600 mb-4">Sign in to your dashboard.</p>
-        {SHOW_REGISTER_TAB && (
-        <div className="flex rounded-lg bg-violet-100/60 p-1 mb-4">
-          <button
-            type="button"
-            onClick={() => { setTab('login'); onClearError(); setPassword('') }}
-            className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${tab === 'login' ? 'bg-violet-500 text-white' : 'text-violet-600 hover:text-violet-900'}`}
-          >
-            Login
-          </button>
-          <button
-            type="button"
-            onClick={() => { setTab('register'); onClearError(); setPassword('') }}
-            className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${tab === 'register' ? 'bg-violet-500 text-white' : 'text-violet-600 hover:text-violet-900'}`}
-          >
-            Register
-          </button>
-        </div>
-        )}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="auth-email" className="block text-sm font-medium text-violet-800 mb-1">Email</label>
-            <input
-              id="auth-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-3 py-2 rounded-lg border border-violet-200/60 bg-white/60 text-violet-900 placeholder:text-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
-              placeholder="you@example.com"
-            />
-          </div>
-          <div>
-            <label htmlFor="auth-password" className="block text-sm font-medium text-violet-800 mb-1">Password</label>
-            <input
-              id="auth-password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={tab === 'register' ? 6 : 1}
-              className="w-full px-3 py-2 rounded-lg border border-violet-200/60 bg-white/60 text-violet-900 placeholder:text-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
-              placeholder={tab === 'register' ? 'Min 6 characters' : ''}
-            />
-          </div>
-          {error && <p className="text-sm text-red-500">{error}</p>}
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full py-2.5 rounded-lg bg-violet-500 text-white font-semibold hover:bg-violet-600 disabled:opacity-50 transition-colors"
-          >
-            {submitting ? 'Please wait...' : tab === 'login' ? 'Log in' : 'Create account'}
-          </button>
-        </form>
-      </div>
-    </div>
-  )
-}
 
 function AboutPage({
   onBack,
-  onLogin,
-  onRegister,
+  onStart,
 }: {
   onBack: () => void
-  onLogin: () => void
-  onRegister: () => void
+  onStart: () => void
 }) {
   const steps = [
     { n: 1, title: 'Set your profile', desc: 'Add your current medical condition (e.g. diabetes, hypertension) and any conditions you want to monitor.' },
@@ -625,8 +520,7 @@ function AboutPage({
             <span className="text-violet-900">About</span>
           </nav>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={onLogin} className="px-4 py-2 rounded-full text-sm font-semibold text-violet-600 hover:text-violet-900 transition-colors">Login</button>
-            <button type="button" onClick={onRegister} className="px-4 py-2 rounded-full text-sm font-semibold bg-violet-500 text-white hover:bg-violet-600 transition-colors">Get Started</button>
+            <button type="button" onClick={onStart} className="px-4 py-2 rounded-full text-sm font-semibold bg-violet-500 text-white hover:bg-violet-600 transition-colors">Get Started</button>
             <button
               type="button"
               onClick={() => setMobileNavOpen((o) => !o)}
@@ -710,7 +604,7 @@ function AboutPage({
         </section>
 
         <div className="text-center">
-          <button type="button" onClick={onRegister} className="px-6 py-3 rounded-full bg-violet-500 text-white font-semibold hover:bg-violet-600 transition-colors shadow-lg shadow-violet-200/30">
+          <button type="button" onClick={onStart} className="px-6 py-3 rounded-full bg-violet-500 text-white font-semibold hover:bg-violet-600 transition-colors shadow-lg shadow-violet-200/30">
             Get started free
           </button>
         </div>
@@ -727,12 +621,10 @@ const HERO_IMAGES = [
 ]
 
 function LandingPage({
-  onLogin,
-  onRegister,
+  onStart,
   onAboutClick,
 }: {
-  onLogin: () => void
-  onRegister: () => void
+  onStart: () => void
   onAboutClick: () => void
 }) {
   const [heroSlide, setHeroSlide] = useState(0)
@@ -755,8 +647,7 @@ function LandingPage({
             <LaunchSoonBadge />
           </nav>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={onLogin} className="px-4 py-2 rounded-full text-sm font-semibold text-violet-600 hover:text-violet-900 transition-colors">Login</button>
-            <button type="button" onClick={onRegister} className="px-4 py-2 rounded-full text-sm font-semibold bg-violet-500 text-white hover:bg-violet-600 transition-colors">Get Started</button>
+            <button type="button" onClick={onStart} className="px-4 py-2 rounded-full text-sm font-semibold bg-violet-500 text-white hover:bg-violet-600 transition-colors">Get Started</button>
             <button
               type="button"
               onClick={() => setMobileNavOpen((o) => !o)}
@@ -798,7 +689,7 @@ function LandingPage({
           <p className="mt-4 text-lg text-white font-medium" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.5)' }}>Smarter nutrition. Made personal.</p>
           <button
             type="button"
-            onClick={onRegister}
+            onClick={onStart}
             className="mt-8 px-6 py-3 rounded-full bg-violet-500 text-white font-semibold hover:bg-violet-600"
           >
             Get started free
@@ -887,7 +778,7 @@ function LandingPage({
           </div>
           <button
             type="button"
-            onClick={onRegister}
+            onClick={onStart}
             className="mt-8 px-6 py-3 rounded-full bg-violet-500 text-white font-semibold hover:bg-violet-600"
           >
             Download Now
@@ -960,9 +851,7 @@ function LandingPage({
 }
 
 export default function App() {
-  const { user, token, loading: authLoading, login, register, logout, error: authError, clearError: clearAuthError } = useAuth()
-  const [authView, setAuthView] = useState<'landing' | 'auth' | 'about'>('landing')
-  const [authTab, setAuthTab] = useState<'login' | 'register'>('login')
+  const [view, setView] = useState<'landing' | 'about' | 'app'>('landing')
   const [currentConditionsList, setCurrentConditionsList] = useState<string[]>([])
   const [concernedConditionsList, setConcernedConditionsList] = useState<string[]>([])
   const [currentInput, setCurrentInput] = useState('')
@@ -1025,78 +914,19 @@ export default function App() {
     setSidebarSearch('')
   }
 
-  const fetchAnalysesFromServer = useCallback(async () => {
-    if (!user || !token) return
+  useEffect(() => {
     try {
-      const res = await fetch(`${API_BASE}/analyses`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      if (res.ok) {
-        const list = await res.json()
-        const entries: AnalysisEntry[] = (Array.isArray(list) ? list : []).map((r: { id: string; date: string; analysis: string; preview?: string; currentConditions?: string; concernedConditions?: string; userDescription?: string }) => ({
-          id: r.id,
-          date: r.date,
-          currentConditions: r.currentConditions ?? '',
-          concernedConditions: r.concernedConditions ?? '',
-          userDescription: r.userDescription ?? '',
-          analysis: r.analysis,
-          preview: r.preview ?? undefined,
-        }))
-        setAnalysesList(entries)
-      }
+      const raw = localStorage.getItem(analysesStorageKey())
+      const parsed = raw ? (JSON.parse(raw) as AnalysisEntry[]) : []
+      setAnalysesList(Array.isArray(parsed) ? parsed : [])
     } catch {
-      /* keep current list */
+      setAnalysesList([])
     }
-  }, [user, token])
+  }, [])
 
   useEffect(() => {
-    if (!user) return
-    const loadAnalyses = async () => {
-      if (token) {
-        try {
-          const res = await fetch(`${API_BASE}/analyses`, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-          if (res.ok) {
-            const list = await res.json()
-            const entries: AnalysisEntry[] = (Array.isArray(list) ? list : []).map((r: { id: string; date: string; analysis: string; preview?: string; currentConditions?: string; concernedConditions?: string; userDescription?: string }) => ({
-              id: r.id,
-              date: r.date,
-              currentConditions: r.currentConditions ?? '',
-              concernedConditions: r.concernedConditions ?? '',
-              userDescription: r.userDescription ?? '',
-              analysis: r.analysis,
-              preview: r.preview ?? undefined,
-            }))
-            setAnalysesList(entries)
-            return
-          }
-        } catch {
-          /* fall back to localStorage */
-        }
-      }
-      try {
-        const raw = localStorage.getItem(analysesStorageKey(user.id))
-        const parsed = raw ? (JSON.parse(raw) as AnalysisEntry[]) : []
-        setAnalysesList(Array.isArray(parsed) ? parsed : [])
-      } catch {
-        setAnalysesList([])
-      }
-    }
-    loadAnalyses()
-  }, [user, token])
-
-  useEffect(() => {
-    if (!user || !token) return
-    const onFocus = () => fetchAnalysesFromServer()
-    window.addEventListener('focus', onFocus)
-    return () => window.removeEventListener('focus', onFocus)
-  }, [user, token, fetchAnalysesFromServer])
-
-  useEffect(() => {
-    if (!user) return
-    localStorage.setItem(analysesStorageKey(user.id), JSON.stringify(analysesList))
-  }, [analysesList, user])
+    localStorage.setItem(analysesStorageKey(), JSON.stringify(analysesList))
+  }, [analysesList])
 
   const currentConditionsStr = currentConditionsList.filter((c) => c !== 'None / No current conditions').join(', ') || 'No current medical conditions'
   const concernedConditionsStr = concernedConditionsList.join(', ') || 'None specified'
@@ -1123,12 +953,6 @@ export default function App() {
 
   const deleteHistoryEntry = (e: React.MouseEvent, entry: AnalysisEntry) => {
     e.stopPropagation()
-    if (token) {
-      fetch(`${API_BASE}/analyses/${encodeURIComponent(entry.id)}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      }).catch(() => {})
-    }
     setAnalysesList((prev) => prev.filter((x) => x.id !== entry.id))
   }
 
@@ -1164,47 +988,6 @@ export default function App() {
         preview: persistentPreview,
       }
       setAnalysesList((prev) => [entry, ...prev].slice(0, 50))
-
-      if (token) {
-        const dishNameForApi = extractOneLine(nextAnalysis, 'DISH') || 'Food'
-        try {
-          const createRes = await fetch(`${API_BASE}/analyses`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              dish_name: dishNameForApi,
-              analysis: nextAnalysis,
-              preview: persistentPreview,
-              current_conditions: currentConditionsStr,
-              concerned_conditions: concernedConditionsStr,
-              user_description: userDescription.trim(),
-            }),
-          })
-          if (createRes.ok) {
-            const created = await createRes.json()
-            setAnalysesList((prev) =>
-              prev.map((e) =>
-                e.id === tempId
-                  ? {
-                      id: created.id,
-                      date: created.date,
-                      currentConditions: created.currentConditions ?? currentConditionsStr,
-                      concernedConditions: created.concernedConditions ?? concernedConditionsStr,
-                      userDescription: created.userDescription ?? userDescription.trim(),
-                      analysis: created.analysis,
-                      preview: created.preview ?? persistentPreview,
-                    }
-                  : e
-              )
-            )
-          }
-        } catch {
-          /* keep local entry with temp id; it's already in the list */
-        }
-      }
     } catch (e) {
       setAnalysisError(e instanceof Error ? e.message : 'Something went wrong.')
     } finally {
@@ -1334,12 +1117,12 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    if (!token || !user) return
+    if (view !== 'app') return
     const done = typeof localStorage !== 'undefined' && localStorage.getItem(TOUR_STORAGE_KEY)
     if (done) return
     const t = setTimeout(() => startAppTour(), 800)
     return () => clearTimeout(t)
-  }, [token, user, startAppTour])
+  }, [view, startAppTour])
 
   const downloadPDF = () => {
     if (!dishName && !analysis) return
@@ -1580,41 +1363,19 @@ export default function App() {
     doc.save(`${(dishName || 'nutrition').replace(/[^a-z0-9-_]/gi, '_')}.pdf`)
   }
 
-  if (authLoading) {
+  if (view === 'landing') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0f2f34]">
-        <div className="text-white/70">Loading...</div>
-      </div>
+      <LandingPage
+        onStart={() => setView('app')}
+        onAboutClick={() => setView('about')}
+      />
     )
   }
-
-  if (!user) {
-    if (authView === 'landing') {
-      return (
-        <LandingPage
-          onLogin={() => { setAuthTab('login'); setAuthView('auth') }}
-          onRegister={() => { setAuthTab('register'); setAuthView('auth') }}
-          onAboutClick={() => setAuthView('about')}
-        />
-      )
-    }
-    if (authView === 'about') {
-      return (
-        <AboutPage
-          onBack={() => setAuthView('landing')}
-          onLogin={() => { setAuthTab('login'); setAuthView('auth') }}
-          onRegister={() => { setAuthTab('register'); setAuthView('auth') }}
-        />
-      )
-    }
+  if (view === 'about') {
     return (
-      <LoginScreen
-        onLogin={login}
-        onRegister={register}
-        error={authError}
-        onClearError={clearAuthError}
-        defaultTab={authTab}
-        onBack={() => setAuthView('landing')}
+      <AboutPage
+        onBack={() => setView('landing')}
+        onStart={() => setView('app')}
       />
     )
   }
@@ -1631,17 +1392,6 @@ export default function App() {
           >
             New analysis
           </button>
-          {token && (
-            <button
-              type="button"
-              onClick={() => fetchAnalysesFromServer()}
-              className="p-2.5 rounded-lg text-violet-600 hover:bg-violet-100 border border-violet-200/60 flex-shrink-0"
-              title="Sync from other devices"
-              aria-label="Sync history"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-            </button>
-          )}
         </div>
         <div className="p-3">
           <input
@@ -1705,17 +1455,6 @@ export default function App() {
               >
                 New analysis
               </button>
-              {token && (
-                <button
-                  type="button"
-                  onClick={() => fetchAnalysesFromServer()}
-                  className="p-2.5 rounded-lg text-violet-600 hover:bg-violet-100 border border-violet-200/60 flex-shrink-0"
-                  title="Sync from other devices"
-                  aria-label="Sync history"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                </button>
-              )}
             </div>
             <div className="p-3">
               <input
@@ -1781,10 +1520,6 @@ export default function App() {
             <div className="flex items-center gap-2 flex-wrap min-w-0">
               <button type="button" onClick={() => startAppTour(true)} className="flex-shrink-0 px-3 py-1.5 rounded-xl text-sm font-medium text-violet-600 hover:text-violet-800 hover:bg-violet-100/80 border border-violet-200/50" title="Show app tour">
                 Take a tour
-              </button>
-              <span className="text-sm truncate max-w-[140px] sm:max-w-[200px] text-violet-700" title={user.email}>{user.email}</span>
-              <button type="button" onClick={logout} className="flex-shrink-0 px-3 py-1.5 rounded-xl text-sm font-medium text-violet-700 hover:text-violet-900 hover:bg-violet-100 border border-violet-200/60">
-                Log out
               </button>
               {analysis && (
                 <button type="button" onClick={downloadPDF} className="flex-shrink-0 flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl text-sm font-medium bg-violet-500 text-white hover:bg-violet-600" title="Download PDF">
