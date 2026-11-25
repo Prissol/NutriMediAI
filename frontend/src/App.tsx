@@ -139,6 +139,17 @@ function TakeTourButton({ onClick }: { onClick: () => void }) {
     </button>
   )
 }
+
+function DownloadAppButton({ large = false }: { large?: boolean }) {
+  const className = large
+    ? 'inline-flex items-center justify-center rounded-2xl bg-violet-500 px-6 py-3.5 text-base font-semibold text-white hover:bg-violet-600'
+    : 'inline-flex items-center justify-center rounded-full bg-violet-500 px-4 py-1.5 text-xs font-semibold text-white hover:bg-violet-600'
+  return (
+    <a href="#phone-demo" className={className}>
+      Download App
+    </a>
+  )
+}
 function LaunchSoonBadge() {
   const [open, setOpen] = useState(false)
   return (
@@ -529,6 +540,7 @@ function AboutPage({
             <button type="button" onClick={onBack} className="hover:text-violet-900 transition-colors">Home</button>
             <LaunchSoonBadge />
             <TakeTourButton onClick={onTour} />
+            <DownloadAppButton />
             <span className="text-violet-900">About</span>
           </nav>
           <div className="flex items-center gap-2">
@@ -547,6 +559,7 @@ function AboutPage({
             <button type="button" onClick={() => { onBack(); setMobileNavOpen(false) }} className="text-left py-2.5 px-3 rounded-lg text-sm font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100/60 transition-colors">Home</button>
             <div className="py-2.5 px-3" onClick={() => setMobileNavOpen(false)}><LaunchSoonBadge /></div>
             <button type="button" onClick={() => { onTour(); setMobileNavOpen(false) }} className="text-left py-2.5 px-3 rounded-lg text-sm font-medium text-violet-700 hover:bg-violet-100/60">Take a tour</button>
+            <a href="#phone-demo" className="mx-3 mt-1 inline-flex justify-center rounded-full bg-violet-500 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-600">Download App</a>
             <span className="py-2.5 px-3 text-sm font-medium text-violet-900">About</span>
           </div>
         )}
@@ -742,6 +755,7 @@ function LandingPage({
             <button type="button" onClick={onAboutClick} className="hover:text-violet-900 transition-colors">About</button>
             <LaunchSoonBadge />
             <TakeTourButton onClick={onTour} />
+            <DownloadAppButton />
           </nav>
           <div className="flex items-center gap-2">
             <button
@@ -760,6 +774,7 @@ function LandingPage({
             <button type="button" onClick={() => { onAboutClick(); setMobileNavOpen(false) }} className="text-left py-2.5 px-3 rounded-lg text-sm font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100/60 transition-colors">About</button>
             <div className="py-2.5 px-3" onClick={() => setMobileNavOpen(false)}><LaunchSoonBadge /></div>
             <button type="button" onClick={() => { onTour(); setMobileNavOpen(false) }} className="text-left py-2.5 px-3 rounded-lg text-sm font-medium text-violet-700 hover:bg-violet-100/60">Take a tour</button>
+            <a href="#phone-demo" className="mx-3 mt-1 inline-flex justify-center rounded-full bg-violet-500 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-600">Download App</a>
           </div>
         )}
       </header>
@@ -808,8 +823,9 @@ function LandingPage({
             <p className="mt-6 max-w-md text-lg leading-relaxed text-violet-700">
               A photo, a barcode, or a label. Correct the name and portion, then see calories, protein, carbs, fat, fibre, and water. The numbers are estimates.
             </p>
-            <div className="mt-8">
-              <a href="#phone-features" className="inline-block rounded-2xl border border-violet-300 px-6 py-3.5 text-center text-base font-semibold text-violet-600 hover:bg-violet-50">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <DownloadAppButton large />
+              <a href="#phone-features" className="inline-flex items-center justify-center rounded-2xl border border-violet-300 px-6 py-3.5 text-center text-base font-semibold text-violet-600 hover:bg-violet-50">
                 See the features
               </a>
             </div>
