@@ -823,10 +823,13 @@ function LandingPage({
             <p className="mt-6 max-w-md text-lg leading-relaxed text-violet-700">
               A photo, a barcode, or a label. Correct the name and portion, then see calories, protein, carbs, fat, fibre, and water. The numbers are estimates.
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <DownloadAppButton large />
               <a href="#phone-features" className="inline-flex items-center justify-center rounded-2xl border border-violet-300 px-6 py-3.5 text-center text-base font-semibold text-violet-600 hover:bg-violet-50">
-                See the features
+                Try AI Meal planner
+              </a>
+              <a href="#how-it-works" className="inline-flex items-center justify-center rounded-2xl border border-violet-300 px-6 py-3.5 text-center text-base font-semibold text-violet-600 hover:bg-violet-50">
+                Try AI Meal scanner
               </a>
             </div>
             <div className="mt-10 grid max-w-md grid-cols-3 gap-3">
@@ -917,20 +920,45 @@ function LandingPage({
         </div>
       </section>
 
-      <section id="how-it-works" className="border-y border-violet-100 bg-white py-16">
+      <section id="how-it-works" className="border-y border-violet-100 bg-[#F8F3F9] py-16">
         <div className="mx-auto max-w-6xl px-4 md:px-8">
           <h2 className="text-center text-3xl font-semibold tracking-tight text-violet-950 md:text-4xl">How it works</h2>
-          <p className="mx-auto mt-3 max-w-lg text-center text-violet-600">Three steps. You stay in charge of what gets logged.</p>
-          <div className="mt-10 grid gap-8 md:grid-cols-3">
+          <p className="mx-auto mt-3 max-w-lg text-center text-violet-600">Three steps on the phone. You stay in charge of what gets logged.</p>
+          <div className="mt-12 flex flex-col items-center gap-6 md:flex-row md:items-start md:justify-center md:gap-2">
             {[
-              { n: '1', title: 'Photograph', body: 'Use the scanner for a plate, a barcode, or a food label.' },
-              { n: '2', title: 'Correct', body: 'Change the name and portion before anything is saved. The numbers are estimates.' },
-              { n: '3', title: 'See the day', body: 'Calories left, macros, fibre, water, and the plates you logged.' },
-            ].map((step) => (
-              <div key={step.n} className="text-center">
-                <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-violet-500 text-lg font-semibold text-white">{step.n}</span>
-                <h3 className="mt-4 text-xl font-semibold text-violet-950">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-violet-600">{step.body}</p>
+              {
+                n: '1',
+                title: 'Photograph',
+                body: 'Open the scanner and take a photo of the plate, a barcode, or a label.',
+                img: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=600&q=80',
+                ring: '#925DA8',
+              },
+              {
+                n: '2',
+                title: 'Correct',
+                body: 'Change the name and portion before it is saved. The numbers are estimates.',
+                img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
+                ring: '#D97706',
+              },
+              {
+                n: '3',
+                title: 'See the day',
+                body: 'Calories left, macros, fibre, water, and the plates you logged.',
+                img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80',
+                ring: '#6E917C',
+              },
+            ].map((step, index) => (
+              <div key={step.n} className="flex flex-col items-center md:flex-row md:items-start">
+                <div className="w-[220px] text-center">
+                  <div className="mx-auto h-36 w-36 overflow-hidden rounded-full border-[8px] bg-white shadow-lg" style={{ borderColor: step.ring }}>
+                    <img src={step.img} alt="" className="h-full w-full object-cover" />
+                  </div>
+                  <h3 className="mt-5 text-xl font-semibold text-violet-950">{step.n}. {step.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-violet-600">{step.body}</p>
+                </div>
+                {index < 2 && (
+                  <span className="my-1 rotate-90 text-2xl text-violet-400 md:mx-3 md:mt-14 md:rotate-0" aria-hidden>→</span>
+                )}
               </div>
             ))}
           </div>
@@ -961,10 +989,35 @@ function LandingPage({
         </div>
       </section>
 
-      <section className="bg-white py-20">
-        <div className="mx-auto max-w-2xl px-4 text-center">
-          <h2 className="text-3xl font-semibold tracking-tight text-violet-950 md:text-5xl">Start with one meal.</h2>
-          <p className="mt-4 text-lg text-violet-600">On the phone, photograph it, correct the portion, and see it on today’s chart.</p>
+      <section
+        className="relative py-16"
+        style={{
+          backgroundImage: "linear-gradient(0deg, rgba(146,93,168,0.5), rgba(248,243,249,0.6)), url('https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=2000&q=80')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="max-w-6xl mx-auto px-4 md:px-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-semibold text-white" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3)' }}>Your everyday health navigator.</h2>
+          <p className="mt-4 text-white font-medium" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.5)' }}>
+            Built to meet your body and brain where they are. Then helps you level up.
+          </p>
+          <div className="mt-10 grid gap-6 md:grid-cols-3 text-left">
+            {[
+              { title: 'Condition‑aware guidance', text: 'Recommendations tailored to current and monitored conditions.' },
+              { title: 'Macro + micro breakdowns', text: 'Calories, protein, carbs, fat, fiber, sugar, sodium, vitamins.' },
+              { title: 'Smart alternatives', text: 'Safer swaps and portion guidance for your goals.' },
+            ].map((tile, idx) => (
+              <div key={tile.title} className="rounded-2xl border border-white/40 bg-white/70 p-6 shadow-lg shadow-violet-200/20 backdrop-blur-sm">
+                <div className="text-violet-600 font-semibold text-lg">{idx + 1}</div>
+                <div className="mt-2 text-violet-900 font-semibold">{tile.title}</div>
+                <div className="mt-2 text-violet-900 text-sm">{tile.text}</div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 flex justify-center">
+            <DownloadAppButton large />
+          </div>
         </div>
       </section>
 
