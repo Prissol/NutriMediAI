@@ -613,6 +613,12 @@ function AboutPage({
   )
 }
 
+const HERO_IMAGES = [
+  'https://images.pexels.com/photos/4910312/pexels-photo-4910312.jpeg?auto=compress&cs=tinysrgb&w=2000&q=80',
+  'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=2000&q=80',
+  'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=2000&q=80',
+]
+
 function LandingPage({
   onStart,
   onAboutClick,
@@ -620,7 +626,12 @@ function LandingPage({
   onStart: () => void
   onAboutClick: () => void
 }) {
+  const [heroSlide, setHeroSlide] = useState(0)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  useEffect(() => {
+    const t = setInterval(() => setHeroSlide((s) => (s + 1) % HERO_IMAGES.length), 5500)
+    return () => clearInterval(t)
+  }, [])
   return (
     <div className="min-h-screen bg-[#F8F3F9] text-violet-900">
       <header className="sticky top-0 z-[9999] bg-[#F8F3F9]/90 backdrop-blur-md border-b border-violet-200/50">
@@ -655,13 +666,54 @@ function LandingPage({
         )}
       </header>
 
+      <section className="relative min-h-[85vh] flex items-center overflow-hidden">
+        {HERO_IMAGES.map((src, i) => (
+          <div
+            key={src}
+            className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
+            style={{
+              backgroundImage: `url('${src}')`,
+              opacity: i === heroSlide ? 1 : 0,
+              zIndex: i === heroSlide ? 1 : 0,
+            }}
+            aria-hidden={i !== heroSlide}
+          />
+        ))}
+        <div
+          className="absolute inset-0 z-10"
+          style={{ background: 'linear-gradient(0deg, rgba(146,93,168,0.55) 0%, rgba(146,93,168,0.25) 50%, rgba(248,243,249,0.4) 100%)' }}
+        />
+        <div className="relative z-20 max-w-6xl mx-auto px-4 md:px-8 py-20 text-center w-full">
+          <h1 className="text-4xl md:text-6xl font-semibold leading-tight text-white drop-shadow-md" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3)' }}>Take control of your health</h1>
+          <p className="mt-4 text-lg text-white font-medium" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.5)' }}>Smarter nutrition. Made personal.</p>
+          <button
+            type="button"
+            onClick={onStart}
+            className="mt-8 px-6 py-3 rounded-full bg-violet-500 text-white font-semibold hover:bg-violet-600"
+          >
+            Get started free
+          </button>
+          <div className="flex justify-center gap-2 mt-10">
+            {HERO_IMAGES.map((src, i) => (
+              <button
+                key={src}
+                type="button"
+                onClick={() => setHeroSlide(i)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${i === heroSlide ? 'w-6 bg-violet-400' : 'w-1.5 bg-violet-300/50 hover:bg-violet-300'}`}
+                aria-label={`Slide ${i + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="bg-white">
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 md:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:py-20">
           <div>
-            <h1 className="text-5xl font-semibold leading-[1.05] tracking-tight text-violet-950 md:text-6xl">
+            <h2 className="text-5xl font-semibold leading-[1.05] tracking-tight text-violet-950 md:text-6xl">
               Photograph the meal.
               <span className="mt-2 block text-violet-500">See the day.</span>
-            </h1>
+            </h2>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-violet-700">
               A photo, a barcode, or a label. Correct the name and portion, then see calories, protein, carbs, fat, fibre, and water. The numbers are estimates.
             </p>
