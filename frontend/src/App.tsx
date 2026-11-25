@@ -736,45 +736,93 @@ function LandingPage({
 
       <section className="py-16 border-y border-violet-200/50 bg-white/40 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-4 md:px-8">
-          <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-500">The phone app</p>
-            <h3 className="mt-2 text-3xl font-semibold tracking-tight text-violet-900">What you can do on your phone</h3>
-            <p className="mt-3 text-violet-600">
-              Three things sit on the home screen. Everything else stays in More, ready when you need it. The numbers come from what you log.
+          <div className="grid items-center gap-10 lg:grid-cols-[240px_1fr]">
+            <div className="mx-auto w-[220px]">
+              <div className="rounded-[2rem] border border-violet-200 bg-white p-2.5 shadow-xl shadow-violet-200/40">
+                <div className="rounded-[1.6rem] bg-[#F8F3F9] px-3.5 pb-3.5 pt-3">
+                  <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-violet-200" />
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-violet-500">Sample</p>
+                  <p className="mt-1 text-[28px] font-semibold leading-none text-violet-900">1,160</p>
+                  <p className="mt-1 text-[11px] text-violet-500">kcal left</p>
+                  <div className="mt-4 flex items-end justify-between gap-2">
+                    {[
+                      { name: 'Protein', h: '72%', c: '#925DA8' },
+                      { name: 'Carbs', h: '54%', c: '#D97706' },
+                      { name: 'Fat', h: '38%', c: '#E58B7A' },
+                      { name: 'Fibre', h: '26%', c: '#6E917C' },
+                    ].map((bar) => (
+                      <div key={bar.name} className="flex flex-1 flex-col items-center">
+                        <span className="flex h-16 w-full items-end overflow-hidden rounded-full bg-white">
+                          <span className="block w-full rounded-full" style={{ height: bar.h, background: bar.c }} />
+                        </span>
+                        <span className="mt-1.5 text-[9px] font-medium text-violet-500">{bar.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3">
+                    <div className="mb-1 flex justify-between text-[10px] text-violet-500">
+                      <span>Water</span>
+                      <span>Goal</span>
+                    </div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-white">
+                      <div className="h-full w-2/5 rounded-full bg-[#38BDF8]" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p className="mt-3 text-center text-[11px] text-violet-500">A sample of the home chart</p>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-500">The phone app</p>
+              <h3 className="mt-2 text-3xl font-semibold tracking-tight text-violet-900">What you can do on your phone</h3>
+              <p className="mt-3 max-w-xl text-violet-600">
+                Three things sit on the home screen. Everything else stays in More. The numbers come from what you log.
+              </p>
+              <ol className="mt-6 space-y-3">
+                {[
+                  { n: '01', title: 'See the day at a glance', body: 'Calories still open, with protein, carbs, fat, fibre, and water. Logged plates sit under the chart.' },
+                  { n: '02', title: 'Add a meal from a photo', body: 'Photograph a plate, barcode, or label. Correct the name and portion before it is saved. The numbers are estimates.' },
+                  { n: '03', title: 'Plan meals and see the week', body: 'A meal plan from breakfast through snack, plus weekly and monthly charts from what you logged.' },
+                ].map((step) => (
+                  <li key={step.n} className="flex gap-4 rounded-2xl border border-violet-200/50 bg-white/80 p-4 shadow-sm">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-violet-500 text-sm font-semibold text-white">{step.n}</span>
+                    <span>
+                      <span className="block font-semibold text-violet-900">{step.title}</span>
+                      <span className="mt-1 block text-sm leading-relaxed text-violet-600">{step.body}</span>
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+
+          <div className="mt-12">
+            <h4 className="text-sm font-semibold uppercase tracking-[0.14em] text-violet-500">Also in the app</h4>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                { title: 'Water', body: 'Glasses toward today’s goal.', tint: '#E0F2FE', mark: '#0284C7' },
+                { title: 'Fitness', body: 'Weight, movement, and your streak.', tint: '#FEF3C7', mark: '#D97706' },
+                { title: 'Health', body: 'Notes and files you keep. Nothing is diagnosed.', tint: '#FCE7F3', mark: '#DB2777' },
+                { title: 'Reminders', body: 'Meals, water, and medication.', tint: '#FFE4E6', mark: '#E11D48' },
+                { title: 'Grocery', body: 'A list taken from the meal plan.', tint: '#FFEDD5', mark: '#EA580C' },
+                { title: 'Pantry', body: 'A weekly bottle photo. An upper estimate, not a lab reading.', tint: '#D1FAE5', mark: '#059669' },
+              ].map((item) => (
+                <div key={item.title} className="flex items-start gap-3 rounded-2xl border border-violet-200/40 bg-white/80 px-4 py-3.5">
+                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" style={{ background: item.tint }}>
+                    <span className="h-2.5 w-2.5 rounded-full" style={{ background: item.mark }} />
+                  </span>
+                  <span>
+                    <span className="block text-sm font-semibold text-violet-900">{item.title}</span>
+                    <span className="mt-0.5 block text-sm leading-relaxed text-violet-600">{item.body}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 rounded-2xl border border-violet-200/50 bg-violet-50/70 px-4 py-3 text-sm leading-relaxed text-violet-700">
+              The assistant answers from what you logged today. It cannot prescribe or change a medicine.
             </p>
           </div>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {[
-              { label: 'Home', title: 'See the day at a glance', body: 'Calories still open, with protein, carbs, fat, fibre, and water. The plates you logged sit under the chart.' },
-              { label: 'Scanner', title: 'Add a meal from a photo', body: 'Photograph a plate, barcode, or label. Correct the name and portion before it is saved. The numbers are estimates.' },
-              { label: 'Plan', title: 'Plan meals and see the week', body: 'A meal plan from breakfast through snack, plus weekly and monthly charts built only from what you logged.' },
-            ].map((item) => (
-              <article key={item.label} className="rounded-2xl border border-violet-200/50 bg-white/70 p-6 text-left shadow-lg shadow-violet-200/20">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-violet-500">{item.label}</p>
-                <h4 className="mt-2 text-lg font-semibold text-violet-900">{item.title}</h4>
-                <p className="mt-2 text-sm leading-relaxed text-violet-600">{item.body}</p>
-              </article>
-            ))}
-          </div>
-          <h4 className="mt-10 text-sm font-semibold uppercase tracking-[0.14em] text-violet-500">Also in the app</h4>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              { title: 'Water', body: 'Glasses toward the goal you set for today.' },
-              { title: 'Fitness', body: 'Weight, movement minutes, and your streak.' },
-              { title: 'Health', body: 'Notes, medicine, and files you keep. Nothing is diagnosed.' },
-              { title: 'Reminders', body: 'Meals, water, and medication, kept on this phone.' },
-              { title: 'Grocery', body: 'A shopping list taken from the meal plan.' },
-              { title: 'Pantry', body: 'One bottle photo a week. An upper estimate, not a lab reading.' },
-            ].map((item) => (
-              <div key={item.title} className="rounded-xl border border-violet-200/40 bg-violet-50/50 px-4 py-3 text-left">
-                <p className="text-sm font-semibold text-violet-900">{item.title}</p>
-                <p className="mt-1 text-sm leading-relaxed text-violet-600">{item.body}</p>
-              </div>
-            ))}
-          </div>
-          <p className="mt-6 max-w-3xl text-sm leading-relaxed text-violet-600">
-            The assistant answers from what you logged today. It cannot prescribe or change a medicine.
-          </p>
         </div>
       </section>
 
