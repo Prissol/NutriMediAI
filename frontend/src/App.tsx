@@ -708,28 +708,73 @@ function LandingPage({
         </div>
       </section>
 
-      <section className="py-16">
-        <div className="max-w-6xl mx-auto px-4 md:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-semibold text-violet-900">
-            We focus on what fuels you. <br /> Not just the calories.
-          </h2>
-          <p className="mt-4 text-violet-600">
-            We turn everyday food decisions into clear, personalized guidance.
-          </p>
-          <p className="mt-4 text-violet-500 text-sm">
-            Backed by science. Powered by AI. Built for you.
-          </p>
-          <div className="mt-10 grid gap-8 md:grid-cols-3">
-            {[
-              { title: 'Track your nutrition to optimize your health.', body: 'All macros + micros, in one clear snapshot.' },
-              { title: 'Snap and go. AI does the rest.', body: 'Real-time photo analysis with clinical context.' },
-              { title: 'See measurable progress that sticks.', body: 'Daily insights that move your goals forward.' },
-            ].map((item) => (
-              <div key={item.title} className="rounded-2xl border border-violet-200/50 bg-white/50 backdrop-blur-sm p-6 text-left shadow-lg shadow-violet-200/20">
-                <div className="text-sm font-semibold text-violet-900">{item.title}</div>
-                <div className="text-sm text-violet-600 mt-2">{item.body}</div>
+      <section className="py-20">
+        <div className="max-w-6xl mx-auto px-4 md:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-500">How it helps</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-violet-900 md:text-5xl md:leading-[1.1]">
+              We focus on what fuels you.
+              <br />
+              Not just the calories.
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-violet-600">
+              We turn everyday food decisions into clear, personalized guidance.
+            </p>
+          </div>
+          <div className="mt-12 grid gap-5 md:grid-cols-3">
+            <article className="overflow-hidden rounded-3xl border border-violet-200/50 bg-white shadow-lg shadow-violet-200/20">
+              <div className="bg-[#F8F3F9] px-5 pb-5 pt-6">
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { name: 'Protein', c: '#925DA8' },
+                    { name: 'Carbs', c: '#D97706' },
+                    { name: 'Fat', c: '#E58B7A' },
+                    { name: 'Fibre', c: '#6E917C' },
+                  ].map((item) => (
+                    <div key={item.name} className="rounded-2xl bg-white px-1.5 py-3 text-center">
+                      <span className="mx-auto block h-2.5 w-2.5 rounded-full" style={{ background: item.c }} />
+                      <span className="mt-2 block text-[10px] font-medium text-violet-500">{item.name}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
+              <div className="p-5 text-left">
+                <h3 className="text-lg font-semibold text-violet-900">Track what fuels you</h3>
+                <p className="mt-2 text-sm leading-relaxed text-violet-600">Macros and the rest of the picture, together in one clear snapshot.</p>
+              </div>
+            </article>
+
+            <article className="overflow-hidden rounded-3xl border border-violet-200/50 bg-white shadow-lg shadow-violet-200/20">
+              <div className="flex items-center justify-center bg-[#F4F0F8] px-5 py-6">
+                <div className="relative h-24 w-28 rounded-2xl border-2 border-violet-300/80 bg-white">
+                  <span className="absolute left-2 top-2 h-3 w-3 border-l-2 border-t-2 border-violet-500" />
+                  <span className="absolute right-2 top-2 h-3 w-3 border-r-2 border-t-2 border-violet-500" />
+                  <span className="absolute bottom-2 left-2 h-3 w-3 border-b-2 border-l-2 border-violet-500" />
+                  <span className="absolute bottom-2 right-2 h-3 w-3 border-b-2 border-r-2 border-violet-500" />
+                  <span className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-violet-500" />
+                </div>
+              </div>
+              <div className="p-5 text-left">
+                <h3 className="text-lg font-semibold text-violet-900">Snap, then correct it</h3>
+                <p className="mt-2 text-sm leading-relaxed text-violet-600">Photograph the meal. The reading is an estimate you can edit before it is saved.</p>
+              </div>
+            </article>
+
+            <article className="overflow-hidden rounded-3xl border border-violet-200/50 bg-white shadow-lg shadow-violet-200/20">
+              <div className="bg-[#F8F3F9] px-5 pb-5 pt-6">
+                <div className="flex h-24 items-end justify-between gap-2">
+                  {['28%', '40%', '36%', '52%', '48%', '70%', '84%'].map((height, index) => (
+                    <span key={height + index} className="flex flex-1 flex-col items-center justify-end">
+                      <span className="block w-full rounded-t-lg bg-violet-500" style={{ height }} />
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="p-5 text-left">
+                <h3 className="text-lg font-semibold text-violet-900">See the week take shape</h3>
+                <p className="mt-2 text-sm leading-relaxed text-violet-600">Daily insight, then a week and a month built only from what you logged.</p>
+              </div>
+            </article>
           </div>
         </div>
       </section>
