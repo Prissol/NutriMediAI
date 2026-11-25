@@ -734,19 +734,47 @@ function LandingPage({
         </div>
       </section>
 
-      <section className="py-12 border-y border-violet-200/50 bg-white/40 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 md:px-8 text-center">
-          <h3 className="text-2xl font-semibold text-violet-900">As Featured In</h3>
-          <p className="text-violet-600 text-sm mt-2">
-            Leading publications recognize NutriMedAI&apos;s AI‑powered nutrition guidance.
-          </p>
-          <div className="mt-8 grid grid-cols-2 md:grid-cols-5 gap-4 text-violet-600">
-            {['The Times', 'Google', 'House of Lords', 'Healthline', 'Lifehacker'].map((logo) => (
-              <div key={logo} className="rounded-xl border border-violet-200/50 bg-violet-50/60 py-3">
-                {logo}
+      <section className="py-16 border-y border-violet-200/50 bg-white/40 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-4 md:px-8">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-500">The phone app</p>
+            <h3 className="mt-2 text-3xl font-semibold tracking-tight text-violet-900">What you can do on your phone</h3>
+            <p className="mt-3 text-violet-600">
+              Three things sit on the home screen. Everything else stays in More, ready when you need it. The numbers come from what you log.
+            </p>
+          </div>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {[
+              { label: 'Home', title: 'See the day at a glance', body: 'Calories still open, with protein, carbs, fat, fibre, and water. The plates you logged sit under the chart.' },
+              { label: 'Scanner', title: 'Add a meal from a photo', body: 'Photograph a plate, barcode, or label. Correct the name and portion before it is saved. The numbers are estimates.' },
+              { label: 'Plan', title: 'Plan meals and see the week', body: 'A meal plan from breakfast through snack, plus weekly and monthly charts built only from what you logged.' },
+            ].map((item) => (
+              <article key={item.label} className="rounded-2xl border border-violet-200/50 bg-white/70 p-6 text-left shadow-lg shadow-violet-200/20">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-violet-500">{item.label}</p>
+                <h4 className="mt-2 text-lg font-semibold text-violet-900">{item.title}</h4>
+                <p className="mt-2 text-sm leading-relaxed text-violet-600">{item.body}</p>
+              </article>
+            ))}
+          </div>
+          <h4 className="mt-10 text-sm font-semibold uppercase tracking-[0.14em] text-violet-500">Also in the app</h4>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { title: 'Water', body: 'Glasses toward the goal you set for today.' },
+              { title: 'Fitness', body: 'Weight, movement minutes, and your streak.' },
+              { title: 'Health', body: 'Notes, medicine, and files you keep. Nothing is diagnosed.' },
+              { title: 'Reminders', body: 'Meals, water, and medication, kept on this phone.' },
+              { title: 'Grocery', body: 'A shopping list taken from the meal plan.' },
+              { title: 'Pantry', body: 'One bottle photo a week. An upper estimate, not a lab reading.' },
+            ].map((item) => (
+              <div key={item.title} className="rounded-xl border border-violet-200/40 bg-violet-50/50 px-4 py-3 text-left">
+                <p className="text-sm font-semibold text-violet-900">{item.title}</p>
+                <p className="mt-1 text-sm leading-relaxed text-violet-600">{item.body}</p>
               </div>
             ))}
           </div>
+          <p className="mt-6 max-w-3xl text-sm leading-relaxed text-violet-600">
+            The assistant answers from what you logged today. It cannot prescribe or change a medicine.
+          </p>
         </div>
       </section>
 
