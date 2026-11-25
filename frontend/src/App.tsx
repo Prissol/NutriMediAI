@@ -110,9 +110,9 @@ function Logo({ className }: { className?: string }) {
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" aria-hidden="true" className="w-full h-full block">
         <defs>
           <linearGradient id="logoNGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-            <stop offset="0%" stopColor="#5b21b6" />
-            <stop offset="50%" stopColor="#8b5cf6" />
-            <stop offset="100%" stopColor="#a78bfa" />
+            <stop offset="0%" stopColor="#4E315B" />
+            <stop offset="50%" stopColor="#925DA8" />
+            <stop offset="100%" stopColor="#B888C6" />
           </linearGradient>
         </defs>
         {/* N: left vertical, diagonal, right vertical — stroke so the letter reads clearly */}
@@ -515,7 +515,7 @@ function LoginScreen({
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f5f3ff] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8F3F9] px-4">
       <div className="w-full max-w-sm rounded-2xl border border-violet-200/60 bg-white/50 backdrop-blur-xl p-6 shadow-lg shadow-violet-200/30">
         <button type="button" onClick={onBack} className="text-xs text-violet-500 hover:text-violet-800 mb-4">
           ← Back to home
@@ -612,8 +612,8 @@ function AboutPage({
   ]
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   return (
-    <div className="min-h-screen bg-[#f5f3ff] text-violet-900">
-      <header className="sticky top-0 z-[9999] bg-[#f5f3ff]/90 backdrop-blur-md border-b border-violet-200/50">
+    <div className="min-h-screen bg-[#F8F3F9] text-violet-900">
+      <header className="sticky top-0 z-[9999] bg-[#F8F3F9]/90 backdrop-blur-md border-b border-violet-200/50">
         <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Logo className="h-9 w-9" />
@@ -638,7 +638,7 @@ function AboutPage({
           </div>
         </div>
         {mobileNavOpen && (
-          <div className="md:hidden border-t border-violet-200/50 bg-[#f5f3ff]/98 backdrop-blur-md px-4 py-3 flex flex-col gap-1">
+          <div className="md:hidden border-t border-violet-200/50 bg-[#F8F3F9]/98 backdrop-blur-md px-4 py-3 flex flex-col gap-1">
             <button type="button" onClick={() => { onBack(); setMobileNavOpen(false) }} className="text-left py-2.5 px-3 rounded-lg text-sm font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100/60 transition-colors">Home</button>
             <div className="py-2.5 px-3" onClick={() => setMobileNavOpen(false)}><LaunchSoonBadge /></div>
             <span className="py-2.5 px-3 text-sm font-medium text-violet-900">About</span>
@@ -742,8 +742,8 @@ function LandingPage({
     return () => clearInterval(t)
   }, [])
   return (
-    <div className="min-h-screen bg-[#f5f3ff] text-violet-900">
-      <header className="sticky top-0 z-[9999] bg-[#f5f3ff]/90 backdrop-blur-md border-b border-violet-200/50">
+    <div className="min-h-screen bg-[#F8F3F9] text-violet-900">
+      <header className="sticky top-0 z-[9999] bg-[#F8F3F9]/90 backdrop-blur-md border-b border-violet-200/50">
         <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Logo className="h-9 w-9" />
@@ -768,7 +768,7 @@ function LandingPage({
           </div>
         </div>
         {mobileNavOpen && (
-          <div className="md:hidden border-t border-violet-200/50 bg-[#f5f3ff]/98 backdrop-blur-md px-4 py-3 flex flex-col gap-1">
+          <div className="md:hidden border-t border-violet-200/50 bg-[#F8F3F9]/98 backdrop-blur-md px-4 py-3 flex flex-col gap-1">
             <button type="button" className="text-left py-2.5 px-3 rounded-lg text-sm font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100/60 transition-colors">Home</button>
             <button type="button" onClick={() => { onAboutClick(); setMobileNavOpen(false) }} className="text-left py-2.5 px-3 rounded-lg text-sm font-medium text-violet-600 hover:text-violet-900 hover:bg-violet-100/60 transition-colors">About</button>
             <div className="py-2.5 px-3" onClick={() => setMobileNavOpen(false)}><LaunchSoonBadge /></div>
@@ -791,7 +791,7 @@ function LandingPage({
         ))}
         <div
           className="absolute inset-0 z-10"
-          style={{ background: 'linear-gradient(0deg, rgba(139,92,246,0.55) 0%, rgba(139,92,246,0.25) 50%, rgba(245,243,255,0.4) 100%)' }}
+          style={{ background: 'linear-gradient(0deg, rgba(146,93,168,0.55) 0%, rgba(146,93,168,0.25) 50%, rgba(248,243,249,0.4) 100%)' }}
         />
         <div className="relative z-20 max-w-6xl mx-auto px-4 md:px-8 py-20 text-center w-full">
           <h1 className="text-4xl md:text-6xl font-semibold leading-tight text-white drop-shadow-md" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3)' }}>Take control of your health</h1>
@@ -862,7 +862,7 @@ function LandingPage({
       <section
         className="relative py-16"
         style={{
-          backgroundImage: "linear-gradient(0deg, rgba(139,92,246,0.5), rgba(245,243,255,0.6)), url('https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=2000&q=80')",
+          backgroundImage: "linear-gradient(0deg, rgba(146,93,168,0.5), rgba(248,243,249,0.6)), url('https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=2000&q=80')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -1278,7 +1278,7 @@ export default function App() {
       doneBtnText: 'Got it',
       progressText: 'Step {{current}} of {{total}}',
       popoverClass: 'nutrimedai-tour',
-      overlayColor: 'rgb(76, 29, 149)',
+      overlayColor: 'rgb(62, 37, 71)',
       overlayOpacity: 0.42,
       animate: true,
       smoothScroll: true,
@@ -1621,8 +1621,8 @@ export default function App() {
 
   const isLightResultView = !!analysis
   return (
-    <div className={`min-h-screen flex ${isLightResultView ? 'bg-[#f5f3ff] text-violet-900' : 'bg-[#f5f3ff] text-violet-900'}`}>
-      <aside id="tour-history" className="hidden md:flex w-[290px] shrink-0 border-r flex-col border-violet-200/50 bg-[#f5f3ff]">
+    <div className={`min-h-screen flex ${isLightResultView ? 'bg-[#F8F3F9] text-violet-900' : 'bg-[#F8F3F9] text-violet-900'}`}>
+      <aside id="tour-history" className="hidden md:flex w-[290px] shrink-0 border-r flex-col border-violet-200/50 bg-[#F8F3F9]">
         <div className="p-3 border-b border-violet-200/50 flex gap-2">
           <button
             type="button"
@@ -1690,7 +1690,7 @@ export default function App() {
       {mobileSidebarOpen && (
         <>
           <div className="fixed inset-0 z-[10000] bg-black/40 md:hidden" aria-hidden onClick={() => setMobileSidebarOpen(false)} />
-          <aside className="fixed top-0 left-0 bottom-0 z-[10001] w-[min(320px,85vw)] flex flex-col border-r border-violet-200/50 bg-[#f5f3ff] shadow-xl md:hidden">
+          <aside className="fixed top-0 left-0 bottom-0 z-[10001] w-[min(320px,85vw)] flex flex-col border-r border-violet-200/50 bg-[#F8F3F9] shadow-xl md:hidden">
             <div className="p-3 border-b border-violet-200/50 flex items-center justify-between">
               <span className="text-sm font-semibold text-violet-900">Recent history</span>
               <button type="button" onClick={() => setMobileSidebarOpen(false)} className="p-2 rounded-lg text-violet-600 hover:bg-violet-100" aria-label="Close">
@@ -1763,7 +1763,7 @@ export default function App() {
       )}
 
       <div className="flex-1 min-w-0 flex flex-col">
-        <header className="sticky top-0 z-[9999] border-b border-violet-200/50 bg-[#f5f3ff]/95 backdrop-blur-md">
+        <header className="sticky top-0 z-[9999] border-b border-violet-200/50 bg-[#F8F3F9]/95 backdrop-blur-md">
           <div className="max-w-7xl mx-auto px-4 md:px-8 py-2 min-h-14 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div id="tour-welcome" className="flex items-center gap-2 flex-shrink-0">
               <button
@@ -1796,7 +1796,7 @@ export default function App() {
           </div>
         </header>
 
-        <main className={`max-w-7xl mx-auto px-4 md:px-8 w-full ${isLightResultView ? 'bg-[#f5f3ff] py-4 space-y-4' : 'py-8 space-y-6'}`}>
+        <main className={`max-w-7xl mx-auto px-4 md:px-8 w-full ${isLightResultView ? 'bg-[#F8F3F9] py-4 space-y-4' : 'py-8 space-y-6'}`}>
           {!analysis && (
           <section id="tour-profile" className="rounded-2xl p-4 md:p-6 border border-violet-200/50 bg-white/50 backdrop-blur-xl shadow-lg shadow-violet-200/20">
             <div className="flex items-center justify-between gap-3 mb-5">

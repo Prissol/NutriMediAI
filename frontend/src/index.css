@@ -4,18 +4,18 @@
 
 :root {
   /* Light glass transparent lavender */
-  --bg-page: linear-gradient(165deg, #f5f3ff 0%, #ede9fe 30%, #e9e5ff 60%, #f5f3ff 100%);
-  --bg-lavender: #f5f3ff;
+  --bg-page: linear-gradient(165deg, #F8F3F9 0%, #F3EAF6 30%, #EDE3F4 60%, #F8F3F9 100%);
+  --bg-lavender: #F8F3F9;
   --bg-glass: rgba(255, 255, 255, 0.55);
-  --bg-glass-lavender: rgba(237, 233, 254, 0.5);
+  --bg-glass-lavender: rgba(243, 234, 246, 0.5);
   --bg-glass-strong: rgba(255, 255, 255, 0.75);
-  --border-glass: rgba(196, 181, 253, 0.4);
-  --border-glass-hover: rgba(139, 92, 246, 0.3);
-  --text-primary: #4c1d95;
-  --text-secondary: #5b21b6;
-  --text-muted: #6d28d9;
-  --accent: #8b5cf6;
-  --accent-glow: rgba(139, 92, 246, 0.25);
+  --border-glass: rgba(212, 182, 222, 0.4);
+  --border-glass-hover: rgba(146, 93, 168, 0.3);
+  --text-primary: #3C2547;
+  --text-secondary: #4E315B;
+  --text-muted: #784C8A;
+  --accent: #925DA8;
+  --accent-glow: rgba(146, 93, 168, 0.25);
   /* Metric cards – soft lavender tint */
   --glass-orange: rgba(251, 146, 60, 0.3);
   --glass-pink: rgba(236, 72, 153, 0.3);
@@ -23,7 +23,7 @@
   --glass-blue: rgba(96, 165, 250, 0.35);
   --glass-green: rgba(34, 197, 94, 0.35);
   --glass-teal: rgba(45, 212, 191, 0.35);
-  --glass-purple: rgba(192, 132, 252, 0.45);
+  --glass-purple: rgba(184, 136, 198, 0.45);
 }
 
 * {
@@ -56,7 +56,7 @@ body {
   -webkit-backdrop-filter: blur(20px);
   border-radius: 1.25rem;
   border: 1px solid var(--border-glass);
-  box-shadow: 0 4px 24px rgba(139, 92, 246, 0.08);
+  box-shadow: 0 4px 24px rgba(146, 93, 168, 0.08);
 }
 
 /* Liquid Glass card – frosted on light silver */
@@ -76,7 +76,7 @@ body {
 .metric-fat { background: var(--glass-blue); border: 1px solid rgba(96, 165, 250, 0.5); }
 .metric-fiber { background: var(--glass-green); border: 1px solid rgba(34, 197, 94, 0.5); }
 .metric-sugar { background: var(--glass-teal); border: 1px solid rgba(45, 212, 191, 0.5); }
-.metric-sodium { background: var(--glass-purple); border: 1px solid rgba(192, 132, 252, 0.5); }
+.metric-sodium { background: var(--glass-purple); border: 1px solid rgba(184, 136, 198, 0.5); }
 
 /* Glass form controls */
 .glass-input {
@@ -97,9 +97,9 @@ body {
 
 /* Scrollbar – lavender theme */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: rgba(139, 92, 246, 0.06); border-radius: 3px; }
-::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.25); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(139, 92, 246, 0.4); }
+::-webkit-scrollbar-track { background: rgba(146, 93, 168, 0.06); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(146, 93, 168, 0.25); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(146, 93, 168, 0.4); }
 
 /* Animations */
 @keyframes fade-in-up {
@@ -442,10 +442,10 @@ body {
 
 /* ----- App tour (driver.js) – NutriMedAI lavender theme ----- */
 .driver-popover.nutrimedai-tour {
-  background: linear-gradient(165deg, #ffffff 0%, #faf5ff 100%);
+  background: linear-gradient(165deg, #ffffff 0%, #F8F3F9 100%);
   border: 1px solid var(--border-glass);
   border-radius: 1.25rem;
-  box-shadow: 0 8px 32px rgba(76, 29, 149, 0.12), 0 2px 8px rgba(139, 92, 246, 0.08);
+  box-shadow: 0 8px 32px rgba(62, 37, 71, 0.12), 0 2px 8px rgba(146, 93, 168, 0.08);
   padding: 1.25rem 1.5rem;
   min-width: 280px;
   max-width: 340px;
@@ -508,20 +508,20 @@ body {
 
 .driver-popover.nutrimedai-tour .driver-popover-prev-btn:hover,
 .driver-popover.nutrimedai-tour .driver-popover-prev-btn:focus {
-  background: rgba(139, 92, 246, 0.08);
-  border-color: rgba(139, 92, 246, 0.4);
+  background: rgba(146, 93, 168, 0.08);
+  border-color: rgba(146, 93, 168, 0.4);
   color: var(--text-primary);
 }
 
 .driver-popover.nutrimedai-tour .driver-popover-next-btn {
-  background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #784C8A 0%, #925DA8 100%);
   color: #fff;
   border: none;
 }
 
 .driver-popover.nutrimedai-tour .driver-popover-next-btn:hover,
 .driver-popover.nutrimedai-tour .driver-popover-next-btn:focus {
-  background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #633E72 0%, #784C8A 100%);
   color: #fff;
 }
 
@@ -536,23 +536,23 @@ body {
 .driver-popover.nutrimedai-tour .driver-popover-close-btn:hover,
 .driver-popover.nutrimedai-tour .driver-popover-close-btn:focus {
   color: var(--text-primary);
-  background: rgba(139, 92, 246, 0.1);
+  background: rgba(146, 93, 168, 0.1);
 }
 
 .driver-popover.nutrimedai-tour .driver-popover-arrow-side-left.driver-popover-arrow {
-  border-left-color: #faf5ff;
+  border-left-color: #F8F3F9;
 }
 
 .driver-popover.nutrimedai-tour .driver-popover-arrow-side-right.driver-popover-arrow {
-  border-right-color: #faf5ff;
+  border-right-color: #F8F3F9;
 }
 
 .driver-popover.nutrimedai-tour .driver-popover-arrow-side-top.driver-popover-arrow {
-  border-top-color: #faf5ff;
+  border-top-color: #F8F3F9;
 }
 
 .driver-popover.nutrimedai-tour .driver-popover-arrow-side-bottom.driver-popover-arrow {
-  border-bottom-color: #faf5ff;
+  border-bottom-color: #F8F3F9;
 }
 
 /* Tour: responsive on mobile */

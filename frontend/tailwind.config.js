@@ -7,12 +7,25 @@ export default {
   theme: {
     extend: {
       colors: {
+        violet: {
+          50: '#F8F3F9',
+          100: '#F3EAF6',
+          200: '#E6D4ED',
+          300: '#D4B6DE',
+          400: '#B888C6',
+          500: '#925DA8',
+          600: '#784C8A',
+          700: '#633E72',
+          800: '#4E315B',
+          900: '#3C2547',
+          950: '#2A1833',
+        },
         purple: {
-          glass: 'rgba(139, 92, 246, 0.12)',
-          tint: 'rgba(167, 139, 250, 0.25)',
-          border: 'rgba(139, 92, 246, 0.35)',
-          accent: '#8b5cf6',
-          dark: '#6d28d9',
+          glass: 'rgba(146, 93, 168, 0.12)',
+          tint: 'rgba(184, 136, 198, 0.25)',
+          border: 'rgba(146, 93, 168, 0.35)',
+          accent: '#925DA8',
+          dark: '#784C8A',
         },
       },
       backdropBlur: {
@@ -26,8 +39,8 @@ export default {
         'ios-lg': '1.25rem',
       },
       boxShadow: {
-        'glass': '0 8px 32px rgba(139, 92, 246, 0.08)',
-        'glass-hover': '0 12px 40px rgba(139, 92, 246, 0.12)',
+        'glass': '0 8px 32px rgba(146, 93, 168, 0.08)',
+        'glass-hover': '0 12px 40px rgba(146, 93, 168, 0.12)',
       },
     },
   },
