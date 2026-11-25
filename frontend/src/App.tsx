@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react'
 import { jsPDF } from 'jspdf'
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
@@ -613,6 +613,43 @@ function AboutPage({
   )
 }
 
+const APP_SHOTS = {
+  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+  breakfast: 'https://images.unsplash.com/photo-1495214783159-3503fd1b572d?auto=format&fit=crop&w=600&q=80',
+  salad: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80',
+  pasta: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=600&q=80',
+}
+
+function DemoPhone({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return (
+    <div className={`w-[250px] shrink-0 rounded-[2.7rem] bg-zinc-950 p-[9px] shadow-2xl shadow-violet-300/40 ${className}`}>
+      <div className="relative aspect-[9/19.2] overflow-hidden rounded-[2.05rem] bg-[#F4F0FA]">
+        <div className="absolute left-1/2 top-1.5 z-10 h-[18px] w-[84px] -translate-x-1/2 rounded-full bg-zinc-950" />
+        {children}
+        <div className="pointer-events-none absolute bottom-1.5 left-1/2 z-10 h-1 w-24 -translate-x-1/2 rounded-full bg-zinc-950/70" />
+      </div>
+    </div>
+  )
+}
+
+function DemoNav({ scan = false }: { scan?: boolean }) {
+  return (
+    <div className="absolute inset-x-2 bottom-4 z-10 flex items-end justify-between rounded-2xl bg-white px-3 pb-1.5 pt-1 shadow-md">
+      <span className="flex flex-1 flex-col items-center gap-0.5 text-[8px] font-semibold text-violet-500">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#925DA8" strokeWidth="1.8"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5z" /></svg>
+        Home
+      </span>
+      <span className="-mt-5 flex h-10 w-10 items-center justify-center rounded-full bg-violet-500 text-white shadow-lg">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><path d="M7 4H5a1 1 0 0 0-1 1v2M17 4h2a1 1 0 0 1 1 1v2M7 20H5a1 1 0 0 1-1-1v-2M17 20h2a1 1 0 0 0 1-1v-2M8 12h8" strokeLinecap="round" /></svg>
+      </span>
+      <span className={`flex flex-1 flex-col items-center gap-0.5 text-[8px] font-semibold ${scan ? 'text-violet-500' : 'text-violet-400'}`}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={scan ? '#925DA8' : '#8B7A9E'} strokeWidth="1.8"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5" /><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5" /><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5" /><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5" /></svg>
+        More
+      </span>
+    </div>
+  )
+}
+
 const HERO_IMAGES = [
   'https://images.pexels.com/photos/4910312/pexels-photo-4910312.jpeg?auto=compress&cs=tinysrgb&w=2000&q=80',
   'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=2000&q=80',
@@ -726,47 +763,77 @@ function LandingPage({
               </a>
             </div>
           </div>
-          <div className="flex items-end justify-center gap-4">
-            <div className="w-[210px] rounded-[2rem] border-4 border-violet-950 bg-white p-2 shadow-2xl shadow-violet-200/50">
-              <div className="rounded-[1.4rem] bg-[#F8F3F9] px-3 pb-3 pt-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-violet-500">Sample</p>
-                <p className="mt-1 text-3xl font-semibold leading-none text-violet-950">1,160</p>
-                <p className="mt-1 text-[11px] text-violet-500">kcal left</p>
-                <div className="mt-3 flex items-end justify-between gap-1.5">
+          <div className="relative mx-auto h-[430px] w-full sm:h-[520px] lg:h-[600px]">
+          <div className="absolute left-1/2 top-0 flex origin-top -translate-x-1/2 scale-[0.68] items-start sm:scale-[0.84] lg:scale-100">
+            <DemoPhone>
+              <div className="px-3 pb-16 pt-8 text-[#2E1064]">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[8px] text-[#6B6280]">NutriMed</p>
+                    <p className="text-[15px] font-semibold leading-none">Today</p>
+                  </div>
+                  <img src={APP_SHOTS.avatar} alt="" className="h-7 w-7 rounded-full object-cover" />
+                </div>
+                <p className="mt-3 text-center text-[16px] font-semibold leading-tight">Better habits.<br />Clearer meals.</p>
+                <div className="mt-3 overflow-hidden rounded-2xl bg-white shadow-sm">
+                  <div className="bg-[#F6F0F8] px-3 py-2.5">
+                    <p className="text-[8px] font-semibold uppercase tracking-[0.14em] text-violet-500">Sample</p>
+                    <p className="text-[13px] font-semibold">Today is still open</p>
+                  </div>
+                  <div className="px-3 pb-3 pt-2">
+                    <p className="text-[22px] font-semibold leading-none">1,160</p>
+                    <p className="mt-0.5 text-[9px] text-[#6B6280]">kcal left</p>
+                    <div className="mt-2 flex items-end justify-between gap-1.5">
+                      {[
+                        { name: 'Protein', h: '62%', c: '#925DA8' },
+                        { name: 'Carbs', h: '48%', c: '#D97706' },
+                        { name: 'Fat', h: '34%', c: '#E58B7A' },
+                        { name: 'Fibre', h: '22%', c: '#6E917C' },
+                      ].map((bar) => (
+                        <div key={bar.name} className="flex flex-1 flex-col items-center">
+                          <span className="flex h-12 w-3.5 items-end overflow-hidden rounded-full bg-[#F4F0FA]">
+                            <span className="block w-full rounded-full" style={{ height: bar.h, background: bar.c }} />
+                          </span>
+                          <span className="mt-1 text-[7px] text-[#6B6280]">{bar.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-2 h-1 overflow-hidden rounded-full bg-[#F4F0FA]">
+                      <div className="h-full w-2/5 rounded-full bg-[#38BDF8]" />
+                    </div>
+                  </div>
+                </div>
+                <p className="mt-2 text-[10px] font-semibold">Sample plates</p>
+                <div className="mt-1 grid grid-cols-3 gap-1">
+                  {[APP_SHOTS.breakfast, APP_SHOTS.salad, APP_SHOTS.pasta].map((src) => (
+                    <img key={src} src={src} alt="" className="h-12 w-full rounded-lg object-cover" />
+                  ))}
+                </div>
+              </div>
+              <DemoNav />
+            </DemoPhone>
+            <DemoPhone className="ml-[-28px] mt-10">
+              <div className="px-3 pb-16 pt-8 text-[#2E1064]">
+                <p className="text-[8px] text-[#6B6280]">NutriMed</p>
+                <p className="text-[15px] font-semibold leading-none">Plates</p>
+                <p className="mt-1 text-[9px] text-[#6B6280]">Samples. Nothing here is logged yet.</p>
+                <div className="mt-3 space-y-2">
                   {[
-                    { name: 'Protein', h: '72%', c: '#925DA8' },
-                    { name: 'Carbs', h: '54%', c: '#D97706' },
-                    { name: 'Fat', h: '38%', c: '#E58B7A' },
-                    { name: 'Fibre', h: '26%', c: '#6E917C' },
-                  ].map((bar) => (
-                    <div key={bar.name} className="flex flex-1 flex-col items-center">
-                      <span className="flex h-16 w-full items-end overflow-hidden rounded-md bg-white">
-                        <span className="block w-full rounded-t-md" style={{ height: bar.h, background: bar.c }} />
-                      </span>
-                      <span className="mt-1 text-[8px] text-violet-500">{bar.name}</span>
+                    { src: APP_SHOTS.breakfast, name: 'Breakfast' },
+                    { src: APP_SHOTS.salad, name: 'Lunch' },
+                    { src: APP_SHOTS.pasta, name: 'Dinner' },
+                  ].map((plate) => (
+                    <div key={plate.name}>
+                      <img src={plate.src} alt="" className="h-[92px] w-full rounded-2xl object-cover" />
+                      <p className="mt-1 text-[11px] font-semibold">{plate.name}</p>
+                      <p className="text-[9px] text-[#6B6280]">Not logged</p>
                     </div>
                   ))}
                 </div>
-                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white">
-                  <div className="h-full w-2/5 rounded-full bg-[#38BDF8]" />
-                </div>
-                <p className="mt-1 text-[10px] text-violet-500">Water toward today’s goal</p>
               </div>
-            </div>
-            <div className="mb-8 hidden w-[190px] rounded-[2rem] border-4 border-violet-950 bg-white p-2 shadow-xl sm:block">
-              <div className="space-y-2 rounded-[1.3rem] bg-[#F8F3F9] p-2.5">
-                <p className="px-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-violet-500">Scanner</p>
-                {['Plate', 'Barcode', 'Label'].map((name) => (
-                  <div key={name} className="flex items-center gap-2 rounded-xl bg-white px-2 py-2">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-100 text-[10px] font-semibold text-violet-600">{name.slice(0, 1)}</span>
-                    <span>
-                      <span className="block text-xs font-semibold text-violet-900">{name}</span>
-                      <span className="block text-[10px] text-violet-500">Edit before saving</span>
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+              <DemoNav />
+            </DemoPhone>
+          </div>
           </div>
         </div>
       </section>
