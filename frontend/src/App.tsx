@@ -613,13 +613,6 @@ function AboutPage({
   )
 }
 
-// Hero: first slide = someone photographing food to analyze; others = food variety
-const HERO_IMAGES = [
-  'https://images.pexels.com/photos/4910312/pexels-photo-4910312.jpeg?auto=compress&cs=tinysrgb&w=2000&q=80',
-  'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=2000&q=80',
-  'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=2000&q=80',
-]
-
 function LandingPage({
   onStart,
   onAboutClick,
@@ -627,12 +620,7 @@ function LandingPage({
   onStart: () => void
   onAboutClick: () => void
 }) {
-  const [heroSlide, setHeroSlide] = useState(0)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
-  useEffect(() => {
-    const t = setInterval(() => setHeroSlide((s) => (s + 1) % HERO_IMAGES.length), 5500)
-    return () => clearInterval(t)
-  }, [])
   return (
     <div className="min-h-screen bg-[#F8F3F9] text-violet-900">
       <header className="sticky top-0 z-[9999] bg-[#F8F3F9]/90 backdrop-blur-md border-b border-violet-200/50">
@@ -667,242 +655,120 @@ function LandingPage({
         )}
       </header>
 
-      <section className="relative min-h-[85vh] flex items-center overflow-hidden">
-        {HERO_IMAGES.map((src, i) => (
-          <div
-            key={i}
-            className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
-            style={{
-              backgroundImage: `url('${src}')`,
-              opacity: i === heroSlide ? 1 : 0,
-              zIndex: i === heroSlide ? 1 : 0,
-            }}
-            aria-hidden={i !== heroSlide}
-          />
-        ))}
-        <div
-          className="absolute inset-0 z-10"
-          style={{ background: 'linear-gradient(0deg, rgba(146,93,168,0.55) 0%, rgba(146,93,168,0.25) 50%, rgba(248,243,249,0.4) 100%)' }}
-        />
-        <div className="relative z-20 max-w-6xl mx-auto px-4 md:px-8 py-20 text-center w-full">
-          <h1 className="text-4xl md:text-6xl font-semibold leading-tight text-white drop-shadow-md" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3)' }}>Take control of your health</h1>
-          <p className="mt-4 text-lg text-white font-medium" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.5)' }}>Smarter nutrition. Made personal.</p>
-          <button
-            type="button"
-            onClick={onStart}
-            className="mt-8 px-6 py-3 rounded-full bg-violet-500 text-white font-semibold hover:bg-violet-600"
-          >
-            Get started free
-          </button>
-          <div className="flex justify-center gap-2 mt-10">
-            {HERO_IMAGES.map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setHeroSlide(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${i === heroSlide ? 'w-6 bg-violet-400' : 'w-1.5 bg-violet-300/50 hover:bg-violet-300'}`}
-                aria-label={`Slide ${i + 1}`}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20">
-        <div className="max-w-6xl mx-auto px-4 md:px-8">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-500">How it helps</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-violet-900 md:text-5xl md:leading-[1.1]">
-              We focus on what fuels you.
-              <br />
-              Not just the calories.
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-violet-600">
-              We turn everyday food decisions into clear, personalized guidance.
+      <section className="bg-white">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 md:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:py-20">
+          <div>
+            <h1 className="text-5xl font-semibold leading-[1.05] tracking-tight text-violet-950 md:text-6xl">
+              Photograph the meal.
+              <span className="mt-2 block text-violet-500">See the day.</span>
+            </h1>
+            <p className="mt-6 max-w-md text-lg leading-relaxed text-violet-700">
+              A photo, a barcode, or a label. Correct the name and portion, then see calories, protein, carbs, fat, fibre, and water. The numbers are estimates.
             </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <button type="button" onClick={onStart} className="rounded-2xl bg-violet-500 px-6 py-3.5 text-base font-semibold text-white hover:bg-violet-600">
+                Get started
+              </button>
+              <a href="#phone-features" className="rounded-2xl border border-violet-300 px-6 py-3.5 text-center text-base font-semibold text-violet-600 hover:bg-violet-50">
+                See the features
+              </a>
+            </div>
           </div>
-          <div className="mt-12 grid gap-5 md:grid-cols-3">
-            <article className="overflow-hidden rounded-3xl border border-violet-200/50 bg-white shadow-lg shadow-violet-200/20">
-              <div className="bg-[#F8F3F9] px-5 pb-5 pt-6">
-                <div className="grid grid-cols-4 gap-2">
+          <div className="flex items-end justify-center gap-4">
+            <div className="w-[210px] rounded-[2rem] border-4 border-violet-950 bg-white p-2 shadow-2xl shadow-violet-200/50">
+              <div className="rounded-[1.4rem] bg-[#F8F3F9] px-3 pb-3 pt-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-violet-500">Sample</p>
+                <p className="mt-1 text-3xl font-semibold leading-none text-violet-950">1,160</p>
+                <p className="mt-1 text-[11px] text-violet-500">kcal left</p>
+                <div className="mt-3 flex items-end justify-between gap-1.5">
                   {[
-                    { name: 'Protein', c: '#925DA8' },
-                    { name: 'Carbs', c: '#D97706' },
-                    { name: 'Fat', c: '#E58B7A' },
-                    { name: 'Fibre', c: '#6E917C' },
-                  ].map((item) => (
-                    <div key={item.name} className="rounded-2xl bg-white px-1.5 py-3 text-center">
-                      <span className="mx-auto block h-2.5 w-2.5 rounded-full" style={{ background: item.c }} />
-                      <span className="mt-2 block text-[10px] font-medium text-violet-500">{item.name}</span>
+                    { name: 'Protein', h: '72%', c: '#925DA8' },
+                    { name: 'Carbs', h: '54%', c: '#D97706' },
+                    { name: 'Fat', h: '38%', c: '#E58B7A' },
+                    { name: 'Fibre', h: '26%', c: '#6E917C' },
+                  ].map((bar) => (
+                    <div key={bar.name} className="flex flex-1 flex-col items-center">
+                      <span className="flex h-16 w-full items-end overflow-hidden rounded-md bg-white">
+                        <span className="block w-full rounded-t-md" style={{ height: bar.h, background: bar.c }} />
+                      </span>
+                      <span className="mt-1 text-[8px] text-violet-500">{bar.name}</span>
                     </div>
                   ))}
                 </div>
-              </div>
-              <div className="p-5 text-left">
-                <h3 className="text-lg font-semibold text-violet-900">Track what fuels you</h3>
-                <p className="mt-2 text-sm leading-relaxed text-violet-600">Macros and the rest of the picture, together in one clear snapshot.</p>
-              </div>
-            </article>
-
-            <article className="overflow-hidden rounded-3xl border border-violet-200/50 bg-white shadow-lg shadow-violet-200/20">
-              <div className="flex items-center justify-center bg-[#F4F0F8] px-5 py-6">
-                <div className="relative h-24 w-28 rounded-2xl border-2 border-violet-300/80 bg-white">
-                  <span className="absolute left-2 top-2 h-3 w-3 border-l-2 border-t-2 border-violet-500" />
-                  <span className="absolute right-2 top-2 h-3 w-3 border-r-2 border-t-2 border-violet-500" />
-                  <span className="absolute bottom-2 left-2 h-3 w-3 border-b-2 border-l-2 border-violet-500" />
-                  <span className="absolute bottom-2 right-2 h-3 w-3 border-b-2 border-r-2 border-violet-500" />
-                  <span className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-violet-500" />
+                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white">
+                  <div className="h-full w-2/5 rounded-full bg-[#38BDF8]" />
                 </div>
+                <p className="mt-1 text-[10px] text-violet-500">Water toward today’s goal</p>
               </div>
-              <div className="p-5 text-left">
-                <h3 className="text-lg font-semibold text-violet-900">Snap, then correct it</h3>
-                <p className="mt-2 text-sm leading-relaxed text-violet-600">Photograph the meal. The reading is an estimate you can edit before it is saved.</p>
-              </div>
-            </article>
-
-            <article className="overflow-hidden rounded-3xl border border-violet-200/50 bg-white shadow-lg shadow-violet-200/20">
-              <div className="bg-[#F8F3F9] px-5 pb-5 pt-6">
-                <div className="flex h-24 items-end justify-between gap-2">
-                  {['28%', '40%', '36%', '52%', '48%', '70%', '84%'].map((height, index) => (
-                    <span key={height + index} className="flex flex-1 flex-col items-center justify-end">
-                      <span className="block w-full rounded-t-lg bg-violet-500" style={{ height }} />
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="p-5 text-left">
-                <h3 className="text-lg font-semibold text-violet-900">See the week take shape</h3>
-                <p className="mt-2 text-sm leading-relaxed text-violet-600">Daily insight, then a week and a month built only from what you logged.</p>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16 border-y border-violet-200/50 bg-white/40 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 md:px-8">
-          <div className="grid items-center gap-10 lg:grid-cols-[240px_1fr]">
-            <div className="mx-auto w-[220px]">
-              <div className="rounded-[2rem] border border-violet-200 bg-white p-2.5 shadow-xl shadow-violet-200/40">
-                <div className="rounded-[1.6rem] bg-[#F8F3F9] px-3.5 pb-3.5 pt-3">
-                  <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-violet-200" />
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-violet-500">Sample</p>
-                  <p className="mt-1 text-[28px] font-semibold leading-none text-violet-900">1,160</p>
-                  <p className="mt-1 text-[11px] text-violet-500">kcal left</p>
-                  <div className="mt-4 flex items-end justify-between gap-2">
-                    {[
-                      { name: 'Protein', h: '72%', c: '#925DA8' },
-                      { name: 'Carbs', h: '54%', c: '#D97706' },
-                      { name: 'Fat', h: '38%', c: '#E58B7A' },
-                      { name: 'Fibre', h: '26%', c: '#6E917C' },
-                    ].map((bar) => (
-                      <div key={bar.name} className="flex flex-1 flex-col items-center">
-                        <span className="flex h-16 w-full items-end overflow-hidden rounded-full bg-white">
-                          <span className="block w-full rounded-full" style={{ height: bar.h, background: bar.c }} />
-                        </span>
-                        <span className="mt-1.5 text-[9px] font-medium text-violet-500">{bar.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-3">
-                    <div className="mb-1 flex justify-between text-[10px] text-violet-500">
-                      <span>Water</span>
-                      <span>Goal</span>
-                    </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-white">
-                      <div className="h-full w-2/5 rounded-full bg-[#38BDF8]" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <p className="mt-3 text-center text-[11px] text-violet-500">A sample of the home chart</p>
             </div>
-
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-500">The phone app</p>
-              <h3 className="mt-2 text-3xl font-semibold tracking-tight text-violet-900">What you can do on your phone</h3>
-              <p className="mt-3 max-w-xl text-violet-600">
-                Three things sit on the home screen. Everything else stays in More. The numbers come from what you log.
-              </p>
-              <ol className="mt-6 space-y-3">
-                {[
-                  { n: '01', title: 'See the day at a glance', body: 'Calories still open, with protein, carbs, fat, fibre, and water. Logged plates sit under the chart.' },
-                  { n: '02', title: 'Add a meal from a photo', body: 'Photograph a plate, barcode, or label. Correct the name and portion before it is saved. The numbers are estimates.' },
-                  { n: '03', title: 'Plan meals and see the week', body: 'A meal plan from breakfast through snack, plus weekly and monthly charts from what you logged.' },
-                ].map((step) => (
-                  <li key={step.n} className="flex gap-4 rounded-2xl border border-violet-200/50 bg-white/80 p-4 shadow-sm">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-violet-500 text-sm font-semibold text-white">{step.n}</span>
+            <div className="mb-8 hidden w-[190px] rounded-[2rem] border-4 border-violet-950 bg-white p-2 shadow-xl sm:block">
+              <div className="space-y-2 rounded-[1.3rem] bg-[#F8F3F9] p-2.5">
+                <p className="px-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-violet-500">Scanner</p>
+                {['Plate', 'Barcode', 'Label'].map((name) => (
+                  <div key={name} className="flex items-center gap-2 rounded-xl bg-white px-2 py-2">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-100 text-[10px] font-semibold text-violet-600">{name.slice(0, 1)}</span>
                     <span>
-                      <span className="block font-semibold text-violet-900">{step.title}</span>
-                      <span className="mt-1 block text-sm leading-relaxed text-violet-600">{step.body}</span>
+                      <span className="block text-xs font-semibold text-violet-900">{name}</span>
+                      <span className="block text-[10px] text-violet-500">Edit before saving</span>
                     </span>
-                  </li>
+                  </div>
                 ))}
-              </ol>
+              </div>
             </div>
-          </div>
-
-          <div className="mt-12">
-            <h4 className="text-sm font-semibold uppercase tracking-[0.14em] text-violet-500">Also in the app</h4>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {[
-                { title: 'Water', body: 'Glasses toward today’s goal.', tint: '#E0F2FE', mark: '#0284C7' },
-                { title: 'Fitness', body: 'Weight, movement, and your streak.', tint: '#FEF3C7', mark: '#D97706' },
-                { title: 'Health', body: 'Notes and files you keep. Nothing is diagnosed.', tint: '#FCE7F3', mark: '#DB2777' },
-                { title: 'Reminders', body: 'Meals, water, and medication.', tint: '#FFE4E6', mark: '#E11D48' },
-                { title: 'Grocery', body: 'A list taken from the meal plan.', tint: '#FFEDD5', mark: '#EA580C' },
-                { title: 'Pantry', body: 'A weekly bottle photo. An upper estimate, not a lab reading.', tint: '#D1FAE5', mark: '#059669' },
-              ].map((item) => (
-                <div key={item.title} className="flex items-start gap-3 rounded-2xl border border-violet-200/40 bg-white/80 px-4 py-3.5">
-                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" style={{ background: item.tint }}>
-                    <span className="h-2.5 w-2.5 rounded-full" style={{ background: item.mark }} />
-                  </span>
-                  <span>
-                    <span className="block text-sm font-semibold text-violet-900">{item.title}</span>
-                    <span className="mt-0.5 block text-sm leading-relaxed text-violet-600">{item.body}</span>
-                  </span>
-                </div>
-              ))}
-            </div>
-            <p className="mt-4 rounded-2xl border border-violet-200/50 bg-violet-50/70 px-4 py-3 text-sm leading-relaxed text-violet-700">
-              The assistant answers from what you logged today. It cannot prescribe or change a medicine.
-            </p>
           </div>
         </div>
       </section>
 
-      <section
-        className="relative py-16"
-        style={{
-          backgroundImage: "linear-gradient(0deg, rgba(146,93,168,0.5), rgba(248,243,249,0.6)), url('https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=2000&q=80')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      >
-        <div className="max-w-6xl mx-auto px-4 md:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-semibold text-white" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3)' }}>Your everyday health navigator.</h2>
-          <p className="mt-4 text-white font-medium" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.5)' }}>
-            Built to meet your body and brain where they are. Then helps you level up.
-          </p>
-          <div className="mt-10 grid gap-6 md:grid-cols-3 text-left">
+      <section className="border-y border-violet-100 bg-white py-16">
+        <div className="mx-auto max-w-6xl px-4 md:px-8">
+          <h2 className="text-center text-3xl font-semibold tracking-tight text-violet-950 md:text-4xl">How it works</h2>
+          <p className="mx-auto mt-3 max-w-lg text-center text-violet-600">Three steps. You stay in charge of what gets logged.</p>
+          <div className="mt-10 grid gap-8 md:grid-cols-3">
             {[
-              { title: 'Condition‑aware guidance', text: 'Recommendations tailored to current and monitored conditions.' },
-              { title: 'Macro + micro breakdowns', text: 'Calories, protein, carbs, fat, fiber, sugar, sodium, vitamins.' },
-              { title: 'Smart alternatives', text: 'Safer swaps and portion guidance for your goals.' },
-            ].map((tile, idx) => (
-              <div key={tile.title} className="rounded-2xl border border-violet-200/50 bg-white/70 backdrop-blur-sm p-6 shadow-lg shadow-violet-200/20">
-                <div className="text-violet-600 font-semibold text-lg">{idx + 1}</div>
-                <div className="mt-2 text-violet-900 font-semibold">{tile.title}</div>
-                <div className="mt-2 text-violet-900 text-sm">{tile.text}</div>
+              { n: '1', title: 'Photograph', body: 'Use the scanner for a plate, a barcode, or a food label.' },
+              { n: '2', title: 'Correct', body: 'Change the name and portion before anything is saved. The numbers are estimates.' },
+              { n: '3', title: 'See the day', body: 'Calories left, macros, fibre, water, and the plates you logged.' },
+            ].map((step) => (
+              <div key={step.n} className="text-center">
+                <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-violet-500 text-lg font-semibold text-white">{step.n}</span>
+                <h3 className="mt-4 text-xl font-semibold text-violet-950">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-violet-600">{step.body}</p>
               </div>
             ))}
           </div>
-          <button
-            type="button"
-            onClick={onStart}
-            className="mt-8 px-6 py-3 rounded-full bg-violet-500 text-white font-semibold hover:bg-violet-600"
-          >
-            Download Now
+        </div>
+      </section>
+
+      <section id="phone-features" className="bg-[#F8F3F9] py-16">
+        <div className="mx-auto max-w-6xl px-4 md:px-8">
+          <h2 className="text-center text-3xl font-semibold tracking-tight text-violet-950 md:text-4xl">What the phone app includes</h2>
+          <p className="mx-auto mt-3 max-w-xl text-center text-violet-600">Only what the app actually does. Charts use what you logged, not a guess.</p>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { title: 'Today’s chart', body: 'Calories left, protein, carbs, fat, fibre, and water on the home screen.' },
+              { title: 'Meal scanner', body: 'Photo, barcode, or label. You correct it before it is added.' },
+              { title: 'Meal plan', body: 'Breakfast through snack, with a grocery list from that plan.' },
+              { title: 'Progress', body: 'Weekly and monthly charts built only from logged meals.' },
+              { title: 'Water and fitness', body: 'Glasses toward today’s goal, plus weight, movement, and a streak.' },
+              { title: 'Health and reminders', body: 'Notes, medicine, and files you keep. Nothing is diagnosed. Reminders stay on the phone.' },
+              { title: 'Pantry', body: 'One bottle photo a week. An upper estimate, not a lab reading.' },
+              { title: 'Assistant', body: 'Answers from what you logged today. It cannot prescribe or change a medicine.' },
+            ].map((item) => (
+              <article key={item.title} className="rounded-2xl border border-violet-100 bg-white p-5 text-left shadow-sm">
+                <h3 className="text-base font-semibold text-violet-950">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-violet-600">{item.body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-20">
+        <div className="mx-auto max-w-2xl px-4 text-center">
+          <h2 className="text-3xl font-semibold tracking-tight text-violet-950 md:text-5xl">Start with one meal.</h2>
+          <p className="mt-4 text-lg text-violet-600">Photograph it, correct the portion, and see it on today’s chart. No account needed.</p>
+          <button type="button" onClick={onStart} className="mt-8 rounded-2xl bg-violet-500 px-6 py-3.5 text-base font-semibold text-white hover:bg-violet-600">
+            Get started
           </button>
         </div>
       </section>
