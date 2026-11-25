@@ -823,14 +823,16 @@ function LandingPage({
             <p className="mt-6 max-w-md text-lg leading-relaxed text-violet-700">
               A photo, a barcode, or a label. Correct the name and portion, then see calories, protein, carbs, fat, fibre, and water. The numbers are estimates.
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <div className="mt-8 flex w-full max-w-md flex-col items-center gap-3">
               <DownloadAppButton large />
-              <a href="#phone-features" className="inline-flex items-center justify-center rounded-2xl border border-violet-300 px-6 py-3.5 text-center text-base font-semibold text-violet-600 hover:bg-violet-50">
-                Try AI Meal planner
-              </a>
-              <a href="#how-it-works" className="inline-flex items-center justify-center rounded-2xl border border-violet-300 px-6 py-3.5 text-center text-base font-semibold text-violet-600 hover:bg-violet-50">
-                Try AI Meal scanner
-              </a>
+              <div className="grid w-full grid-cols-2 gap-3">
+                <a href="#phone-features" className="inline-flex items-center justify-center rounded-2xl border border-violet-300 px-4 py-3.5 text-center text-sm font-semibold text-violet-600 hover:bg-violet-50">
+                  Try AI Meal planner
+                </a>
+                <a href="#how-it-works" className="inline-flex items-center justify-center rounded-2xl border border-violet-300 px-4 py-3.5 text-center text-sm font-semibold text-violet-600 hover:bg-violet-50">
+                  Try AI Meal scanner
+                </a>
+              </div>
             </div>
             <div className="mt-10 grid max-w-md grid-cols-3 gap-3">
               {[
@@ -969,20 +971,121 @@ function LandingPage({
         <div className="mx-auto max-w-6xl px-4 md:px-8">
           <h2 className="text-center text-3xl font-semibold tracking-tight text-violet-950 md:text-4xl">What the phone app includes</h2>
           <p className="mx-auto mt-3 max-w-xl text-center text-violet-600">Only what the app actually does. Charts use what you logged, not a guess.</p>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { title: 'Today’s chart', body: 'Calories left, protein, carbs, fat, fibre, and water on the home screen.' },
-              { title: 'Meal scanner', body: 'Photo, barcode, or label. You correct it before it is added.' },
-              { title: 'Meal plan', body: 'Breakfast through snack, with a grocery list from that plan.' },
-              { title: 'Progress', body: 'Weekly and monthly charts built only from logged meals.' },
-              { title: 'Water and fitness', body: 'Glasses toward today’s goal, plus weight, movement, and a streak.' },
-              { title: 'Health and reminders', body: 'Notes, medicine, and files you keep. Nothing is diagnosed. Reminders stay on the phone.' },
-              { title: 'Pantry', body: 'One bottle photo a week. An upper estimate, not a lab reading.' },
-              { title: 'Assistant', body: 'Answers from what you logged today. It cannot prescribe or change a medicine.' },
+              {
+                title: 'Today’s chart',
+                body: 'Calories left, protein, carbs, fat, fibre, and water on the home screen.',
+                visual: (
+                  <div className="flex h-16 items-end justify-center gap-2">
+                    {[
+                      { h: '78%', c: '#925DA8' },
+                      { h: '58%', c: '#D97706' },
+                      { h: '40%', c: '#E58B7A' },
+                      { h: '28%', c: '#6E917C' },
+                    ].map((bar) => (
+                      <span key={bar.c} className="flex h-full w-3 items-end overflow-hidden rounded-full bg-white">
+                        <span className="block w-full rounded-full" style={{ height: bar.h, background: bar.c }} />
+                      </span>
+                    ))}
+                  </div>
+                ),
+              },
+              {
+                title: 'Meal scanner',
+                body: 'Photo, barcode, or label. You correct it before it is added.',
+                visual: (
+                  <div className="relative mx-auto h-16 w-16 rounded-2xl border-2 border-violet-300 bg-white">
+                    <span className="absolute left-1.5 top-1.5 h-2.5 w-2.5 border-l-2 border-t-2 border-violet-500" />
+                    <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 border-r-2 border-t-2 border-violet-500" />
+                    <span className="absolute bottom-1.5 left-1.5 h-2.5 w-2.5 border-b-2 border-l-2 border-violet-500" />
+                    <span className="absolute bottom-1.5 right-1.5 h-2.5 w-2.5 border-b-2 border-r-2 border-violet-500" />
+                    <span className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-violet-500" />
+                  </div>
+                ),
+              },
+              {
+                title: 'Meal plan',
+                body: 'Breakfast through snack, with a grocery list from that plan.',
+                visual: (
+                  <div className="mx-auto flex w-24 flex-col gap-1.5">
+                    {['#925DA8', '#D97706', '#E58B7A', '#6E917C'].map((color) => (
+                      <span key={color} className="flex items-center gap-1.5">
+                        <span className="h-2 w-2 rounded-full" style={{ background: color }} />
+                        <span className="h-1.5 flex-1 rounded-full bg-white" />
+                      </span>
+                    ))}
+                  </div>
+                ),
+              },
+              {
+                title: 'Progress',
+                body: 'Weekly and monthly charts built only from logged meals.',
+                visual: (
+                  <div className="mx-auto flex h-16 w-28 items-end justify-between gap-1">
+                    {['32%', '48%', '40%', '62%', '55%', '74%', '88%'].map((height) => (
+                      <span key={height} className="block flex-1 rounded-t-md bg-violet-500" style={{ height }} />
+                    ))}
+                  </div>
+                ),
+              },
+              {
+                title: 'Water and fitness',
+                body: 'Glasses toward today’s goal, plus weight, movement, and a streak.',
+                visual: (
+                  <div className="mx-auto w-28">
+                    <div className="h-2 overflow-hidden rounded-full bg-white">
+                      <div className="h-full w-2/5 rounded-full bg-[#38BDF8]" />
+                    </div>
+                    <div className="mt-3 flex justify-between">
+                      {['#925DA8', '#D97706', '#6E917C'].map((color) => (
+                        <span key={color} className="h-6 w-6 rounded-full" style={{ background: color }} />
+                      ))}
+                    </div>
+                  </div>
+                ),
+              },
+              {
+                title: 'Health and reminders',
+                body: 'Notes, medicine, and files you keep. Nothing is diagnosed. Reminders stay on the phone.',
+                visual: (
+                  <div className="mx-auto flex w-24 flex-col gap-1.5">
+                    {[70, 100, 82].map((width) => (
+                      <span key={width} className="h-2 rounded-full bg-white" style={{ width: `${width}%` }} />
+                    ))}
+                    <span className="mt-1 h-2.5 w-2.5 rounded-full bg-[#E11D48]" />
+                  </div>
+                ),
+              },
+              {
+                title: 'Pantry',
+                body: 'One bottle photo a week. An upper estimate, not a lab reading.',
+                visual: (
+                  <div className="mx-auto flex h-16 w-8 flex-col items-center">
+                    <span className="h-2 w-3 rounded-t bg-[#059669]" />
+                    <span className="w-full flex-1 overflow-hidden rounded-b-lg border-2 border-[#059669] bg-white">
+                      <span className="mt-3 block h-full bg-[#A7F3D0]" />
+                    </span>
+                  </div>
+                ),
+              },
+              {
+                title: 'Assistant',
+                body: 'Answers from what you logged today. It cannot prescribe or change a medicine.',
+                visual: (
+                  <div className="mx-auto w-24 rounded-2xl rounded-bl-sm bg-white px-2 py-2">
+                    <span className="block h-1.5 w-16 rounded-full bg-violet-200" />
+                    <span className="mt-1.5 block h-1.5 w-10 rounded-full bg-violet-100" />
+                  </div>
+                ),
+              },
             ].map((item) => (
-              <article key={item.title} className="rounded-2xl border border-violet-100 bg-white p-5 text-left shadow-sm">
-                <h3 className="text-base font-semibold text-violet-950">{item.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-violet-600">{item.body}</p>
+              <article key={item.title} className="overflow-hidden rounded-3xl border border-violet-100 bg-white text-left shadow-sm">
+                <div className="flex h-24 items-center justify-center bg-[#F6F0F8] px-4">{item.visual}</div>
+                <div className="p-4">
+                  <h3 className="text-base font-semibold text-violet-950">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-violet-600">{item.body}</p>
+                </div>
               </article>
             ))}
           </div>
